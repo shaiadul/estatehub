@@ -38,6 +38,7 @@ import { PROPERTIES, PropertyData } from "@/lib/properties-data"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { PropertiesMap } from "@/components/map/properties-map"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export default function PropertiesPage() {
   const router = useRouter()
@@ -114,9 +115,7 @@ export default function PropertiesPage() {
       <Header />
 
       <main className="flex-1 pt-20">
-        {/* Breadcrumb & Header Section */}
-        <section className="w-full bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs">
-          <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-12 py-6">
+        <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-6">
             {/* Breadcrumb Trail */}
             <nav className="flex items-center gap-2 text-xs text-on-surface-variant mb-3">
               <Link href="/" className="hover:text-on-surface transition-colors flex items-center gap-1">
@@ -241,11 +240,9 @@ export default function PropertiesPage() {
                 Clear All
               </button>
             </div>
-          </div>
-        </section>
+        </SectionWrapper>
 
-        {/* Master Viewport (Filters & Listings Left, Interactive Map Right) */}
-        <div className="max-w-360 mx-auto w-full px-4 sm:px-6 lg:px-12 py-8">
+        <SectionWrapper className="py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: Filter Panel & Listings */}
             <div className={`${showMap ? "lg:col-span-7 xl:col-span-7" : "lg:col-span-12"} flex flex-col gap-6 w-full`}>
@@ -546,7 +543,7 @@ export default function PropertiesPage() {
               </div>
             )}
           </div>
-        </div>
+        </SectionWrapper>
       </main>
 
       <Footer />

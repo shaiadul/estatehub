@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function BrokerSpotlight() {
   const brokers = [
@@ -50,7 +51,7 @@ export function BrokerSpotlight() {
   ]
 
   return (
-    <section id="agents" className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-12 py-16">
+    <SectionWrapper id="agents" className="py-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <span className="text-xs text-secondary uppercase tracking-widest font-bold block mb-1">
@@ -150,6 +151,6 @@ export function BrokerSpotlight() {
           </Card>
         ))}
       </div>
-    </section>
+    </SectionWrapper>
   )
 }

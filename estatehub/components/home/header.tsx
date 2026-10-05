@@ -65,7 +65,6 @@ export function Header() {
     { name: "Closing Desk", href: "/closing", icon: IconReceipt2 },
     { name: "Sell", href: "/sell", icon: IconPlus },
     { name: "Brokers", href: "/agents", icon: IconUsers },
-    { name: "Command", href: "/dashboard", icon: IconDeviceAnalytics },
   ]
 
   const isActive = (href: string) => {
@@ -89,7 +88,7 @@ export function Header() {
         as="header"
         fullWidth
         className="fixed top-0 right-0 left-0 z-50 h-20 border-b border-outline-variant/30 bg-surface/95 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl"
-        innerClassName="flex h-full items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8"
+        innerClassName="flex h-full items-center justify-between gap-2 sm:gap-4"
       >
         <div className="flex shrink-0 items-center gap-3 sm:gap-4">
           <Link href="/" className="group flex items-center gap-2 sm:gap-2.5">
@@ -254,7 +253,7 @@ export function Header() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
                         <IconUser className="h-4 w-4 text-on-surface-variant" />
-                        <span>Command Center</span>
+                        <span>Dashboard</span>
                       </Link>
                       <Link
                         href="/vdr"
