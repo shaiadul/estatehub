@@ -18,6 +18,7 @@ import { Footer } from "@/components/home/footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 interface AgentRecord {
   id: string
@@ -132,9 +133,8 @@ export function AgentsDirectoryView() {
       <Header />
 
       <main className="w-full pt-20 flex-1">
-        {/* Breadcrumb & Hero Header */}
-        <section className="w-full bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-8">
+        <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-8">
+          <div>
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium mb-3">
               <Link href="/" className="hover:text-on-surface transition-colors">Home</Link>
               <IconChevronRight size={14} className="text-outline-variant" />
@@ -154,7 +154,6 @@ export function AgentsDirectoryView() {
                 </p>
               </div>
 
-              {/* Advisory Metrics Badge Card */}
               <div className="flex items-center gap-6 bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 shrink-0">
                 <div className="flex flex-col">
                   <span className="text-xs text-on-surface-variant font-semibold">Syndicated Volume</span>
@@ -173,13 +172,10 @@ export function AgentsDirectoryView() {
               </div>
             </div>
           </div>
-        </section>
+        </SectionWrapper>
 
-        {/* Search & Region Filter Bar */}
-        <section className="w-full bg-surface py-8 border-b border-outline-variant/20">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Region Filter Buttons */}
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
+        <SectionWrapper fullWidth className="bg-surface py-8 border-b border-outline-variant/20" innerClassName="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
               <Button
                 variant={selectedRegion === "all" ? "default" : "outline"}
                 size="sm"
@@ -224,12 +220,9 @@ export function AgentsDirectoryView() {
                 className="pl-9 h-10 text-xs rounded-xl"
               />
             </div>
-          </div>
-        </section>
+        </SectionWrapper>
 
-        {/* Agents Grid */}
-        <section className="w-full py-12">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        <SectionWrapper className="py-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {filteredAgents.map((agent) => (
                 <div
@@ -334,8 +327,7 @@ export function AgentsDirectoryView() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+        </SectionWrapper>
 
         {/* Private Consultation Modal */}
         {consultModalAgent && (

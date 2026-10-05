@@ -22,6 +22,7 @@ import {
   IconKey,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useAuth } from "@/lib/auth-context"
 
 export function Header() {
@@ -84,23 +85,25 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed top-0 right-0 left-0 z-50 h-20 border-b border-outline-variant/30 bg-surface/95 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl">
-        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8">
-          {/* Logo & Security Enclave Badge */}
-          <div className="flex shrink-0 items-center gap-3 sm:gap-4">
-            <Link href="/" className="group flex items-center gap-2 sm:gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-lg font-bold text-amber-400 shadow-xs transition-transform group-hover:scale-105">
-                E
-              </div>
-              <span className="font-heading text-lg font-extrabold tracking-tight whitespace-nowrap text-on-surface uppercase sm:text-xl">
-                Estate
-                <span className="text-amber-600 dark:text-amber-400">Hub</span>
-              </span>
-            </Link>
-          </div>
+      <SectionWrapper
+        as="header"
+        fullWidth
+        className="fixed top-0 right-0 left-0 z-50 h-20 border-b border-outline-variant/30 bg-surface/95 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl"
+        innerClassName="flex h-full items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8"
+      >
+        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <Link href="/" className="group flex items-center gap-2 sm:gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-lg font-bold text-amber-400 shadow-xs transition-transform group-hover:scale-105">
+              E
+            </div>
+            <span className="font-heading text-lg font-extrabold tracking-tight whitespace-nowrap text-on-surface uppercase sm:text-xl">
+              Estate
+              <span className="text-amber-600 dark:text-amber-400">Hub</span>
+            </span>
+          </Link>
+        </div>
 
-          {/* Desktop Navigation (visible on lg: 1024px+) */}
-          <nav className="hidden shrink-0 items-center gap-1 lg:flex xl:gap-2 2xl:gap-3">
+        <nav className="hidden shrink-0 items-center gap-1 lg:flex xl:gap-2 2xl:gap-3">
             {navLinks.map((link) => {
               const active = isActive(link.href)
               return (
@@ -305,8 +308,7 @@ export function Header() {
               {mobileMenuOpen ? <IconX size={20} /> : <IconMenu2 size={20} />}
             </Button>
           </div>
-        </div>
-      </header>
+      </SectionWrapper>
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (

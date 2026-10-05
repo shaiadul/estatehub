@@ -9,6 +9,7 @@ import {
   IconPool,
   IconFence,
 } from "@tabler/icons-react"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function AssetClasses() {
   const assetClasses = [
@@ -40,7 +41,7 @@ export function AssetClasses() {
   ]
 
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-16">
+    <SectionWrapper className="py-16">
       <div className="text-center max-w-2xl mx-auto mb-12">
         <span className="text-xs text-secondary uppercase tracking-widest font-bold block mb-1">
           Architectural Taxonomy
@@ -79,6 +80,6 @@ export function AssetClasses() {
           )
         })}
       </div>
-    </section>
+    </SectionWrapper>
   )
 }

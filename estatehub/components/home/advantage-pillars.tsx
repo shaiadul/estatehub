@@ -9,6 +9,7 @@ import {
   IconReceiptTax,
   IconChevronRight,
 } from "@tabler/icons-react"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function AdvantagePillars() {
   const pillars = [
@@ -44,11 +45,10 @@ export function AdvantagePillars() {
 
   return (
     <section className="w-full bg-primary-container text-surface py-20 relative overflow-hidden">
-      {/* Background glow effects */}
       <div className="absolute -top-40 right-10 w-96 h-96 rounded-full bg-secondary-fixed/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 left-10 w-96 h-96 rounded-full bg-surface-container-highest/10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
+      <SectionWrapper as="div" className="relative z-10">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
           <div>
             <span className="text-xs text-secondary-fixed uppercase tracking-widest font-bold block mb-1">
@@ -94,7 +94,7 @@ export function AdvantagePillars() {
             )
           })}
         </div>
-      </div>
+      </SectionWrapper>
     </section>
   )
 }

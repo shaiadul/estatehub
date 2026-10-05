@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 
@@ -183,11 +184,8 @@ export function SellPropertyWizard() {
       <Header />
 
       <main className="w-full pt-20 flex-1">
-        {/* Progress & Context Master Bar */}
-        <section className="w-full bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-5">
-            {/* Breadcrumb + Autosave meta row */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-xs">
+        <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-5">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-xs">
               <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant font-medium">
                 <Link href="/" className="hover:text-on-surface transition-colors">Home</Link>
                 <IconChevronRight size={14} className="text-outline-variant" />
@@ -311,12 +309,9 @@ export function SellPropertyWizard() {
                 })}
               </div>
             </div>
-          </div>
-        </section>
+        </SectionWrapper>
 
-        {/* Wizard Main Grid (Form Left, Live Preview Right) */}
-        <section className="w-full py-10">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        <SectionWrapper className="py-10">
             {isPublished ? (
               /* Success / Live Syndicate Tracking State */
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col items-center text-center max-w-3xl mx-auto animate-in zoom-in-95 duration-300">
@@ -954,8 +949,7 @@ export function SellPropertyWizard() {
                 </div>
               </div>
             )}
-          </div>
-        </section>
+        </SectionWrapper>
 
         {/* Save Draft Floating Toast */}
         {saveDraftToast && (

@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 interface Property {
   id: string
@@ -94,8 +95,7 @@ export function FeaturedListings() {
   }
 
   return (
-    <section id="properties" className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-16">
-      {/* Section Header */}
+    <SectionWrapper id="properties" className="py-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs text-secondary uppercase tracking-widest font-bold mb-2">
@@ -125,7 +125,6 @@ export function FeaturedListings() {
         </div>
       </div>
 
-      {/* Property Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {properties.map((prop) => {
           const isFav = !!favorites[prop.id]
@@ -134,7 +133,6 @@ export function FeaturedListings() {
               key={prop.id}
               className="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden group hover:shadow-2xl transition-all duration-300 border border-outline-variant/30 p-0 gap-0"
             >
-              {/* Image Preview & Badges */}
               <Link href={`/properties/${prop.slug}`} className="relative block w-full aspect-[16/10] overflow-hidden bg-surface-container">
                 <Image
                   src={prop.image}
@@ -145,7 +143,6 @@ export function FeaturedListings() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-primary-container/30 to-transparent" />
 
-                {/* Top Badges using Badge component */}
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <Badge variant="verified" className="text-xs font-semibold gap-1 px-3 py-1">
                     <IconRosetteDiscountCheckFilled
@@ -159,7 +156,6 @@ export function FeaturedListings() {
                   </Badge>
                 </div>
 
-                {/* Favorite Button */}
                 <Button
                   type="button"
                   variant="ghost"
@@ -179,7 +175,6 @@ export function FeaturedListings() {
                   )}
                 </Button>
 
-                {/* Price & Location Over Image */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                   <div>
                     <span className="text-[11px] text-surface-container-high uppercase tracking-wider block font-medium">
@@ -197,13 +192,11 @@ export function FeaturedListings() {
                 </div>
               </Link>
 
-              {/* Card Body */}
               <CardContent className="p-5 flex flex-col flex-1 justify-between gap-5">
                 <p className="text-xs sm:text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
                   {prop.description}
                 </p>
 
-                {/* Specifications Bar */}
                 <div className="grid grid-cols-3 gap-2 py-2.5 px-4 rounded-xl bg-surface-container-low text-center border border-outline-variant/20">
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-on-surface">{prop.beds}</span>
@@ -225,7 +218,6 @@ export function FeaturedListings() {
                   </div>
                 </div>
 
-                {/* Mortgage & Action Button */}
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex flex-col">
                     <span className="text-[11px] text-on-surface-variant font-medium">
@@ -254,6 +246,6 @@ export function FeaturedListings() {
           )
         })}
       </div>
-    </section>
+    </SectionWrapper>
   )
 }
