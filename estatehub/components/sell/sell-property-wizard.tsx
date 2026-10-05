@@ -25,6 +25,8 @@ import {
   IconBookmark,
   IconEye,
   IconUpload,
+  IconCurrencyDollar,
+  IconShieldCheck,
   IconRosetteDiscountCheckFilled,
 } from "@tabler/icons-react"
 import { Header } from "@/components/home/header"
@@ -59,6 +61,14 @@ interface FormState {
   virtualTourUrl: string
   selectedAmenities: string[]
   heroImage: string
+}
+
+const STEP_META: Record<number, { Icon: typeof IconMapPin; blurb: string }> = {
+  1: { Icon: IconMapPin, blurb: "Type, title & parcel" },
+  2: { Icon: IconBed, blurb: "Scale & finishes" },
+  3: { Icon: IconUpload, blurb: "Photos & 3D tour" },
+  4: { Icon: IconCurrencyDollar, blurb: "Price & escrow" },
+  5: { Icon: IconShieldCheck, blurb: "Verify & broadcast" },
 }
 
 export function SellPropertyWizard() {
@@ -418,7 +428,7 @@ export function SellPropertyWizard() {
                     Listing Progress
                   </span>
                   <span className="text-lg font-extrabold text-on-surface">
-                    Step {currentStep} of {steps.length} <span className="text-secondary font-bold text-sm">• {completionPercentage}%</span>
+                    Step {currentStep} of {steps.length} <span className="text-secondary font-bold text-sm">• {completionPercentage}</span>
                   </span>
                 </div>
                 <div className="relative w-12 h-12 flex items-center justify-center">
@@ -447,51 +457,113 @@ export function SellPropertyWizard() {
               </div>
             </div>
 
-            <div className="pt-6 overflow-x-auto no-scrollbar">
-              <div className="flex items-center min-w-[640px] justify-between pb-2">
+            <div className="pt-6">
+              {(() => {
+                const currentMeta = STEP_META[currentStep] ?? { Icon: IconMapPin, blurb: "" }
+                const CurrentIcon = currentMeta.Icon
+                return (
+                  <div className="sm:hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-xl flex items-center justify-center bg-secondary text-on-secondary shrink-0">
+                        <CurrentIcon size={20} />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[10px] font-mono text-on-surface-variant">
+                          STEP {currentStep} OF {steps.length}
+                        </span>
+                        <p className="text-sm font-bold text-on-surface truncate">
+                          {steps[currentStep - 1]?.name}
+                        </p>
+                      </div>
+                      <span className="text-xs font-extrabold text-secondary shrink-0">
+                        {completionPercentage}%
+                      </span>
+                    </div>
+                    <div
+                      className="mt-3 h-1.5 rounded-full bg-surface-container-high overflow-hidden"
+                      role="progressbar"
+                      aria-valuenow={completionPercentage}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label="Listing progress"
+                    >
+                      <div
+                        className="h-full rounded-full bg-secondary transition-all duration-500"
+                        style={{ width: `${completionPercentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <ol className="hidden sm:flex items-start gap-1">
                 {steps.map((st) => {
+                  const meta = STEP_META[st.num] ?? { Icon: IconCheck, blurb: "" }
+                  const StepIcon = meta.Icon
                   const isDone = st.num < currentStep
                   const isActive = st.num === currentStep
                   return (
-                    <div
+                    <li
                       key={st.num}
-                      onClick={() => setCurrentStep(st.num)}
-                      className="flex items-center gap-2.5 cursor-pointer group"
+                      className={`flex items-start min-w-0 ${st.num < steps.length ? "flex-1" : ""}`}
                     >
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                          isDone
-                            ? "bg-primary text-primary-foreground shadow-xs"
-                            : isActive
-                            ? "bg-secondary-container text-on-secondary-fixed ring-2 ring-secondary shadow-md scale-105"
-                            : "bg-surface-container text-on-surface-variant group-hover:bg-surface-container-high"
-                        }`}
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(st.num)}
+                        aria-current={isActive ? "step" : undefined}
+                        aria-label={`Go to phase ${st.num}: ${st.name}`}
+                        className="flex items-start gap-3 text-left rounded-xl p-1 -m-1 focus-visible:outline-2 focus-visible:outline-secondary group shrink-0"
                       >
-                        {isDone ? <IconCheck size={16} className="text-tertiary" /> : st.num}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] text-on-surface-variant font-mono leading-none">
-                          PHASE 0{st.num}
+                        <span className="relative shrink-0">
+                          <span
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all ${
+                              isDone
+                                ? "bg-tertiary/15 text-on-tertiary-container border-tertiary/40"
+                                : isActive
+                                ? "bg-secondary text-on-secondary border-secondary shadow-md ring-2 ring-secondary/40 scale-105"
+                                : "bg-surface-container text-on-surface-variant border-transparent group-hover:bg-surface-container-high"
+                            }`}
+                          >
+                            <StepIcon size={18} />
+                          </span>
+                          {isDone && (
+                            <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-tertiary text-primary-foreground flex items-center justify-center border-2 border-surface-container-lowest">
+                              <IconCheck size={12} />
+                            </span>
+                          )}
                         </span>
-                        <span
-                          className={`text-xs font-bold whitespace-nowrap ${
-                            isActive ? "text-on-surface" : "text-on-surface-variant"
-                          }`}
-                        >
-                          {st.name}
+                        <span className="flex flex-col pt-0.5 min-w-0">
+                          <span className={`text-[10px] font-mono leading-none ${isActive ? "text-secondary" : "text-on-surface-variant"}`}>
+                            PHASE 0{st.num}
+                          </span>
+                          <span
+                            className={`text-xs font-bold whitespace-nowrap mt-1 ${
+                              isActive ? "text-on-surface" : "text-on-surface-variant"
+                            }`}
+                          >
+                            {st.name}
+                          </span>
+                          <span className="text-[11px] text-on-surface-variant whitespace-nowrap">
+                            {meta.blurb}
+                          </span>
                         </span>
-                      </div>
+                      </button>
                       {st.num < steps.length && (
-                        <div
-                          className={`w-8 xl:w-12 h-0.5 mx-2 transition-colors ${
-                            isDone ? "bg-primary" : "bg-surface-container-high"
-                          }`}
-                        />
+                        <span
+                          aria-hidden="true"
+                          className="flex-1 h-1 mt-5 mx-2 rounded-full bg-surface-container-high overflow-hidden min-w-6"
+                        >
+                          <span
+                            className={`block h-full rounded-full transition-all duration-500 ${
+                              st.num < currentStep ? "w-full bg-tertiary" : "w-0"
+                            }`}
+                          />
+                        </span>
                       )}
-                    </div>
+                    </li>
                   )
                 })}
-              </div>
+              </ol>
             </div>
         </SectionWrapper>
 
