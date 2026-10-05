@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   IconFolder,
   IconPhoneCall,
@@ -95,13 +96,80 @@ const DOCUMENTS: DiligenceDoc[] = [
 ]
 
 export function VirtualDataRoomView() {
+  const heroSpecs = [
+    { label: "Interior Living", value: "12,400 sq ft", mono: true },
+    { label: "Private Lot", value: "1.82 Acres", mono: true },
+    { label: "Bedrooms / Baths", value: "6 Beds • 9 Baths", mono: false },
+    { label: "Year Completed", value: "2024 New Build", mono: false },
+    { label: "Automotive Gallery", value: "8 Vehicles (EV)", mono: false },
+    { label: "Energy Autonomy", value: "Tesla 4x Powerwall", mono: false },
+  ]
+  const matrixCards = [
+    {
+      label: "Annual Property Tax",
+      labelClassName: "font-caption text-xs text-on-surface-variant font-medium",
+      cardClassName: "bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20",
+      value: "$123,125",
+      valueClassName: "font-headline-sm text-xl font-bold text-on-surface font-mono",
+      sub: "$10,260 / month",
+      subClassName: "text-[11px] text-on-surface-variant block mt-0.5",
+      foot: "Locked against re-assessment",
+      footClassName: "text-[10px] text-outline mt-2",
+    },
+    {
+      label: "Annual Operating Costs",
+      labelClassName: "font-caption text-xs text-on-surface-variant font-medium",
+      cardClassName: "bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20",
+      value: "$48,500",
+      valueClassName: "font-headline-sm text-xl font-bold text-on-surface font-mono",
+      sub: "Comprehensive Guard/Facility",
+      subClassName: "text-[11px] text-on-surface-variant block mt-0.5",
+      foot: "Solar Microgrid reduces 65%",
+      footClassName: "text-[10px] text-on-tertiary-container font-bold mt-2",
+    },
+    {
+      label: "Est. 5-Yr Exit Value",
+      labelClassName: "font-caption text-xs text-on-surface-variant font-medium",
+      cardClassName: "bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20",
+      value: "$13,050,000",
+      valueClassName: "font-headline-sm text-xl font-bold text-on-secondary-container font-mono",
+      sub: "@ 5.8% Bel Air CAGR",
+      subClassName: "text-[11px] text-on-surface-variant block mt-0.5",
+      foot: "+$3.2M Capital Gain",
+      footClassName: "text-[10px] text-on-tertiary-container font-bold mt-2",
+    },
+    {
+      label: "Syndicate Net ROI",
+      labelClassName: "font-caption text-xs text-muted-foreground font-medium",
+      cardClassName: "bg-primary text-on-primary p-4 rounded-xl flex flex-col justify-between shadow-xs",
+      value: "+32.48%",
+      valueClassName: "font-headline-sm text-xl font-extrabold text-secondary font-mono",
+      sub: "Unlevered Net 5-Yr IRR",
+      subClassName: "text-[11px] text-muted-foreground block mt-0.5",
+      foot: "Model Version 4.1",
+      footClassName: "text-[10px] text-muted-foreground font-mono mt-2",
+    },
+  ]
+  const compRows = [
+    { address: "10432 Bellagio Rd, Bel Air", date: "Aug 2024", price: "$11,400,000", sqft: "11,800", perSqft: "$966/sf", diff: "+21.6% Higher" },
+    { address: "10820 Chalon Rd, Bel Air", date: "Jun 2024", price: "$12,750,000", sqft: "13,100", perSqft: "$973/sf", diff: "+22.5% Higher" },
+    { address: "850 Stone Canyon Rd, Bel Air", date: "Oct 2024", price: "$9,200,000", sqft: "9,600", perSqft: "$958/sf", diff: "+20.6% Higher" },
+  ]
+  const subjectRow = { address: "The Glass Promontory (Subject)", date: "Current Active", price: "$9,850,000", sqft: "12,400", perSqft: "$794/sf", diff: "Target Arbitrage" }
+  const spatialPins = [
+    { label: "Boffi Minimalist Kitchen & Sub-Zero Suite", positionClassName: "absolute top-1/4 left-1/3", borderClassName: "border-secondary/50", dotClassName: "w-2 h-2 rounded-full bg-secondary animate-ping" },
+    { label: "75-ft Cantilevered Zero-Edge Pool", positionClassName: "absolute top-1/2 right-1/4", borderClassName: "border-tertiary/50", dotClassName: "w-2 h-2 rounded-full bg-tertiary" },
+  ]
+  const escrowChannels = [
+    { title: "1. Traditional Fedwire / SWIFT", badge: "USD Wire", badgeClassName: "px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-mono", desc: "First American Title Co. • National Commercial Services (Los Angeles HQ)", foot: "Escrow Officer: Cheryl Vance, VP Escrow", footClassName: "text-[11px] text-on-secondary-container font-semibold" },
+    { title: "2. Institutional Digital Custody", badge: "USDC / USDT", badgeClassName: "px-2 py-0.5 rounded bg-tertiary/20 text-on-tertiary-container text-[10px] font-mono font-bold", desc: "Anchorage Digital Bank (Qualified Custodian Settlement)", foot: "Instant programmatic closing available", footClassName: "text-[11px] text-outline" },
+  ]
   const [activeTab, setActiveTab] = React.useState<"all" | "legal" | "engineering" | "financial" | "permits">("all")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [vdrHash, setVdrHash] = React.useState("AC-8841-ZH-VDR")
   const [downloadingId, setDownloadingId] = React.useState<string | null>(null)
   const [previewDoc, setPreviewDoc] = React.useState<DiligenceDoc | null>(null)
 
-  // LOI Generator State
   const [loiPrice, setLoiPrice] = React.useState(9850000)
   const [earnestDeposit, setEarnestDeposit] = React.useState("5%")
   const [closingDays, setClosingDays] = React.useState("21")
@@ -137,8 +205,8 @@ export function VirtualDataRoomView() {
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
       <SectionWrapper fullWidth innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8">
-        {/* PROPERTY HERO BANNER WITH VDR CLEARANCE */}
-        <div className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-slate-950 text-white shadow-xl border border-outline-variant/30">
+        
+        <div className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-primary-container text-primary-foreground shadow-xl border border-outline-variant/30">
           <div
             className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
             style={{
@@ -146,26 +214,26 @@ export function VirtualDataRoomView() {
                 "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop')",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/80 to-primary-container/40" />
 
           <div className="relative z-10 p-6 sm:p-8 lg:p-10 flex flex-col gap-6">
-            {/* Top Security Clearance Badge */}
+            
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-caption text-xs uppercase tracking-wider text-slate-200 font-bold">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/15">
+                <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
+                <span className="font-caption text-xs uppercase tracking-wider text-muted-foreground font-bold">
                   Level 4 Sovereign Diligence • Unredacted Access Active
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-slate-400">Watermark:</span>
-                <code className="px-2 py-0.5 rounded bg-slate-900 text-amber-400 font-mono text-xs border border-slate-700">
+                <span className="font-mono text-xs text-muted-foreground">Watermark:</span>
+                <code className="px-2 py-0.5 rounded bg-primary-container text-secondary font-mono text-xs border border-outline-variant">
                   {vdrHash}
                 </code>
                 <button
                   type="button"
                   onClick={() => setVdrHash(`AC-${Math.floor(1000 + Math.random() * 9000)}-ZH-VDR`)}
-                  className="p-1 rounded bg-white/10 hover:bg-white/20 text-slate-300 transition-colors"
+                  className="p-1 rounded bg-primary-foreground/10 hover:bg-primary-foreground/20 text-muted-foreground transition-colors"
                   title="Refresh Hash"
                 >
                   <IconRefresh className="w-3.5 h-3.5" />
@@ -173,66 +241,48 @@ export function VirtualDataRoomView() {
               </div>
             </div>
 
-            {/* Title & Valuation */}
+            
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div className="space-y-1 max-w-2xl">
-                <div className="flex items-center gap-2 text-amber-400 font-caption text-xs uppercase font-bold tracking-wider">
+                <div className="flex items-center gap-2 text-secondary font-caption text-xs uppercase font-bold tracking-wider">
                   <IconMapPin className="w-4 h-4" />
                   <span>Bel Air, Los Angeles, CA • Promontory Enclave</span>
                 </div>
                 <h1 className="font-headline-lg text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
                   The Glass Promontory Sanctuary
                 </h1>
-                <p className="font-body-sm text-xs sm:text-sm text-slate-300">
+                <p className="font-body-sm text-xs sm:text-sm text-muted-foreground">
                   Private single-family trophy compound perched on a monolithic private ridge with 270° panoramic ocean and city lights skyline views.
                 </p>
               </div>
 
               <div className="lg:text-right flex flex-col lg:items-end">
-                <span className="font-caption text-xs uppercase text-slate-400 font-bold tracking-wider">
+                <span className="font-caption text-xs uppercase text-muted-foreground font-bold tracking-wider">
                   Sovereign Offering Valuation
                 </span>
-                <span className="font-mono text-3xl sm:text-4xl font-extrabold text-amber-400">$9,850,000</span>
-                <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Bilateral Escrow Ready • 21-Day Close
+                <span className="font-mono text-3xl sm:text-4xl font-extrabold text-secondary">$9,850,000</span>
+                <span className="text-xs text-tertiary font-semibold flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-tertiary" /> Bilateral Escrow Ready • 21-Day Close
                 </span>
               </div>
             </div>
 
-            {/* Key Specs Row */}
+            
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-2">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Interior Living</span>
-                <span className="text-sm font-bold text-white font-mono">12,400 sq ft</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Private Lot</span>
-                <span className="text-sm font-bold text-white font-mono">1.82 Acres</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Bedrooms / Baths</span>
-                <span className="text-sm font-bold text-white">6 Beds • 9 Baths</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Year Completed</span>
-                <span className="text-sm font-bold text-white">2024 New Build</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Automotive Gallery</span>
-                <span className="text-sm font-bold text-white">8 Vehicles (EV)</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <span className="text-[11px] text-slate-400 block">Energy Autonomy</span>
-                <span className="text-sm font-bold text-white">Tesla 4x Powerwall</span>
-              </div>
+              {heroSpecs.map((spec) => (
+                <div key={spec.label} className="bg-primary-foreground/5 border border-primary-foreground/10 rounded-xl p-3">
+                  <span className="text-[11px] text-muted-foreground block">{spec.label}</span>
+                  <span className={`text-sm font-bold text-primary-foreground${spec.mono ? " font-mono" : ""}`}>{spec.value}</span>
+                </div>
+              ))}
             </div>
 
-            {/* Global Action Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+            
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-primary-foreground/10">
               <div className="flex flex-wrap items-center gap-2.5">
                 <Button
                   onClick={() => alert("Downloading full encrypted vault archive (412 MB)...")}
-                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs sm:text-sm rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-md"
+                  className="bg-secondary hover:bg-secondary-fixed-dim text-on-secondary font-bold text-xs sm:text-sm rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-md"
                 >
                   <IconFolder className="w-4 h-4" />
                   <span>Download Full Vault (.ZIP 412 MB)</span>
@@ -240,29 +290,29 @@ export function VirtualDataRoomView() {
                 <Link href="/closing">
                   <Button
                     variant="outline"
-                    className="border-white/20 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm rounded-xl px-4 py-2.5 flex items-center gap-2"
+                    className="border-primary-foreground/20 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground font-semibold text-xs sm:text-sm rounded-xl px-4 py-2.5 flex items-center gap-2"
                   >
-                    <IconReceipt2 className="w-4 h-4 text-emerald-400" />
+                    <IconReceipt2 className="w-4 h-4 text-tertiary" />
                     <span>Enter Digital Closing Room</span>
                   </Button>
                 </Link>
                 <a
                   href="tel:+13105550199"
-                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-colors border border-white/10"
+                  className="px-3.5 py-2 rounded-xl bg-primary-foreground/5 hover:bg-primary-foreground/10 text-muted-foreground font-semibold text-xs sm:text-sm flex items-center gap-2 transition-colors border border-primary-foreground/10"
                 >
-                  <IconPhoneCall className="w-4 h-4 text-amber-400" />
+                  <IconPhoneCall className="w-4 h-4 text-secondary" />
                   <span>Advisor Hotline</span>
                 </a>
               </div>
-              <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                <IconShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <IconShieldCheck className="w-4 h-4 text-tertiary" />
                 <span>Encrypted with SHA-256 Ledger Verification</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* TABBED VDR DILIGENCE SUITE SELECTOR */}
+        
         <div className="flex items-center overflow-x-auto gap-2 pb-1 scrollbar-none">
           {[
             { id: "all" as const, label: "Full Repository (6 Exhibits)" },
@@ -285,11 +335,11 @@ export function VirtualDataRoomView() {
           ))}
         </div>
 
-        {/* MAIN TWO-COLUMN WORKSPACE: 8 COLS DILIGENCE STACK + 4 COLS ACTION SIDEBAR */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT 8-COLUMN DILIGENCE STACK */}
+          
           <div className="lg:col-span-8 flex flex-col gap-6 md:gap-8">
-            {/* SECTION 1: UNREDACTED DILIGENCE REPOSITORY */}
+            
             <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-5 sm:p-7 flex flex-col gap-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-surface-container">
                 <div>
@@ -297,7 +347,7 @@ export function VirtualDataRoomView() {
                     <h2 className="font-headline-sm text-lg sm:text-xl font-bold text-on-surface">
                       Unredacted Diligence Repository
                     </h2>
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 font-mono text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container font-mono text-[10px] font-bold">
                       SHA-256 Validated
                     </span>
                   </div>
@@ -320,7 +370,7 @@ export function VirtualDataRoomView() {
                 </div>
               </div>
 
-              {/* Document List */}
+              
               <div className="flex flex-col gap-2.5">
                 {filteredDocs.map((doc) => (
                   <div
@@ -329,14 +379,14 @@ export function VirtualDataRoomView() {
                   >
                     <div className="flex items-start sm:items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-xs">
-                        <IconFileText className="w-5 h-5 text-amber-400" />
+                        <IconFileText className="w-5 h-5 text-secondary" />
                       </div>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-label-md text-xs sm:text-sm font-bold text-on-surface">
                             {doc.title}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-caption text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-full bg-tertiary/10 text-on-tertiary-container font-caption text-[10px] font-bold">
                             {doc.badge}
                           </span>
                         </div>
@@ -377,11 +427,11 @@ export function VirtualDataRoomView() {
               </div>
             </div>
 
-            {/* SECTION 2: 5-YEAR PRO-FORMA & CARRY COST BENCHMARK */}
+            
             <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-5 sm:p-7 flex flex-col gap-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-surface-container">
                 <div>
-                  <span className="font-caption text-xs uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold">
+                  <span className="font-caption text-xs uppercase tracking-wider text-on-secondary-container font-bold">
                     Institutional Underwriting
                   </span>
                   <h2 className="font-headline-sm text-lg sm:text-xl font-bold text-on-surface">
@@ -394,48 +444,21 @@ export function VirtualDataRoomView() {
                 </div>
               </div>
 
-              {/* Financial Matrix Cards */}
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20">
-                  <span className="font-caption text-xs text-on-surface-variant font-medium">Annual Property Tax</span>
-                  <div className="mt-2">
-                    <span className="font-headline-sm text-xl font-bold text-on-surface font-mono">$123,125</span>
-                    <span className="text-[11px] text-on-surface-variant block mt-0.5">$10,260 / month</span>
+                {matrixCards.map((card) => (
+                  <div key={card.label} className={card.cardClassName}>
+                    <span className={card.labelClassName}>{card.label}</span>
+                    <div className="mt-2">
+                      <span className={card.valueClassName}>{card.value}</span>
+                      <span className={card.subClassName}>{card.sub}</span>
+                    </div>
+                    <span className={card.footClassName}>{card.foot}</span>
                   </div>
-                  <span className="text-[10px] text-outline mt-2">Locked against re-assessment</span>
-                </div>
-
-                <div className="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20">
-                  <span className="font-caption text-xs text-on-surface-variant font-medium">Annual Operating Costs</span>
-                  <div className="mt-2">
-                    <span className="font-headline-sm text-xl font-bold text-on-surface font-mono">$48,500</span>
-                    <span className="text-[11px] text-on-surface-variant block mt-0.5">Comprehensive Guard/Facility</span>
-                  </div>
-                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-2">Solar Microgrid reduces 65%</span>
-                </div>
-
-                <div className="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between border border-outline-variant/20">
-                  <span className="font-caption text-xs text-on-surface-variant font-medium">Est. 5-Yr Exit Value</span>
-                  <div className="mt-2">
-                    <span className="font-headline-sm text-xl font-bold text-amber-700 dark:text-amber-400 font-mono">
-                      $13,050,000
-                    </span>
-                    <span className="text-[11px] text-on-surface-variant block mt-0.5">@ 5.8% Bel Air CAGR</span>
-                  </div>
-                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-2">+$3.2M Capital Gain</span>
-                </div>
-
-                <div className="bg-primary text-on-primary p-4 rounded-xl flex flex-col justify-between shadow-xs">
-                  <span className="font-caption text-xs text-slate-300 font-medium">Syndicate Net ROI</span>
-                  <div className="mt-2">
-                    <span className="font-headline-sm text-xl font-extrabold text-amber-400 font-mono">+32.48%</span>
-                    <span className="text-[11px] text-slate-300 block mt-0.5">Unlevered Net 5-Yr IRR</span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono mt-2">Model Version 4.1</span>
-                </div>
+                ))}
               </div>
 
-              {/* Inline Visual Cashflow Sparkline / Area Graph */}
+              
               <div className="bg-surface-container-low p-4 sm:p-5 rounded-2xl border border-outline-variant/20">
                 <div className="flex items-center justify-between mb-3 text-xs">
                   <span className="font-bold text-on-surface">5-Year Equity Accrual &amp; Capital Projection ($M)</span>
@@ -444,7 +467,7 @@ export function VirtualDataRoomView() {
                       <span className="w-2.5 h-2.5 rounded bg-primary" /> Holding Cost
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded bg-amber-400" /> Asset Equity
+                      <span className="w-2.5 h-2.5 rounded bg-secondary" /> Asset Equity
                     </span>
                   </div>
                 </div>
@@ -453,36 +476,36 @@ export function VirtualDataRoomView() {
                   <svg className="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 700 140">
                     <defs>
                       <linearGradient id="equityGrad" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="var(--secondary)" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="var(--secondary)" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
-                    <line stroke="#c6c6cd" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="30" y2="30" />
-                    <line stroke="#c6c6cd" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="70" y2="70" />
-                    <line stroke="#c6c6cd" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="110" y2="110" />
+                    <line stroke="var(--outline-variant)" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="30" y2="30" />
+                    <line stroke="var(--outline-variant)" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="70" y2="70" />
+                    <line stroke="var(--outline-variant)" strokeDasharray="4 4" strokeOpacity="0.25" x1="0" x2="700" y1="110" y2="110" />
                     <polygon fill="url(#equityGrad)" points="50,110 180,95 320,80 480,58 650,25 650,130 50,130" />
                     <polyline
                       points="50,110 180,95 320,80 480,58 650,25"
-                      stroke="#d97706"
+                      stroke="var(--secondary)"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="3"
                     />
-                    <rect fill="#0f172a" height="18" rx="2" width="16" x="42" y="112" />
-                    <rect fill="#0f172a" height="20" rx="2" width="16" x="172" y="110" />
-                    <rect fill="#0f172a" height="22" rx="2" width="16" x="312" y="108" />
-                    <rect fill="#0f172a" height="25" rx="2" width="16" x="472" y="105" />
-                    <rect fill="#0f172a" height="28" rx="2" width="16" x="642" y="102" />
-                    <text fill="#64748b" fontSize="10" textAnchor="middle" x="50" y="138">Year 1 ($9.85M)</text>
-                    <text fill="#64748b" fontSize="10" textAnchor="middle" x="180" y="138">Year 2 ($10.42M)</text>
-                    <text fill="#64748b" fontSize="10" textAnchor="middle" x="320" y="138">Year 3 ($11.10M)</text>
-                    <text fill="#64748b" fontSize="10" textAnchor="middle" x="480" y="138">Year 4 ($12.01M)</text>
-                    <text fill="#64748b" fontSize="10" textAnchor="middle" x="650" y="138">Year 5 ($13.05M)</text>
+                    <rect fill="var(--primary)" height="18" rx="2" width="16" x="42" y="112" />
+                    <rect fill="var(--primary)" height="20" rx="2" width="16" x="172" y="110" />
+                    <rect fill="var(--primary)" height="22" rx="2" width="16" x="312" y="108" />
+                    <rect fill="var(--primary)" height="25" rx="2" width="16" x="472" y="105" />
+                    <rect fill="var(--primary)" height="28" rx="2" width="16" x="642" y="102" />
+                    <text fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x="50" y="138">Year 1 ($9.85M)</text>
+                    <text fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x="180" y="138">Year 2 ($10.42M)</text>
+                    <text fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x="320" y="138">Year 3 ($11.10M)</text>
+                    <text fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x="480" y="138">Year 4 ($12.01M)</text>
+                    <text fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x="650" y="138">Year 5 ($13.05M)</text>
                   </svg>
                 </div>
               </div>
 
-              {/* Unredacted Bel Air Closed Comps Table */}
+              
               <div className="flex flex-col gap-2">
                 <span className="font-label-md text-xs sm:text-sm font-bold text-on-surface">
                   Unredacted Closed Comps Benchmark (Bel Air Submarket)
@@ -500,37 +523,23 @@ export function VirtualDataRoomView() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-surface-container">
-                      <tr className="hover:bg-surface-container-low transition-colors">
-                        <td className="py-2.5 px-3 font-bold text-on-surface">10432 Bellagio Rd, Bel Air</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">Aug 2024</td>
-                        <td className="py-2.5 px-3 font-mono font-semibold">$11,400,000</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">11,800</td>
-                        <td className="py-2.5 px-3 font-mono">$966/sf</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">+21.6% Higher</td>
-                      </tr>
-                      <tr className="hover:bg-surface-container-low transition-colors">
-                        <td className="py-2.5 px-3 font-bold text-on-surface">10820 Chalon Rd, Bel Air</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">Jun 2024</td>
-                        <td className="py-2.5 px-3 font-mono font-semibold">$12,750,000</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">13,100</td>
-                        <td className="py-2.5 px-3 font-mono">$973/sf</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">+22.5% Higher</td>
-                      </tr>
-                      <tr className="hover:bg-surface-container-low transition-colors">
-                        <td className="py-2.5 px-3 font-bold text-on-surface">850 Stone Canyon Rd, Bel Air</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">Oct 2024</td>
-                        <td className="py-2.5 px-3 font-mono font-semibold">$9,200,000</td>
-                        <td className="py-2.5 px-3 text-on-surface-variant">9,600</td>
-                        <td className="py-2.5 px-3 font-mono">$958/sf</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">+20.6% Higher</td>
-                      </tr>
-                      <tr className="bg-amber-500/10 font-bold">
-                        <td className="py-2.5 px-3 text-amber-800 dark:text-amber-300">The Glass Promontory (Subject)</td>
-                        <td className="py-2.5 px-3 text-amber-800 dark:text-amber-300">Current Active</td>
-                        <td className="py-2.5 px-3 font-mono text-amber-800 dark:text-amber-300">$9,850,000</td>
-                        <td className="py-2.5 px-3 text-amber-800 dark:text-amber-300">12,400</td>
-                        <td className="py-2.5 px-3 font-mono text-amber-800 dark:text-amber-300">$794/sf</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">Target Arbitrage</td>
+              {compRows.map((row) => (
+                <tr key={row.address} className="hover:bg-surface-container-low transition-colors">
+                  <td className="py-2.5 px-3 font-bold text-on-surface">{row.address}</td>
+                  <td className="py-2.5 px-3 text-on-surface-variant">{row.date}</td>
+                  <td className="py-2.5 px-3 font-mono font-semibold">{row.price}</td>
+                  <td className="py-2.5 px-3 text-on-surface-variant">{row.sqft}</td>
+                  <td className="py-2.5 px-3 font-mono">{row.perSqft}</td>
+                  <td className="py-2.5 px-3 text-on-tertiary-container font-bold">{row.diff}</td>
+                </tr>
+              ))}
+                      <tr className="bg-secondary/10 font-bold">
+                <td className="py-2.5 px-3 text-on-secondary-container">{subjectRow.address}</td>
+                <td className="py-2.5 px-3 text-on-secondary-container">{subjectRow.date}</td>
+                <td className="py-2.5 px-3 font-mono text-on-secondary-container">{subjectRow.price}</td>
+                <td className="py-2.5 px-3 text-on-secondary-container">{subjectRow.sqft}</td>
+                <td className="py-2.5 px-3 font-mono text-on-secondary-container">{subjectRow.perSqft}</td>
+                <td className="py-2.5 px-3 text-on-tertiary-container font-bold">{subjectRow.diff}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -538,11 +547,11 @@ export function VirtualDataRoomView() {
               </div>
             </div>
 
-            {/* SECTION 3: 3D MATTERPORT / LIDAR PREVIEW */}
+            
             <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-5 sm:p-7 flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-surface-container">
                 <div>
-                  <span className="font-caption text-xs uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold">
+                  <span className="font-caption text-xs uppercase tracking-wider text-on-secondary-container font-bold">
                     Confidential Scan Data
                   </span>
                   <h2 className="font-headline-sm text-lg sm:text-xl font-bold text-on-surface">
@@ -555,30 +564,33 @@ export function VirtualDataRoomView() {
               </div>
 
               <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden group border border-outline-variant/30">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop"
                   alt="3D LiDAR space"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  sizes="(max-width: 640px) 100vw, 1200px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-950/40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/20 to-primary-container/40" />
 
-                {/* Spatial Pin Overlays */}
-                <div className="absolute top-1/4 left-1/3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 text-white text-xs backdrop-blur-md border border-amber-400/50 shadow-md">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                  <span className="font-semibold">Boffi Minimalist Kitchen &amp; Sub-Zero Suite</span>
-                </div>
-                <div className="absolute top-1/2 right-1/4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 text-white text-xs backdrop-blur-md border border-emerald-400/50 shadow-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="font-semibold">75-ft Cantilevered Zero-Edge Pool</span>
-                </div>
+                
+        {spatialPins.map((pin) => (
+          <div
+            key={pin.label}
+            className={`${pin.positionClassName} flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/90 text-primary-foreground text-xs backdrop-blur-md border ${pin.borderClassName} shadow-md`}
+          >
+            <span className={pin.dotClassName} />
+            <span className="font-semibold">{pin.label}</span>
+          </div>
+        ))}
 
-                {/* Viewer Control Bar Overlay */}
-                <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md p-3 rounded-xl flex items-center justify-between text-white border border-slate-700">
+                
+                <div className="absolute bottom-4 left-4 right-4 bg-primary-container/90 backdrop-blur-md p-3 rounded-xl flex items-center justify-between text-primary-foreground border border-outline-variant">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Button
                       size="sm"
                       onClick={() => alert("Launching 3D dollhouse model...")}
-                      className="bg-amber-400 text-slate-950 font-bold text-xs rounded-lg px-3 py-1.5"
+                      className="bg-secondary text-on-secondary font-bold text-xs rounded-lg px-3 py-1.5"
                     >
                       Launch Interactive Dollhouse
                     </Button>
@@ -586,12 +598,12 @@ export function VirtualDataRoomView() {
                       size="sm"
                       variant="outline"
                       onClick={() => alert("Loading 4K drone perimeter scan...")}
-                      className="border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 bg-slate-800"
+                      className="border-outline-variant text-muted-foreground text-xs rounded-lg px-3 py-1.5 bg-primary-container"
                     >
                       4K Drone Perimeter (3m 40s)
                     </Button>
                   </div>
-                  <span className="hidden sm:inline-block text-[11px] text-slate-400 font-mono">
+                  <span className="hidden sm:inline-block text-[11px] text-muted-foreground font-mono">
                     Measured Accuracy: ±0.1%
                   </span>
                 </div>
@@ -599,18 +611,18 @@ export function VirtualDataRoomView() {
             </div>
           </div>
 
-          {/* RIGHT 4-COLUMN ACTION & ADVISORY SIDEBAR */}
+          
           <div className="lg:col-span-4 flex flex-col gap-6 sticky top-28">
-            {/* MODULE 1: INSTITUTIONAL LOI GENERATOR WIDGET */}
-            <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xl p-5 sm:p-6 flex flex-col gap-4 border-2 border-amber-500/40">
+            
+            <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xl p-5 sm:p-6 flex flex-col gap-4 border-2 border-secondary/40">
               <div className="flex items-center justify-between pb-2 border-b border-surface-container">
                 <div className="flex items-center gap-2">
-                  <IconReceipt2 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <IconReceipt2 className="w-5 h-5 text-on-secondary-container" />
                   <h3 className="font-headline-sm text-base sm:text-lg font-bold text-on-surface">
                     Institutional LOI Generator
                   </h3>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 text-[10px] font-mono font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container text-[10px] font-mono font-bold">
                   Fast-Track
                 </span>
               </div>
@@ -620,7 +632,7 @@ export function VirtualDataRoomView() {
               </p>
 
               {loiSubmitted ? (
-                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 flex flex-col gap-2 animate-fade-in">
+                <div className="p-4 rounded-xl bg-tertiary/10 border border-tertiary/30 text-on-tertiary-container flex flex-col gap-2 animate-fade-in">
                   <div className="flex items-center gap-2 font-bold text-sm">
                     <IconShieldCheck className="w-5 h-5" />
                     <span>Formal LOI Dispatched (#LOI-8841)</span>
@@ -629,18 +641,18 @@ export function VirtualDataRoomView() {
                     Your offer of <strong>${loiPrice.toLocaleString()}</strong> has been cryptographically signed and transmitted to Cheryl Vance, Escrow Officer.
                   </p>
                   <Link href="/closing" className="mt-2">
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl py-2 h-auto">
+                    <Button className="w-full bg-tertiary hover:bg-tertiary text-primary-foreground font-bold text-xs rounded-xl py-2 h-auto">
                       Open Bilateral Closing Room
                     </Button>
                   </Link>
                 </div>
               ) : (
                 <form onSubmit={handleLoiSubmit} className="flex flex-col gap-3.5">
-                  {/* Purchase Price Input */}
+                  
                   <div className="flex flex-col gap-1.5">
                     <label className="font-label-sm text-xs font-bold text-on-surface flex justify-between">
                       <span>Proposed Purchase Price (USD)</span>
-                      <span className="text-amber-700 dark:text-amber-400 font-mono">${loiPrice.toLocaleString()}</span>
+                      <span className="text-on-secondary-container font-mono">${loiPrice.toLocaleString()}</span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 font-bold text-on-surface-variant text-sm">$</span>
@@ -656,7 +668,7 @@ export function VirtualDataRoomView() {
                     </div>
                   </div>
 
-                  {/* Earnest Deposit Radio Chips */}
+                  
                   <div className="flex flex-col gap-1.5">
                     <label className="font-label-sm text-xs font-bold text-on-surface">Earnest Money Deposit</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -682,7 +694,7 @@ export function VirtualDataRoomView() {
                     </div>
                   </div>
 
-                  {/* Escrow Closing Period */}
+                  
                   <div className="flex flex-col gap-1.5">
                     <label className="font-label-sm text-xs font-bold text-on-surface">Closing Timeline</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -703,7 +715,7 @@ export function VirtualDataRoomView() {
                     </div>
                   </div>
 
-                  {/* Contingencies Selection */}
+                  
                   <div className="flex flex-col gap-1.5">
                     <label className="font-label-sm text-xs font-bold text-on-surface">Due Diligence Contingency</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -728,7 +740,7 @@ export function VirtualDataRoomView() {
                     </div>
                   </div>
 
-                  {/* Submitting Entity */}
+                  
                   <div className="flex flex-col gap-1">
                     <label className="font-label-sm text-xs font-bold text-on-surface">Submitting Principal</label>
                     <Input
@@ -741,7 +753,7 @@ export function VirtualDataRoomView() {
                   <Button
                     type="submit"
                     disabled={loiSubmitting}
-                    className="w-full mt-2 py-3 h-auto rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
+                    className="w-full mt-2 py-3 h-auto rounded-xl bg-secondary hover:bg-secondary-fixed-dim text-on-secondary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
                   >
                     <IconSend className="w-4 h-4" />
                     <span>{loiSubmitting ? "Dispatching Enclave LOI..." : "Transmit Formal LOI"}</span>
@@ -753,59 +765,51 @@ export function VirtualDataRoomView() {
               )}
             </div>
 
-            {/* MODULE 2: ESCROW & SETTLEMENT CHANNELS */}
+            
             <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-5 flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <IconBuildingBank className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                <IconBuildingBank className="w-4 h-4 text-on-secondary-container" />
                 <h4 className="font-label-md text-xs sm:text-sm font-bold text-on-surface">
                   Authorized Settlement Channels
                 </h4>
               </div>
 
               <div className="space-y-2">
-                <div className="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-outline-variant/20">
-                  <div className="flex items-center justify-between">
-                    <span className="font-label-sm text-xs font-bold text-on-surface">1. Traditional Fedwire / SWIFT</span>
-                    <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-mono">
-                      USD Wire
-                    </span>
+                {escrowChannels.map((channel) => (
+                  <div
+                    key={channel.title}
+                    className="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-outline-variant/20"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-label-sm text-xs font-bold text-on-surface">{channel.title}</span>
+                      <span className={channel.badgeClassName}>{channel.badge}</span>
+                    </div>
+                    <p className="text-[11px] text-on-surface-variant">{channel.desc}</p>
+                    <span className={channel.footClassName}>{channel.foot}</span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant">First American Title Co. • National Commercial Services (Los Angeles HQ)</p>
-                  <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold">
-                    Escrow Officer: Cheryl Vance, VP Escrow
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-outline-variant/20">
-                  <div className="flex items-center justify-between">
-                    <span className="font-label-sm text-xs font-bold text-on-surface">2. Institutional Digital Custody</span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] font-mono font-bold">
-                      USDC / USDT
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-on-surface-variant">Anchorage Digital Bank (Qualified Custodian Settlement)</p>
-                  <span className="text-[11px] text-outline">Instant programmatic closing available</span>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* MODULE 3: ASSIGNED PRIVATE WEALTH DIRECTOR */}
+            
             <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-5 flex flex-col gap-3">
               <span className="font-caption text-[11px] uppercase tracking-wider text-outline font-bold">
                 Assigned Private Wealth Director
               </span>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-amber-500 shadow-sm">
-                  <img
+                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-secondary shadow-sm">
+                  <Image
                     alt="Julian Vance-Moreau"
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop"
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="48px"
+                    className="object-cover"
                   />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-label-md text-sm font-bold text-on-surface truncate">Julian Vance-Moreau</span>
                   <span className="font-caption text-xs text-on-surface-variant truncate">Managing Partner • Ultra-Prime Division</span>
-                  <span className="font-caption text-[11px] text-amber-700 dark:text-amber-400 font-mono">DRE #01928411</span>
+                  <span className="font-caption text-[11px] text-on-secondary-container font-mono">DRE #01928411</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 pt-1">
@@ -827,7 +831,7 @@ export function VirtualDataRoomView() {
         </div>
       </SectionWrapper>
 
-      {/* Exhibit Preview Modal */}
+      
       {previewDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/70 backdrop-blur-md animate-fade-in">
           <div className="w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl p-6 border border-outline-variant/30 flex flex-col gap-4">
@@ -846,12 +850,12 @@ export function VirtualDataRoomView() {
             </div>
 
             <div className="p-8 bg-surface-container-low rounded-xl text-center flex flex-col items-center gap-3">
-              <IconFileText className="w-12 h-12 text-amber-600" />
+              <IconFileText className="w-12 h-12 text-on-secondary-container" />
               <div>
                 <p className="font-bold text-sm text-on-surface">Unredacted Exhibit Watermarked for Session</p>
                 <p className="text-xs text-on-surface-variant font-mono mt-1">{previewDoc.sha}</p>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-bold">
+              <span className="px-3 py-1 rounded-full bg-tertiary/10 text-on-tertiary-container text-xs font-bold">
                 {previewDoc.badge}
               </span>
             </div>

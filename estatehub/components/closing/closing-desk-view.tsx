@@ -33,10 +33,84 @@ export function ClosingDeskView() {
     }, 1200)
   }
 
+  const completedPhases = [
+    {
+      key: "psa",
+      status: "Executed",
+      title: "1. Bilateral PSA Signed",
+      desc: "DocuSign hash verified by buyer and seller principals.",
+    },
+    {
+      key: "earnest",
+      status: "Cleared",
+      title: "2. Earnest Wire Lock",
+      desc: "$492,500 USD held in sovereign escrow custody.",
+    },
+  ]
+
+  const wireDetails = [
+    {
+      key: "beneficiary",
+      label: "Beneficiary Name",
+      value: "First American Title Co. Escrow Trust",
+      valueClassName: "text-sm font-bold text-on-surface font-mono",
+    },
+    {
+      key: "file",
+      label: "Escrow File Number",
+      value: "#FATCO-LA-88192-ZH",
+      valueClassName: "text-sm font-bold text-on-surface font-mono",
+    },
+    {
+      key: "depository",
+      label: "Depository Institution",
+      value: "JPMorgan Chase Bank, N.A.",
+      valueClassName: "text-sm font-bold text-on-surface font-mono",
+    },
+    {
+      key: "amount",
+      label: "Amount to Disburse",
+      value: "$9,357,500.00 USD",
+      valueClassName: "text-sm font-bold text-on-secondary-container font-mono",
+    },
+  ]
+
+  const ledgerRows = [
+    {
+      key: "title",
+      label: "CLTA Preliminary Title Guarantee Endorsement",
+      status: "Validated (First American Title)",
+    },
+    {
+      key: "earnest",
+      label: "Buyer Earnest Escrow Wire ($492,500.00)",
+      status: "Confirmed Fedwire #4819",
+    },
+    {
+      key: "tax",
+      label: "California Mansion Tax (Measure ULA) Assessment",
+      status: "Escrow Calculated ($541,750)",
+    },
+  ]
+
+  const counterparties = [
+    {
+      key: "buyer",
+      role: "Buyer Principal",
+      name: "Alpha Crest Sovereign Capital AG",
+      badge: "Accredited",
+    },
+    {
+      key: "seller",
+      role: "Seller Estate",
+      name: "Bel Air Ridge Promontory Trust",
+      badge: "Title Verified",
+    },
+  ]
+
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
       <SectionWrapper fullWidth innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8">
-        {/* Deal Command & Status Ribbon */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-surface-container">
           <nav className="flex items-center gap-2 text-on-surface-variant text-xs flex-wrap font-mono">
             <Link href="/vdr" className="hover:text-on-surface transition-colors">
@@ -52,20 +126,19 @@ export function ClosingDeskView() {
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest text-on-surface shadow-xs text-xs font-semibold border border-outline-variant/30">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
               Escrow Window: <strong className="font-mono">47h 58m remaining</strong>
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-mono">
-              <IconShieldLock className="w-3.5 h-3.5 text-emerald-500" /> Audit #EH-88912-VDR
+              <IconShieldLock className="w-3.5 h-3.5 text-on-tertiary-container" /> Audit #EH-88912-VDR
             </span>
           </div>
         </div>
 
-        {/* Active Settlement Banner */}
         <div className="bg-surface-container-lowest rounded-2xl p-6 sm:p-8 shadow-xs border border-outline-variant/30 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 font-label-sm text-xs font-bold">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container font-label-sm text-xs font-bold">
                 Bilateral Digital Closing Active
               </span>
               <span className="text-xs text-on-surface-variant font-mono">
@@ -89,59 +162,43 @@ export function ClosingDeskView() {
             </div>
             <div>
               <span className="font-caption text-[11px] text-on-surface-variant block font-medium">Earnest Wire (5%)</span>
-              <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+              <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-on-tertiary-container font-mono">
                 $492,500 <IconCheck className="w-3.5 h-3.5 inline stroke-[3]" />
               </span>
             </div>
             <div className="col-span-2 sm:col-span-1">
               <span className="font-caption text-[11px] text-on-surface-variant block font-medium">Balance to Close</span>
-              <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-amber-700 dark:text-amber-400 font-mono">
+              <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-on-secondary-container font-mono">
                 $9,357,500
               </span>
             </div>
           </div>
         </div>
 
-        {/* 4-Phase Bilateral Closing Stepper */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col justify-between h-36">
-            <div className="flex items-center justify-between">
-              <span className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                <IconCheck className="w-4 h-4" />
-              </span>
-              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold uppercase">
-                Executed
-              </span>
+          {completedPhases.map(({ key, status, title, desc }) => (
+            <div key={key} className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col justify-between h-36">
+              <div className="flex items-center justify-between">
+                <span className="w-7 h-7 rounded-full bg-tertiary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                  <IconCheck className="w-4 h-4" />
+                </span>
+                <span className="text-[10px] font-mono text-on-tertiary-container font-bold uppercase">
+                  {status}
+                </span>
+              </div>
+              <div>
+                <h4 className="font-label-md text-sm font-bold text-on-surface">{title}</h4>
+                <p className="font-caption text-xs text-on-surface-variant mt-0.5">
+                  {desc}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-label-md text-sm font-bold text-on-surface">1. Bilateral PSA Signed</h4>
-              <p className="font-caption text-xs text-on-surface-variant mt-0.5">
-                DocuSign hash verified by buyer and seller principals.
-              </p>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col justify-between h-36">
-            <div className="flex items-center justify-between">
-              <span className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                <IconCheck className="w-4 h-4" />
-              </span>
-              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold uppercase">
-                Cleared
-              </span>
-            </div>
-            <div>
-              <h4 className="font-label-md text-sm font-bold text-on-surface">2. Earnest Wire Lock</h4>
-              <p className="font-caption text-xs text-on-surface-variant mt-0.5">
-                $492,500 USD held in sovereign escrow custody.
-              </p>
-            </div>
-          </div>
+          ))}
 
           <div
             className={`p-4 rounded-xl border flex flex-col justify-between h-36 transition-all ${
               wireDisbursed
-                ? "bg-surface-container-lowest border-emerald-500 shadow-sm"
+                ? "bg-surface-container-lowest border-tertiary shadow-sm"
                 : "bg-primary text-on-primary border-primary shadow-md"
             }`}
           >
@@ -149,25 +206,25 @@ export function ClosingDeskView() {
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   wireDisbursed
-                    ? "bg-emerald-600 text-white"
-                    : "bg-amber-400 text-slate-950 animate-pulse"
+                    ? "bg-tertiary text-primary-foreground"
+                    : "bg-secondary text-on-secondary animate-pulse"
                 }`}
               >
                 {wireDisbursed ? <IconCheck className="w-4 h-4" /> : "03"}
               </span>
               <span
                 className={`text-[10px] font-mono font-bold uppercase ${
-                  wireDisbursed ? "text-emerald-600" : "text-amber-400"
+                  wireDisbursed ? "text-on-tertiary-container" : "text-secondary"
                 }`}
               >
                 {wireDisbursed ? "Cleared" : "Action Required"}
               </span>
             </div>
             <div>
-              <h4 className={`font-label-md text-sm font-bold ${wireDisbursed ? "text-on-surface" : "text-white"}`}>
+              <h4 className={`font-label-md text-sm font-bold ${wireDisbursed ? "text-on-surface" : "text-primary-foreground"}`}>
                 3. Final Settlement Wire
               </h4>
-              <p className={`font-caption text-xs mt-0.5 ${wireDisbursed ? "text-on-surface-variant" : "text-slate-300"}`}>
+              <p className={`font-caption text-xs mt-0.5 ${wireDisbursed ? "text-on-surface-variant" : "text-muted-foreground"}`}>
                 {wireDisbursed
                   ? "$9,357,500 Fedwire successfully cleared and audited."
                   : "Execute balance wire authorization to title escrow."}
@@ -186,7 +243,7 @@ export function ClosingDeskView() {
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   wireDisbursed
-                    ? "bg-amber-400 text-slate-950"
+                    ? "bg-secondary text-on-secondary"
                     : "bg-surface-container-highest text-on-surface-variant"
                 }`}
               >
@@ -194,32 +251,29 @@ export function ClosingDeskView() {
               </span>
               <span
                 className={`text-[10px] font-mono font-bold uppercase ${
-                  wireDisbursed ? "text-amber-400" : "text-on-surface-variant"
+                  wireDisbursed ? "text-secondary" : "text-on-surface-variant"
                 }`}
               >
                 {wireDisbursed ? "Final Step" : "Pending Wire"}
               </span>
             </div>
             <div>
-              <h4 className={`font-label-md text-sm font-bold ${wireDisbursed ? "text-white" : "text-on-surface"}`}>
+              <h4 className={`font-label-md text-sm font-bold ${wireDisbursed ? "text-primary-foreground" : "text-on-surface"}`}>
                 4. Deed Recording &amp; Keys
               </h4>
-              <p className={`font-caption text-xs mt-0.5 ${wireDisbursed ? "text-slate-300" : "text-on-surface-variant"}`}>
+              <p className={`font-caption text-xs mt-0.5 ${wireDisbursed ? "text-muted-foreground" : "text-on-surface-variant"}`}>
                 Autonomous biometric smart locks &amp; grant deed transfer.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Main Two-Column Execution Workstation */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Escrow Wire Instructions & Signature Audit (8 Cols) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            {/* Wire Settlement Card */}
             <div className="p-6 md:p-8 rounded-2xl bg-surface-container-lowest shadow-xs border border-outline-variant/30 flex flex-col gap-5">
               <div className="flex items-center justify-between pb-3 border-b border-surface-container">
                 <div className="flex items-center gap-2">
-                  <IconBuildingBank className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+                  <IconBuildingBank className="w-5 h-5 text-on-secondary-container" />
                   <h3 className="font-headline-sm text-base sm:text-lg font-bold text-on-surface">
                     Escrow Wire Settlement Instructions
                   </h3>
@@ -230,7 +284,7 @@ export function ClosingDeskView() {
               </div>
 
               {wireDisbursed ? (
-                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 flex flex-col gap-3 animate-fade-in">
+                <div className="p-6 rounded-2xl bg-tertiary/10 border border-tertiary/30 text-on-tertiary-container flex flex-col gap-3 animate-fade-in">
                   <div className="flex items-center gap-2 font-bold text-base">
                     <IconShieldCheck className="w-6 h-6" />
                     <span>Balance Wire Disbursement Complete ($9,357,500.00 USD)</span>
@@ -240,7 +294,7 @@ export function ClosingDeskView() {
                   </p>
                   <div className="flex items-center gap-2 pt-2">
                     <Link href="/dashboard">
-                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl px-4 py-2 h-auto">
+                      <Button className="bg-tertiary hover:bg-tertiary text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-auto">
                         Access Facility Command &amp; Smart Keys
                       </Button>
                     </Link>
@@ -249,24 +303,12 @@ export function ClosingDeskView() {
               ) : (
                 <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-                      <span className="text-[11px] text-on-surface-variant block font-medium">Beneficiary Name</span>
-                      <span className="text-sm font-bold text-on-surface font-mono">First American Title Co. Escrow Trust</span>
-                    </div>
-                    <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-                      <span className="text-[11px] text-on-surface-variant block font-medium">Escrow File Number</span>
-                      <span className="text-sm font-bold text-on-surface font-mono">#FATCO-LA-88192-ZH</span>
-                    </div>
-                    <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-                      <span className="text-[11px] text-on-surface-variant block font-medium">Depository Institution</span>
-                      <span className="text-sm font-bold text-on-surface font-mono">JPMorgan Chase Bank, N.A.</span>
-                    </div>
-                    <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-                      <span className="text-[11px] text-on-surface-variant block font-medium">Amount to Disburse</span>
-                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400 font-mono">
-                        $9,357,500.00 USD
-                      </span>
-                    </div>
+                    {wireDetails.map(({ key, label, value, valueClassName }) => (
+                      <div key={key} className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/20">
+                        <span className="text-[11px] text-on-surface-variant block font-medium">{label}</span>
+                        <span className={valueClassName}>{value}</span>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
@@ -275,7 +317,7 @@ export function ClosingDeskView() {
                       disabled={isSigning}
                       className="w-full sm:w-auto px-6 py-3.5 h-auto rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                     >
-                      <IconUsb className="w-4 h-4 text-amber-400" />
+                      <IconUsb className="w-4 h-4 text-secondary" />
                       <span>{isSigning ? "Signing Multisig Nonce..." : "Authorize Wire with FIDO2 Hardware Key"}</span>
                     </Button>
                     <span className="text-xs text-on-surface-variant font-mono">
@@ -286,39 +328,26 @@ export function ClosingDeskView() {
               )}
             </div>
 
-            {/* Bilateral Settlement Transaction Ledger */}
             <div className="p-6 md:p-8 rounded-2xl bg-surface-container-lowest shadow-xs border border-outline-variant/30 flex flex-col gap-4">
               <h3 className="font-headline-sm text-base font-bold text-on-surface">
                 Bilateral Ledger &amp; Title Verification Audit
               </h3>
               <div className="divide-y divide-surface-container text-xs">
-                <div className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <IconCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold text-on-surface">CLTA Preliminary Title Guarantee Endorsement</span>
+                {ledgerRows.map(({ key, label, status }) => (
+                  <div key={key} className="py-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <IconCheck className="w-4 h-4 text-on-tertiary-container" />
+                      <span className="font-semibold text-on-surface">{label}</span>
+                    </div>
+                    <span className="font-mono text-on-surface-variant">{status}</span>
                   </div>
-                  <span className="font-mono text-on-surface-variant">Validated (First American Title)</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <IconCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold text-on-surface">Buyer Earnest Escrow Wire ($492,500.00)</span>
-                  </div>
-                  <span className="font-mono text-on-surface-variant">Confirmed Fedwire #4819</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <IconCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold text-on-surface">California Mansion Tax (Measure ULA) Assessment</span>
-                  </div>
-                  <span className="font-mono text-on-surface-variant">Escrow Calculated ($541,750)</span>
-                </div>
+                ))}
                 <div className="py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {wireDisbursed ? (
-                      <IconCheck className="w-4 h-4 text-emerald-600" />
+                      <IconCheck className="w-4 h-4 text-on-tertiary-container" />
                     ) : (
-                      <IconClock className="w-4 h-4 text-amber-600" />
+                      <IconClock className="w-4 h-4 text-on-secondary-container" />
                     )}
                     <span className="font-semibold text-on-surface">Final Deed Transfer Recording</span>
                   </div>
@@ -330,31 +359,23 @@ export function ClosingDeskView() {
             </div>
           </div>
 
-          {/* Right Column: Escrow Team & Counterparty (4 Cols) */}
           <div className="lg:col-span-4 flex flex-col gap-6">
             <div className="p-6 rounded-2xl bg-surface-container-lowest shadow-xs border border-outline-variant/30 flex flex-col gap-4">
               <span className="font-caption text-xs uppercase tracking-wider text-outline font-bold">
                 Bilateral Counterparties
               </span>
               <div className="space-y-3 text-xs">
-                <div className="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-on-surface-variant block font-bold uppercase">Buyer Principal</span>
-                    <span className="font-bold text-on-surface">Alpha Crest Sovereign Capital AG</span>
+                {counterparties.map(({ key, role, name, badge }) => (
+                  <div key={key} className="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-on-surface-variant block font-bold uppercase">{role}</span>
+                      <span className="font-bold text-on-surface">{name}</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-tertiary/10 text-on-tertiary-container text-[10px] font-bold">
+                      {badge}
+                    </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[10px] font-bold">
-                    Accredited
-                  </span>
-                </div>
-                <div className="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-on-surface-variant block font-bold uppercase">Seller Estate</span>
-                    <span className="font-bold text-on-surface">Bel Air Ridge Promontory Trust</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[10px] font-bold">
-                    Title Verified
-                  </span>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -384,7 +405,6 @@ export function ClosingDeskView() {
         </div>
       </SectionWrapper>
 
-      {/* FIDO2 Modal */}
       <Fido2Modal
         isOpen={isFidoModalOpen}
         onClose={() => setIsFidoModalOpen(false)}

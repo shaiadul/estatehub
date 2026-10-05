@@ -69,10 +69,10 @@ export default function SinglePropertyMapInner({
     // Add 0.5-mile Private Security Enclave radius circle
     L.circle(center, {
       radius: 650, // ~0.4 miles
-      color: "#d4af37",
+      color: "var(--secondary)",
       weight: 1.5,
       dashArray: "4, 6",
-      fillColor: "#d4af37",
+      fillColor: "var(--secondary)",
       fillOpacity: 0.08,
     }).addTo(map)
 
@@ -82,8 +82,8 @@ export default function SinglePropertyMapInner({
       html: `
         <div class="relative flex flex-col items-center">
           <div class="relative flex items-center justify-center">
-            <span class="absolute w-12 h-12 rounded-full bg-amber-400/30 animate-ping"></span>
-            <div class="relative w-10 h-10 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center shadow-2xl border-2 border-amber-400">
+            <span class="absolute w-12 h-12 rounded-full bg-secondary/30 animate-ping"></span>
+            <div class="relative w-10 h-10 rounded-2xl bg-primary-container text-secondary flex items-center justify-center shadow-2xl border-2 border-secondary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 21l18 0"/>
                 <path d="M4 21v-11l7 -7l7 7v11"/>
@@ -91,7 +91,7 @@ export default function SinglePropertyMapInner({
               </svg>
             </div>
           </div>
-          <div class="mt-1 px-2.5 py-0.5 rounded-full bg-slate-950 text-amber-400 text-[10px] font-bold shadow-md border border-amber-400/40 whitespace-nowrap">
+          <div class="mt-1 px-2.5 py-0.5 rounded-full bg-primary-container text-secondary text-[10px] font-bold shadow-md border border-secondary/40 whitespace-nowrap">
             ${priceFormatted}
           </div>
         </div>
@@ -104,11 +104,11 @@ export default function SinglePropertyMapInner({
       .addTo(map)
       .bindPopup(
         `
-        <div class="p-2 text-slate-950">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-0.5">Confidential Asset</div>
+        <div class="p-2 text-on-secondary">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-on-secondary-container mb-0.5">Confidential Asset</div>
           <div class="text-xs font-bold">${title}</div>
-          <div class="text-[11px] text-slate-600">${address}</div>
-          <div class="text-xs font-extrabold text-amber-700 mt-1">${priceFormatted}</div>
+          <div class="text-[11px] text-muted-foreground">${address}</div>
+          <div class="text-xs font-extrabold text-on-secondary-container mt-1">${priceFormatted}</div>
         </div>
       `,
         { closeButton: false }
@@ -143,14 +143,14 @@ export default function SinglePropertyMapInner({
   }
 
   return (
-    <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-slate-950">
+    <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-primary-container">
       {/* Map Canvas */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
       {/* Top Header Controls Overlay */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
         <div className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface/90 backdrop-blur-md text-xs font-bold text-on-surface shadow-md border border-outline-variant/30">
-          <IconShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <IconShieldCheck className="w-3.5 h-3.5 text-on-tertiary-container" />
           <span>Active 24/7 Security Patrol Zone</span>
         </div>
 
@@ -216,7 +216,7 @@ export default function SinglePropertyMapInner({
       {/* Bottom Coordinates & Info Badge */}
       <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none">
         <div className="pointer-events-auto inline-flex items-center gap-3 p-2.5 rounded-xl bg-surface/95 backdrop-blur-md shadow-lg border border-outline-variant/30">
-          <div className="w-8 h-8 rounded-lg bg-primary text-amber-400 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-primary text-secondary flex items-center justify-center shrink-0">
             <IconBuildingEstate className="w-4 h-4" />
           </div>
           <div className="flex flex-col pr-2">

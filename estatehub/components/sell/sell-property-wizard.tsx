@@ -161,6 +161,193 @@ export function SellPropertyWizard() {
     "Finnish Wellness Sauna & Cold Plunge",
   ]
 
+  const locationFields = [
+    {
+      key: "city",
+      label: "City / Enclave",
+      value: form.city,
+      placeholder: "Bel Air, Los Angeles",
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, city: e.target.value })),
+    },
+    {
+      key: "state",
+      label: "State",
+      value: form.state,
+      placeholder: "CA",
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, state: e.target.value })),
+    },
+    {
+      key: "zip",
+      label: "ZIP Code",
+      value: form.zip,
+      placeholder: "90077",
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, zip: e.target.value })),
+    },
+  ]
+
+  const locationToggles = [
+    {
+      id: "gated",
+      title: "Guarded Gate & 24/7 Security Patrol Zone",
+      desc: "Property resides within private verified gated jurisdiction.",
+      checked: form.gatedCommunity,
+      setChecked: (checked: boolean) =>
+        setForm((prev) => ({ ...prev, gatedCommunity: checked })),
+    },
+    {
+      id: "mls-sync",
+      title: "Real-Time MLS & National Luxury IDX Syndication",
+      desc: "Auto-sync listing details to certified brokerage exchanges.",
+      checked: form.mlsSync,
+      setChecked: (checked: boolean) =>
+        setForm((prev) => ({ ...prev, mlsSync: checked })),
+    },
+  ]
+
+  const specFields = [
+    {
+      key: "beds",
+      label: "Bedrooms",
+      Icon: IconBed,
+      type: "number" as const,
+      value: form.beds,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, beds: Number(e.target.value) })),
+    },
+    {
+      key: "baths",
+      label: "Bathrooms",
+      Icon: IconBath,
+      type: "number" as const,
+      value: form.baths,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, baths: Number(e.target.value) })),
+    },
+    {
+      key: "sqft",
+      label: "Interior Sq Ft",
+      Icon: IconRuler,
+      type: "number" as const,
+      value: form.sqft,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, sqft: Number(e.target.value) })),
+    },
+    {
+      key: "lotSize",
+      label: "Lot Acreage",
+      Icon: IconTree,
+      type: undefined as undefined,
+      value: form.lotSize,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, lotSize: e.target.value })),
+    },
+    {
+      key: "yearBuilt",
+      label: "Year Built",
+      Icon: IconCalendarEvent,
+      type: "number" as const,
+      value: form.yearBuilt,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, yearBuilt: Number(e.target.value) })),
+    },
+    {
+      key: "garage",
+      label: "Garage Bays",
+      Icon: IconCar,
+      type: "number" as const,
+      value: form.garage,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, garage: Number(e.target.value) })),
+    },
+  ]
+
+  const mediaFields = [
+    {
+      key: "heroImage",
+      label: "Primary Facade Hero Image URL",
+      value: form.heroImage,
+      placeholder: "https://...",
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, heroImage: e.target.value })),
+    },
+    {
+      key: "virtualTourUrl",
+      label: "Matterport 3D / Unreal Engine Tour URL",
+      value: form.virtualTourUrl,
+      placeholder: "https://matterport.com/...",
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, virtualTourUrl: e.target.value })),
+    },
+  ]
+
+  const pricingSecondaryFields = [
+    {
+      key: "hoaFee",
+      label: "Monthly HOA / Maintenance ($)",
+      value: form.hoaFee,
+      step: undefined as string | undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, hoaFee: Number(e.target.value) })),
+    },
+    {
+      key: "commission",
+      label: "Buyer Broker Commission (%)",
+      value: form.commission,
+      step: "0.1" as string | undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev, commission: Number(e.target.value) })),
+    },
+  ]
+
+  const auditChecks = [
+    {
+      title: "MLS & Legal Title Verification Passed",
+      desc: "Jurisdiction records validate fee-simple ownership.",
+    },
+    {
+      title: "4K Media Assets Compressed & CDN Cached",
+      desc: "High-resolution imagery prepared for private virtual data rooms.",
+    },
+    {
+      title: "Sovereign Syndicate Broadcast Network Ready",
+      desc: "Broadcasting to 14,000+ verified investors upon confirmation.",
+    },
+  ]
+
+  const previewStats = [
+    { key: "beds", value: String(form.beds), label: "Beds" },
+    { key: "baths", value: String(form.baths), label: "Baths" },
+    { key: "sqft", value: form.sqft.toLocaleString(), label: "Sq Ft" },
+  ]
+
+  const successStats: { key: string; label: string; valueClassName: string; value: React.ReactNode }[] = [
+    {
+      key: "status",
+      label: "Syndicate Status",
+      valueClassName: "text-sm font-bold text-on-tertiary-container flex items-center gap-1.5 mt-1",
+      value: (
+        <>
+          <span className="w-2 h-2 rounded-full bg-tertiary animate-ping" /> Live Broadcasting
+        </>
+      ),
+    },
+    {
+      key: "valuation",
+      label: "Target Valuation",
+      valueClassName: "text-sm font-bold text-on-surface mt-1",
+      value: <>${form.price.toLocaleString()} USD</>,
+    },
+    {
+      key: "reach",
+      label: "Investor Reach",
+      valueClassName: "text-sm font-bold text-secondary mt-1",
+      value: <>14,280+ High Net Worth</>,
+    },
+  ]
+
   const completionPercentage = Math.round((currentStep / steps.length) * 100)
 
   const toggleAmenity = (item: string) => {
@@ -212,7 +399,6 @@ export function SellPropertyWizard() {
               </div>
             </div>
 
-            {/* Main Headline & Stepper Dial */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
               <div>
                 <Badge variant="gold" className="mb-2 text-xs font-bold uppercase tracking-wider">
@@ -226,7 +412,6 @@ export function SellPropertyWizard() {
                 </p>
               </div>
 
-              {/* Completion Dial Indicator */}
               <div className="flex items-center gap-4 bg-surface-container-low px-5 py-3 rounded-2xl border border-outline-variant/30 shrink-0">
                 <div className="flex flex-col">
                   <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">
@@ -262,7 +447,6 @@ export function SellPropertyWizard() {
               </div>
             </div>
 
-            {/* Horizontal Multi-Step Bar */}
             <div className="pt-6 overflow-x-auto no-scrollbar">
               <div className="flex items-center min-w-[640px] justify-between pb-2">
                 {steps.map((st) => {
@@ -277,13 +461,13 @@ export function SellPropertyWizard() {
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
                           isDone
-                            ? "bg-primary text-white shadow-xs"
+                            ? "bg-primary text-primary-foreground shadow-xs"
                             : isActive
                             ? "bg-secondary-container text-on-secondary-fixed ring-2 ring-secondary shadow-md scale-105"
                             : "bg-surface-container text-on-surface-variant group-hover:bg-surface-container-high"
                         }`}
                       >
-                        {isDone ? <IconCheck size={16} className="text-emerald-400" /> : st.num}
+                        {isDone ? <IconCheck size={16} className="text-tertiary" /> : st.num}
                       </span>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-on-surface-variant font-mono leading-none">
@@ -313,7 +497,6 @@ export function SellPropertyWizard() {
 
         <SectionWrapper className="py-10">
             {isPublished ? (
-              /* Success / Live Syndicate Tracking State */
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col items-center text-center max-w-3xl mx-auto animate-in zoom-in-95 duration-300">
                 <div className="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-fixed mb-6 shadow-md">
                   <IconRosetteDiscountCheckFilled size={44} className="text-secondary" />
@@ -329,24 +512,14 @@ export function SellPropertyWizard() {
                 </p>
 
                 <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-left">
-                  <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 flex flex-col">
-                    <span className="text-xs text-on-surface-variant font-medium">Syndicate Status</span>
-                    <span className="text-sm font-bold text-emerald-600 flex items-center gap-1.5 mt-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" /> Live Broadcasting
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 flex flex-col">
-                    <span className="text-xs text-on-surface-variant font-medium">Target Valuation</span>
-                    <span className="text-sm font-bold text-on-surface mt-1">
-                      ${form.price.toLocaleString()} USD
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 flex flex-col">
-                    <span className="text-xs text-on-surface-variant font-medium">Investor Reach</span>
-                    <span className="text-sm font-bold text-secondary mt-1">
-                      14,280+ High Net Worth
-                    </span>
-                  </div>
+                  {successStats.map(({ key, label, valueClassName, value }) => (
+                    <div key={key} className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 flex flex-col">
+                      <span className="text-xs text-on-surface-variant font-medium">{label}</span>
+                      <span className={valueClassName}>
+                        {value}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
@@ -373,9 +546,7 @@ export function SellPropertyWizard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                {/* Form Column (7 Cols) */}
                 <div className="lg:col-span-7 flex flex-col gap-8">
-                  {/* Step 1: Asset & Location */}
                   {currentStep === 1 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
@@ -405,7 +576,7 @@ export function SellPropertyWizard() {
                             >
                               <div className="flex items-center justify-between">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                  isSelected ? "bg-secondary text-white" : "bg-surface-container text-secondary"
+                                  isSelected ? "bg-secondary text-primary-foreground" : "bg-surface-container text-secondary"
                                 }`}>
                                   <Icon size={22} />
                                 </div>
@@ -452,87 +623,45 @@ export function SellPropertyWizard() {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                              City / Enclave
-                            </label>
-                            <Input
-                              value={form.city}
-                              onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))}
-                              placeholder="Bel Air, Los Angeles"
-                              className="h-11"
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                              State
-                            </label>
-                            <Input
-                              value={form.state}
-                              onChange={(e) => setForm((prev) => ({ ...prev, state: e.target.value }))}
-                              placeholder="CA"
-                              className="h-11"
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                              ZIP Code
-                            </label>
-                            <Input
-                              value={form.zip}
-                              onChange={(e) => setForm((prev) => ({ ...prev, zip: e.target.value }))}
-                              placeholder="90077"
-                              className="h-11"
-                            />
-                          </div>
+                          {locationFields.map(({ key, label, value, placeholder, onChange }) => (
+                            <div key={key} className="flex flex-col gap-1.5">
+                              <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                                {label}
+                              </label>
+                              <Input
+                                value={value}
+                                onChange={onChange}
+                                placeholder={placeholder}
+                                className="h-11"
+                              />
+                            </div>
+                          ))}
                         </div>
 
                         <div className="pt-2 flex flex-col gap-3">
-                          <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-surface-container-low">
-                            <Checkbox
-                              id="gated"
-                              checked={form.gatedCommunity}
-                              onCheckedChange={(checked) =>
-                                setForm((prev) => ({ ...prev, gatedCommunity: Boolean(checked) }))
-                              }
-                              className="mt-0.5"
-                            />
-                            <label htmlFor="gated" className="cursor-pointer flex flex-col">
-                              <span className="text-xs font-bold text-on-surface">
-                                Guarded Gate &amp; 24/7 Security Patrol Zone
-                              </span>
-                              <span className="text-[11px] text-on-surface-variant">
-                                Property resides within private verified gated jurisdiction.
-                              </span>
-                            </label>
-                          </div>
-
-                          <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-surface-container-low">
-                            <Checkbox
-                              id="mls-sync"
-                              checked={form.mlsSync}
-                              onCheckedChange={(checked) =>
-                                setForm((prev) => ({ ...prev, mlsSync: Boolean(checked) }))
-                              }
-                              className="mt-0.5"
-                            />
-                            <label htmlFor="mls-sync" className="cursor-pointer flex flex-col">
-                              <span className="text-xs font-bold text-on-surface">
-                                Real-Time MLS &amp; National Luxury IDX Syndication
-                              </span>
-                              <span className="text-[11px] text-on-surface-variant">
-                                Auto-sync listing details to certified brokerage exchanges.
-                              </span>
-                            </label>
-                          </div>
+                          {locationToggles.map(({ id, title, desc, checked, setChecked }) => (
+                            <div key={id} className="flex items-start gap-3 p-3.5 rounded-2xl bg-surface-container-low">
+                              <Checkbox
+                                id={id}
+                                checked={checked}
+                                onCheckedChange={(checked) => setChecked(Boolean(checked))}
+                                className="mt-0.5"
+                              />
+                              <label htmlFor={id} className="cursor-pointer flex flex-col">
+                                <span className="text-xs font-bold text-on-surface">
+                                  {title}
+                                </span>
+                                <span className="text-[11px] text-on-surface-variant">
+                                  {desc}
+                                </span>
+                              </label>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Step 2: Specs & Amenities */}
                   {currentStep === 2 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
@@ -545,76 +674,19 @@ export function SellPropertyWizard() {
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconBed size={16} className="text-secondary" /> Bedrooms
-                          </label>
-                          <Input
-                            type="number"
-                            value={form.beds}
-                            onChange={(e) => setForm((prev) => ({ ...prev, beds: Number(e.target.value) }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconBath size={16} className="text-secondary" /> Bathrooms
-                          </label>
-                          <Input
-                            type="number"
-                            value={form.baths}
-                            onChange={(e) => setForm((prev) => ({ ...prev, baths: Number(e.target.value) }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconRuler size={16} className="text-secondary" /> Interior Sq Ft
-                          </label>
-                          <Input
-                            type="number"
-                            value={form.sqft}
-                            onChange={(e) => setForm((prev) => ({ ...prev, sqft: Number(e.target.value) }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconTree size={16} className="text-secondary" /> Lot Acreage
-                          </label>
-                          <Input
-                            value={form.lotSize}
-                            onChange={(e) => setForm((prev) => ({ ...prev, lotSize: e.target.value }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconCalendarEvent size={16} className="text-secondary" /> Year Built
-                          </label>
-                          <Input
-                            type="number"
-                            value={form.yearBuilt}
-                            onChange={(e) => setForm((prev) => ({ ...prev, yearBuilt: Number(e.target.value) }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
-                          <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
-                            <IconCar size={16} className="text-secondary" /> Garage Bays
-                          </label>
-                          <Input
-                            type="number"
-                            value={form.garage}
-                            onChange={(e) => setForm((prev) => ({ ...prev, garage: Number(e.target.value) }))}
-                            className="h-10 text-base font-bold"
-                          />
-                        </div>
+                        {specFields.map(({ key, label, Icon, type, value, onChange }) => (
+                          <div key={key} className="flex flex-col gap-1.5 p-4 rounded-2xl bg-surface-container-low">
+                            <label className="text-xs font-bold text-on-surface-variant flex items-center gap-1.5">
+                              <Icon size={16} className="text-secondary" /> {label}
+                            </label>
+                            <Input
+                              type={type}
+                              value={value}
+                              onChange={onChange}
+                              className="h-10 text-base font-bold"
+                            />
+                          </div>
+                        ))}
                       </div>
 
                       <div className="pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
@@ -650,7 +722,6 @@ export function SellPropertyWizard() {
                     </div>
                   )}
 
-                  {/* Step 3: Imagery & Media */}
                   {currentStep === 3 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
@@ -662,7 +733,6 @@ export function SellPropertyWizard() {
                         </p>
                       </div>
 
-                      {/* Dropzone Container */}
                       <div className="border-2 border-dashed border-outline-variant/40 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group">
                         <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
                           <IconUpload size={28} />
@@ -678,34 +748,22 @@ export function SellPropertyWizard() {
                         </Button>
                       </div>
 
-                      {/* Current Hero Photo Preview */}
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                          Primary Facade Hero Image URL
-                        </label>
-                        <Input
-                          value={form.heroImage}
-                          onChange={(e) => setForm((prev) => ({ ...prev, heroImage: e.target.value }))}
-                          placeholder="https://..."
-                          className="h-11"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                          Matterport 3D / Unreal Engine Tour URL
-                        </label>
-                        <Input
-                          value={form.virtualTourUrl}
-                          onChange={(e) => setForm((prev) => ({ ...prev, virtualTourUrl: e.target.value }))}
-                          placeholder="https://matterport.com/..."
-                          className="h-11"
-                        />
-                      </div>
+                      {mediaFields.map(({ key, label, value, placeholder, onChange }) => (
+                        <div key={key} className="flex flex-col gap-2">
+                          <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                            {label}
+                          </label>
+                          <Input
+                            value={value}
+                            onChange={onChange}
+                            placeholder={placeholder}
+                            className="h-11"
+                          />
+                        </div>
+                      ))}
                     </div>
                   )}
 
-                  {/* Step 4: Pricing & Terms */}
                   {currentStep === 4 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
@@ -734,30 +792,20 @@ export function SellPropertyWizard() {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                              Monthly HOA / Maintenance ($)
-                            </label>
-                            <Input
-                              type="number"
-                              value={form.hoaFee}
-                              onChange={(e) => setForm((prev) => ({ ...prev, hoaFee: Number(e.target.value) }))}
-                              className="h-11 font-bold"
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                              Buyer Broker Commission (%)
-                            </label>
-                            <Input
-                              type="number"
-                              step="0.1"
-                              value={form.commission}
-                              onChange={(e) => setForm((prev) => ({ ...prev, commission: Number(e.target.value) }))}
-                              className="h-11 font-bold"
-                            />
-                          </div>
+                          {pricingSecondaryFields.map(({ key, label, value, step, onChange }) => (
+                            <div key={key} className="flex flex-col gap-1.5">
+                              <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                                {label}
+                              </label>
+                              <Input
+                                type="number"
+                                step={step}
+                                value={value}
+                                onChange={onChange}
+                                className="h-11 font-bold"
+                              />
+                            </div>
+                          ))}
                         </div>
 
                         <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex items-start gap-3 mt-2">
@@ -782,7 +830,6 @@ export function SellPropertyWizard() {
                     </div>
                   )}
 
-                  {/* Step 5: Syndicate & Audit Review */}
                   {currentStep === 5 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
@@ -795,46 +842,23 @@ export function SellPropertyWizard() {
                       </div>
 
                       <div className="flex flex-col gap-3">
-                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
-                          <IconCircleCheck className="text-emerald-600 size-5 shrink-0" />
-                          <div className="flex flex-col text-xs">
-                            <span className="font-bold text-emerald-900 dark:text-emerald-300">
-                              MLS &amp; Legal Title Verification Passed
-                            </span>
-                            <span className="text-emerald-700 dark:text-emerald-400">
-                              Jurisdiction records validate fee-simple ownership.
-                            </span>
+                        {auditChecks.map(({ title, desc }) => (
+                          <div key={title} className="p-4 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center gap-3">
+                            <IconCircleCheck className="text-on-tertiary-container size-5 shrink-0" />
+                            <div className="flex flex-col text-xs">
+                              <span className="font-bold text-on-tertiary-container">
+                                {title}
+                              </span>
+                              <span className="text-on-tertiary-container">
+                                {desc}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-
-                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
-                          <IconCircleCheck className="text-emerald-600 size-5 shrink-0" />
-                          <div className="flex flex-col text-xs">
-                            <span className="font-bold text-emerald-900 dark:text-emerald-300">
-                              4K Media Assets Compressed &amp; CDN Cached
-                            </span>
-                            <span className="text-emerald-700 dark:text-emerald-400">
-                              High-resolution imagery prepared for private virtual data rooms.
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
-                          <IconCircleCheck className="text-emerald-600 size-5 shrink-0" />
-                          <div className="flex flex-col text-xs">
-                            <span className="font-bold text-emerald-900 dark:text-emerald-300">
-                              Sovereign Syndicate Broadcast Network Ready
-                            </span>
-                            <span className="text-emerald-700 dark:text-emerald-400">
-                              Broadcasting to 14,000+ verified investors upon confirmation.
-                            </span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Wizard Step Controls (Next / Prev) */}
                   <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
                     <Button
                       type="button"
@@ -865,7 +889,7 @@ export function SellPropertyWizard() {
                         variant="gold"
                         size="lg"
                         onClick={handlePublish}
-                        className="gap-2 font-extrabold shadow-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+                        className="gap-2 font-extrabold shadow-lg bg-tertiary hover:bg-tertiary text-primary-foreground"
                       >
                         <IconSparkles size={18} />
                         <span>Confirm &amp; Broadcast Syndicate</span>
@@ -874,7 +898,6 @@ export function SellPropertyWizard() {
                   </div>
                 </div>
 
-                {/* Right Column: Sticky Live Listing Preview (5 Cols) */}
                 <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24">
                   <div className="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 p-6 shadow-xl flex flex-col gap-5">
                     <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
@@ -885,7 +908,6 @@ export function SellPropertyWizard() {
                       <Badge variant="gold" className="text-[10px]">Real-time IDX</Badge>
                     </div>
 
-                    {/* Live Card */}
                     <div className="rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-sm">
                       <div className="relative h-56 w-full overflow-hidden">
                         <Image
@@ -895,9 +917,9 @@ export function SellPropertyWizard() {
                           className="object-cover"
                           sizes="(max-width: 1024px) 100vw, 40vw"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent" />
                         <div className="absolute top-3 left-3 flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-lg bg-black/80 text-white font-bold text-xs">
+                          <span className="px-2.5 py-1 rounded-lg bg-primary-container/80 text-primary-foreground font-bold text-xs">
                             ${form.price.toLocaleString()}
                           </span>
                           <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-[10px] font-bold">
@@ -916,27 +938,20 @@ export function SellPropertyWizard() {
                         </p>
 
                         <div className="grid grid-cols-3 gap-2 pt-3 border-t border-outline-variant/20 text-center text-xs text-on-surface-variant mt-1">
-                          <div>
-                            <span className="block font-bold text-on-surface text-sm">{form.beds}</span>
-                            <span className="text-[10px]">Beds</span>
-                          </div>
-                          <div>
-                            <span className="block font-bold text-on-surface text-sm">{form.baths}</span>
-                            <span className="text-[10px]">Baths</span>
-                          </div>
-                          <div>
-                            <span className="block font-bold text-on-surface text-sm">{form.sqft.toLocaleString()}</span>
-                            <span className="text-[10px]">Sq Ft</span>
-                          </div>
+                          {previewStats.map(({ key, value, label }) => (
+                            <div key={key}>
+                              <span className="block font-bold text-on-surface text-sm">{value}</span>
+                              <span className="text-[10px]">{label}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
 
-                    {/* Syndication Insights Meter */}
                     <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 flex flex-col gap-2.5 text-xs">
                       <div className="flex items-center justify-between font-semibold">
                         <span className="text-on-surface-variant">Estimated Velocity</span>
-                        <span className="text-emerald-600 font-bold">Top 8% Tier</span>
+                        <span className="text-on-tertiary-container font-bold">Top 8% Tier</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden">
                         <div className="h-full bg-secondary rounded-full w-[92%]" />
@@ -951,13 +966,12 @@ export function SellPropertyWizard() {
             )}
         </SectionWrapper>
 
-        {/* Save Draft Floating Toast */}
         {saveDraftToast && (
-          <div className="fixed bottom-6 right-6 z-50 bg-black text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/20 animate-in slide-in-from-bottom duration-300">
-            <IconCheck size={20} className="text-emerald-400 shrink-0" />
+          <div className="fixed bottom-6 right-6 z-50 bg-primary-container text-primary-foreground px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-primary-foreground/20 animate-in slide-in-from-bottom duration-300">
+            <IconCheck size={20} className="text-tertiary shrink-0" />
             <div className="flex flex-col">
               <span className="text-xs font-bold">Draft Saved Successfully</span>
-              <span className="text-[11px] text-neutral-300">
+              <span className="text-[11px] text-muted-foreground">
                 Listing state cached locally and synced with your advisor vault.
               </span>
             </div>

@@ -43,6 +43,20 @@ const AMENITIES_LIST = [
   "Smart Home",
 ]
 
+const TRANSACTION_TYPES = [
+  { id: "buy", label: "Buy" },
+  { id: "rent", label: "Rent" },
+  { id: "lease", label: "Lease" },
+] as const
+
+const PROPERTY_TYPE_OPTIONS = [
+  { value: "all", label: "All Asset Classes" },
+  { value: "villa", label: "Luxury Villa" },
+  { value: "penthouse", label: "Modern Penthouse" },
+  { value: "waterfront", label: "Waterfront Estate" },
+  { value: "chalet", label: "Ski Chalet" },
+]
+
 export function FilterPanel({
   filterPanelOpen,
   onTogglePanel,
@@ -93,40 +107,25 @@ export function FilterPanel({
 
       {filterPanelOpen && (
         <CardContent className="p-0 pt-5 mt-5 border-t border-outline-variant/20 flex flex-col gap-5">
-          {/* Row 1: Transaction Type & Location Radius */}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs uppercase tracking-wider text-on-surface-variant block mb-2 font-bold">
                 Transaction Type
               </label>
               <div className="grid grid-cols-3 gap-1 bg-surface-container p-1 rounded-xl">
-                <Button
-                  type="button"
-                  variant={transactionType === "buy" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => onTransactionTypeChange("buy")}
-                  className="rounded-lg text-xs font-semibold"
-                >
-                  Buy
-                </Button>
-                <Button
-                  type="button"
-                  variant={transactionType === "rent" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={handleRentClick}
-                  className="rounded-lg text-xs font-semibold"
-                >
-                  Rent
-                </Button>
-                <Button
-                  type="button"
-                  variant={transactionType === "lease" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => onTransactionTypeChange("lease")}
-                  className="rounded-lg text-xs font-semibold"
-                >
-                  Lease
-                </Button>
+                {TRANSACTION_TYPES.map((t) => (
+                  <Button
+                    key={t.id}
+                    type="button"
+                    variant={transactionType === t.id ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => (t.id === "rent" ? handleRentClick() : onTransactionTypeChange(t.id))}
+                    className="rounded-lg text-xs font-semibold"
+                  >
+                    {t.label}
+                  </Button>
+                ))}
               </div>
             </div>
 
@@ -150,7 +149,7 @@ export function FilterPanel({
             </div>
           </div>
 
-          {/* Row 2: Property Type & Bedrooms */}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs uppercase tracking-wider text-on-surface-variant block mb-2 font-bold">
@@ -164,11 +163,11 @@ export function FilterPanel({
                   <SelectValue placeholder="All Asset Classes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Asset Classes</SelectItem>
-                  <SelectItem value="villa">Luxury Villa</SelectItem>
-                  <SelectItem value="penthouse">Modern Penthouse</SelectItem>
-                  <SelectItem value="waterfront">Waterfront Estate</SelectItem>
-                  <SelectItem value="chalet">Ski Chalet</SelectItem>
+                  {PROPERTY_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -194,7 +193,7 @@ export function FilterPanel({
             </div>
           </div>
 
-          {/* Row 3: Luxury Amenities Checkboxes */}
+          
           <div>
             <label className="text-xs uppercase tracking-wider text-on-surface-variant block mb-2 font-bold">
               Luxury Amenities &amp; Features

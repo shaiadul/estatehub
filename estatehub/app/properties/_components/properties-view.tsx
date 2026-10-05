@@ -49,7 +49,6 @@ export function PropertiesView() {
     setSearchLocation("")
   }
 
-  // Filter properties
   const filteredProperties = React.useMemo(() => {
     let list = [...PROPERTIES]
     if (selectedPropertyType !== "all") {
@@ -100,7 +99,7 @@ export function PropertiesView() {
 
         <SectionWrapper className="py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Column: Filter Panel & Listings */}
+            
             <div className={`${showMap ? "lg:col-span-7 xl:col-span-7" : "lg:col-span-12"} flex flex-col gap-6 w-full`}>
               <FilterPanel
                 filterPanelOpen={filterPanelOpen}
@@ -125,7 +124,7 @@ export function PropertiesView() {
               />
             </div>
 
-            {/* Right Column: Interactive Map Panel */}
+            
             {showMap && (
               <PropertiesMapPanel
                 properties={filteredProperties}

@@ -92,12 +92,12 @@ export function Header() {
       >
         <div className="flex shrink-0 items-center gap-3 sm:gap-4">
           <Link href="/" className="group flex items-center gap-2 sm:gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-lg font-bold text-amber-400 shadow-xs transition-transform group-hover:scale-105">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-lg font-bold text-secondary shadow-xs transition-transform group-hover:scale-105">
               E
             </div>
             <span className="font-heading text-lg font-extrabold tracking-tight whitespace-nowrap text-on-surface uppercase sm:text-xl">
               Estate
-              <span className="text-amber-600 dark:text-amber-400">Hub</span>
+              <span className="text-on-secondary-container">Hub</span>
             </span>
           </Link>
         </div>
@@ -181,13 +181,13 @@ export function Header() {
                       className="h-6 w-6 rounded-full border border-primary/30 object-cover shadow-xs sm:h-7 sm:w-7"
                       src={user.avatar}
                     />
-                    <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-surface" />
+                    <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-tertiary ring-2 ring-surface" />
                   </div>
                   <div className="hidden flex-col pr-1 text-left md:flex">
                     <span className="max-w-[100px] truncate text-xs leading-tight font-bold text-on-surface xl:max-w-[120px]">
                       {user.name.split(" ")[0]}
                     </span>
-                    <span className="text-[10px] leading-tight font-semibold text-amber-700 capitalize dark:text-amber-400">
+                    <span className="text-[10px] leading-tight font-semibold text-on-secondary-container capitalize">
                       {user.role}
                     </span>
                   </div>
@@ -210,7 +210,7 @@ export function Header() {
                       <p className="truncate font-mono text-[11px] text-on-surface-variant">
                         {user.email}
                       </p>
-                      <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+                      <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2 py-0.5 text-[10px] font-bold text-on-secondary-container">
                         <IconShieldCheck className="h-3 w-3" />
                         <span>{user.roleTitle}</span>
                       </div>
@@ -260,7 +260,7 @@ export function Header() {
                         onClick={() => setProfileDropdownOpen(false)}
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
-                        <IconLock className="h-4 w-4 text-amber-600" />
+                        <IconLock className="h-4 w-4 text-on-secondary-container" />
                         <span>Virtual Data Room</span>
                       </Link>
                       <Link
@@ -268,7 +268,7 @@ export function Header() {
                         onClick={() => setProfileDropdownOpen(false)}
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
-                        <IconReceipt2 className="h-4 w-4 text-emerald-600" />
+                        <IconReceipt2 className="h-4 w-4 text-on-tertiary-container" />
                         <span>Digital Closing Desk</span>
                       </Link>
                       <Link
@@ -285,7 +285,7 @@ export function Header() {
                     <div className="mt-2 border-t border-surface-container pt-2">
                       <button
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
                       >
                         <IconLogout className="h-4 w-4" />
                         <span>Sign Out from Enclave</span>
@@ -355,7 +355,7 @@ export function Header() {
                     }`}
                   >
                     <Icon
-                      className={`h-4 w-4 ${active ? "text-amber-400" : "text-on-surface-variant"}`}
+                      className={`h-4 w-4 ${active ? "text-secondary" : "text-on-surface-variant"}`}
                     />
                     <span className="text-sm">{link.name}</span>
                   </Link>
@@ -396,7 +396,7 @@ export function Header() {
                         {user.name}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-amber-700 capitalize dark:text-amber-400">
+                    <span className="text-[10px] font-bold text-on-secondary-container capitalize">
                       {user.role}
                     </span>
                   </div>
@@ -423,7 +423,7 @@ export function Header() {
 
                   <button
                     onClick={handleLogout}
-                    className="mt-1 flex h-9 w-full items-center justify-center rounded-xl text-center text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                    className="mt-1 flex h-9 w-full items-center justify-center rounded-xl text-center text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
                   >
                     Sign Out
                   </button>

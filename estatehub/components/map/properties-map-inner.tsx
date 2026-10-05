@@ -120,18 +120,18 @@ export default function PropertiesMapInner({
           }">
             <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs shadow-xl transition-all ${
               isSelected
-                ? "bg-amber-400 text-slate-950 ring-4 ring-amber-400/30 font-black shadow-amber-500/20"
-                : "bg-slate-950/90 text-white border border-white/20 backdrop-blur-md hover:bg-slate-900"
+                ? "bg-secondary text-on-secondary ring-4 ring-secondary/30 font-black shadow-amber-500/20"
+                : "bg-primary-container/90 text-primary-foreground border border-primary-foreground/20 backdrop-blur-md hover:bg-primary-container"
             }">
               <span class="w-1.5 h-1.5 rounded-full ${
-                isSelected ? "bg-slate-950 animate-pulse" : "bg-amber-400"
+                isSelected ? "bg-primary-container animate-pulse" : "bg-secondary"
               }"></span>
               <span>${prop.priceFormatted}</span>
             </div>
             ${
               isSelected
-                ? '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-amber-400 rotate-45"></div>'
-                : '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-950 rotate-45 border-r border-b border-white/20"></div>'
+                ? '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-secondary rotate-45"></div>'
+                : '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary-container rotate-45 border-r border-b border-primary-foreground/20"></div>'
             }
           </div>
         `,
@@ -191,7 +191,7 @@ export default function PropertiesMapInner({
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-slate-950">
+    <div className="relative w-full h-full overflow-hidden bg-primary-container">
       {/* Map Viewport Container */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
@@ -199,8 +199,8 @@ export default function PropertiesMapInner({
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
         <div className="pointer-events-auto inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface/90 backdrop-blur-md text-xs font-bold text-on-surface shadow-lg border border-outline-variant/30">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-tertiary" />
           </span>
           <span>{properties.length} Active Estates on Radar</span>
         </div>
@@ -276,7 +276,7 @@ export default function PropertiesMapInner({
                 sizes="120px"
                 className="object-cover"
               />
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-xs text-[10px] font-bold text-white uppercase tracking-wider">
+              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary-container/80 backdrop-blur-xs text-[10px] font-bold text-primary-foreground uppercase tracking-wider">
                 {activeProperty.propertyType}
               </span>
             </div>

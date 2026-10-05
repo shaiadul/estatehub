@@ -21,7 +21,7 @@ const buttonVariants = cva(
         luxury:
           "bg-primary font-semibold text-primary-foreground shadow-sm hover:bg-primary-container",
         glass:
-          "border border-white/10 bg-surface/10 text-surface backdrop-blur-md hover:bg-surface/20",
+          "border border-primary-foreground/10 bg-surface/10 text-surface backdrop-blur-md hover:bg-surface/20",
         subtle:
           "bg-surface-container-high font-semibold text-on-surface hover:bg-surface-container-highest",
       },

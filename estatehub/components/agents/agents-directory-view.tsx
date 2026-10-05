@@ -128,6 +128,26 @@ export function AgentsDirectoryView() {
     })
   }, [selectedRegion, searchQuery])
 
+  const regionFilters = [
+    { key: "all", label: `All Jurisdictions (${AGENTS_LIST.length})` },
+    { key: "ca", label: "California (Bel Air & Beverly Hills)" },
+    { key: "ny", label: "New York (Tribeca & Central Park)" },
+    { key: "fl", label: "Florida (Miami & Palm Beach)" },
+  ]
+
+  const heroStats = [
+    { key: "volume", label: "Syndicated Volume", value: "$1.2B+", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
+    { key: "discretion", label: "Discretion Score", value: "99.8%", valueClassName: "text-xl sm:text-2xl font-black text-secondary mt-0.5" },
+    { key: "desks", label: "Global Desks", value: "42", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
+  ]
+
+  const consultFields = [
+    { key: "name", placeholder: "Full Legal Name", type: undefined as string | undefined, required: true },
+    { key: "phone", placeholder: "Private Phone (+1)", type: "tel", required: true },
+    { key: "email", placeholder: "Institutional Email", type: "email", required: true },
+    { key: "target", placeholder: "Holding or Syndicate Target (e.g. $10M - $25M)", type: undefined as string | undefined, required: false },
+  ]
+
   return (
     <div className="min-h-screen bg-surface flex flex-col font-sans">
       <Header />
@@ -155,20 +175,15 @@ export function AgentsDirectoryView() {
               </div>
 
               <div className="flex items-center gap-6 bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 shrink-0">
-                <div className="flex flex-col">
-                  <span className="text-xs text-on-surface-variant font-semibold">Syndicated Volume</span>
-                  <span className="text-xl sm:text-2xl font-black text-on-surface mt-0.5">$1.2B+</span>
-                </div>
-                <div className="h-10 w-px bg-outline-variant/30" />
-                <div className="flex flex-col">
-                  <span className="text-xs text-on-surface-variant font-semibold">Discretion Score</span>
-                  <span className="text-xl sm:text-2xl font-black text-secondary mt-0.5">99.8%</span>
-                </div>
-                <div className="h-10 w-px bg-outline-variant/30" />
-                <div className="flex flex-col">
-                  <span className="text-xs text-on-surface-variant font-semibold">Global Desks</span>
-                  <span className="text-xl sm:text-2xl font-black text-on-surface mt-0.5">42</span>
-                </div>
+                {heroStats.map(({ key, label, value, valueClassName }, i) => (
+                  <React.Fragment key={key}>
+                    {i > 0 && <div className="h-10 w-px bg-outline-variant/30" />}
+                    <div className="flex flex-col">
+                      <span className="text-xs text-on-surface-variant font-semibold">{label}</span>
+                      <span className={valueClassName}>{value}</span>
+                    </div>
+                  </React.Fragment>
+                ))}
               </div>
             </div>
           </div>
@@ -176,41 +191,19 @@ export function AgentsDirectoryView() {
 
         <SectionWrapper fullWidth className="bg-surface py-8 border-b border-outline-variant/20" innerClassName="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
-              <Button
-                variant={selectedRegion === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedRegion("all")}
-                className="rounded-full text-xs font-semibold whitespace-nowrap"
-              >
-                All Jurisdictions ({AGENTS_LIST.length})
-              </Button>
-              <Button
-                variant={selectedRegion === "ca" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedRegion("ca")}
-                className="rounded-full text-xs font-semibold whitespace-nowrap"
-              >
-                California (Bel Air &amp; Beverly Hills)
-              </Button>
-              <Button
-                variant={selectedRegion === "ny" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedRegion("ny")}
-                className="rounded-full text-xs font-semibold whitespace-nowrap"
-              >
-                New York (Tribeca &amp; Central Park)
-              </Button>
-              <Button
-                variant={selectedRegion === "fl" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedRegion("fl")}
-                className="rounded-full text-xs font-semibold whitespace-nowrap"
-              >
-                Florida (Miami &amp; Palm Beach)
-              </Button>
+              {regionFilters.map(({ key, label }) => (
+                <Button
+                  key={key}
+                  variant={selectedRegion === key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedRegion(key)}
+                  className="rounded-full text-xs font-semibold whitespace-nowrap"
+                >
+                  {label}
+                </Button>
+              ))}
             </div>
 
-            {/* Keyword Search Input */}
             <div className="relative w-full md:w-72">
               <IconSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant" />
               <Input
@@ -230,7 +223,6 @@ export function AgentsDirectoryView() {
                   className="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 p-6 sm:p-8 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group"
                 >
                   <div className="flex flex-col gap-6">
-                    {/* Header Row: Avatar, Name, License */}
                     <div className="flex items-start gap-5">
                       <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 border-surface-container shadow-md">
                         <Image
@@ -259,7 +251,7 @@ export function AgentsDirectoryView() {
                         </div>
 
                         <div className="flex items-center gap-3 mt-2 text-xs">
-                          <span className="flex items-center gap-1 text-amber-500 font-bold">
+                          <span className="flex items-center gap-1 text-on-secondary-container font-bold">
                             <IconStarFilled size={14} /> {agent.rating}
                           </span>
                           <span className="text-on-surface-variant">
@@ -272,12 +264,10 @@ export function AgentsDirectoryView() {
                       </div>
                     </div>
 
-                    {/* Bio Paragraph */}
                     <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
                       {agent.bio}
                     </p>
 
-                    {/* Specialties Badges */}
                     <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       {agent.specialties.map((spec, i) => (
                         <span
@@ -289,7 +279,6 @@ export function AgentsDirectoryView() {
                       ))}
                     </div>
 
-                    {/* Performance Metrics Bar */}
                     <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/20 text-center">
                       <div className="flex flex-col">
                         <span className="text-[11px] text-on-surface-variant font-medium">Career Volume</span>
@@ -302,7 +291,6 @@ export function AgentsDirectoryView() {
                     </div>
                   </div>
 
-                  {/* Action Controls */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-6 mt-6 border-t border-outline-variant/30">
                     <Button
                       variant="gold"
@@ -329,9 +317,8 @@ export function AgentsDirectoryView() {
             </div>
         </SectionWrapper>
 
-        {/* Private Consultation Modal */}
         {consultModalAgent && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-50 bg-primary-container/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
               <button
                 type="button"
@@ -346,7 +333,7 @@ export function AgentsDirectoryView() {
 
               {consultBooked ? (
                 <div className="flex flex-col items-center text-center py-6">
-                  <IconCircleCheck size={48} className="text-emerald-500 mb-4" />
+                  <IconCircleCheck size={48} className="text-on-tertiary-container mb-4" />
                   <h3 className="text-2xl font-bold text-on-surface">Consultation Scheduled</h3>
                   <p className="text-xs sm:text-sm text-on-surface-variant mt-2 max-w-sm leading-relaxed">
                     {consultModalAgent.name}&apos;s executive concierge will connect with you via encrypted phone or video dispatch within 2 business hours.
@@ -395,10 +382,15 @@ export function AgentsDirectoryView() {
                     }}
                     className="flex flex-col gap-3 mt-2"
                   >
-                    <Input placeholder="Full Legal Name" required className="h-10 text-xs" />
-                    <Input placeholder="Private Phone (+1)" type="tel" required className="h-10 text-xs" />
-                    <Input placeholder="Institutional Email" type="email" required className="h-10 text-xs" />
-                    <Input placeholder="Holding or Syndicate Target (e.g. $10M - $25M)" className="h-10 text-xs" />
+                    {consultFields.map(({ key, placeholder, type, required }) => (
+                      <Input
+                        key={key}
+                        placeholder={placeholder}
+                        type={type}
+                        required={required}
+                        className="h-10 text-xs"
+                      />
+                    ))}
 
                     <Button type="submit" variant="gold" size="lg" className="w-full font-bold shadow-md mt-2">
                       Confirm Advisory Dispatch

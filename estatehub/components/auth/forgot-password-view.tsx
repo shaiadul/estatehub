@@ -33,11 +33,11 @@ export function ForgotPasswordView() {
       <div className="w-full max-w-lg mx-auto relative z-10">
         <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-outline-variant/30 relative overflow-hidden">
           {/* Top Metallic Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-amber-400 to-primary" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
 
           {submitted ? (
             <div className="flex flex-col items-center text-center space-y-4 py-4 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-tertiary/10 text-on-tertiary-container flex items-center justify-center">
                 <IconMailCheck className="w-8 h-8" />
               </div>
               <h2 className="font-headline-sm text-2xl font-bold text-on-surface">
@@ -62,7 +62,7 @@ export function ForgotPasswordView() {
           ) : (
             <div className="space-y-6">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-low text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-low text-xs font-bold text-on-secondary-container mb-2">
                   <IconShield className="w-3.5 h-3.5" />
                   <span>Sovereign Recovery Protocol</span>
                 </div>
