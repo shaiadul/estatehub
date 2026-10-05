@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { SmartEstateCommandView } from "@/components/dashboard/smart-estate-command"
+import { DashboardPageView } from "./_components"
 
 export const metadata: Metadata = {
   title: "Smart Command & Facility Management | EstateHub Private Client",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function DashboardPage() {
-  return <SmartEstateCommandView />
+  return <DashboardPageView />
 }

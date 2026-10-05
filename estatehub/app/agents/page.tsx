@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { AgentsDirectoryView } from "@/components/agents/agents-directory-view"
+import { AgentsPageView } from "./_components"
 
 export const metadata: Metadata = {
   title: "Premier Broker Directory & Advisory Desks | EstateHub",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function AgentsPage() {
-  return <AgentsDirectoryView />
+  return <AgentsPageView />
 }
