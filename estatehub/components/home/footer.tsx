@@ -34,7 +34,7 @@ export function Footer() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-secondary font-bold text-lg shadow-sm">
                 E
               </div>
-              <span className="font-heading text-xl tracking-tight text-on-surface font-bold uppercase tracking-wider">
+              <span className="font-heading text-xl tracking-tight text-on-surface font-bold uppercase">
                 Estate<span className="text-secondary">Hub</span>
               </span>
             </Link>
@@ -161,7 +161,7 @@ export function Footer() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-1">
-              <div className="flex items-center gap-1.5 rounded-xl border border-outline-variant bg-surface-container-low px-2 py-1 focus-within:border-secondary transition-colors">
+              <div className="flex items-center gap-1.5 rounded-xl border border-outline-variant bg-surface-container-low px-2 py-1 transition-colors">
                 <Input
                   type="email"
                   value={email}
