@@ -33,6 +33,15 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
 }
 
 import { cva, type VariantProps } from "class-variance-authority"
+import {
+  Combobox as SearchCombobox,
+  ComboboxContent as SearchComboboxContent,
+  ComboboxEmpty as SearchComboboxEmpty,
+  ComboboxInput as SearchComboboxInput,
+  ComboboxItem as SearchComboboxItem,
+  ComboboxList as SearchComboboxList,
+  ComboboxTrigger as SearchComboboxTrigger,
+} from "./combobox"
 
 const selectTriggerVariants = cva(
   "relative flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:truncate *:data-[slot=select-value]:text-left *:data-[slot=select-value]:[&_*]:truncate [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -92,9 +101,9 @@ function SelectContent({
   children,
   side = "bottom",
   sideOffset = 4,
-  align = "center",
+  align = "start",
   alignOffset = 0,
-  alignItemWithTrigger = true,
+  alignItemWithTrigger = false,
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
@@ -115,7 +124,7 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            "relative isolate z-50 max-h-(--available-height) min-w-[max(var(--anchor-width),9rem)] max-w-[calc(100vw-2rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className
           )}
           {...props}
@@ -230,5 +239,102 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  SearchableSelect,
   selectTriggerVariants,
+}
+
+export interface SearchableSelectOption {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+type SearchableSelectProps = {
+  options: SearchableSelectOption[]
+  value?: string | null
+  defaultValue?: string | null
+  onValueChange?: (value: string | null) => void
+  placeholder?: string
+  searchPlaceholder?: string
+  emptyMessage?: string
+  disabled?: boolean
+  name?: string
+  /** Preferred side — flips to the top automatically when space below runs out. */
+  side?: "top" | "bottom"
+  sideOffset?: number
+  className?: string
+  contentClassName?: string
+} & VariantProps<typeof selectTriggerVariants>
+
+/**
+ * Searchable single-select with a select-style trigger.
+ * Trigger and dropdown share the exact same width; the list opens below
+ * and flips on top when there isn't enough space.
+ */
+function SearchableSelect({
+  options,
+  value,
+  defaultValue = null,
+  onValueChange,
+  placeholder = "Select an option",
+  searchPlaceholder = "Search...",
+  emptyMessage = "No results found.",
+  disabled = false,
+  name,
+  side = "bottom",
+  sideOffset = 4,
+  variant,
+  size,
+  className,
+  contentClassName,
+}: SearchableSelectProps) {
+  const [internalValue, setInternalValue] = React.useState<string | null>(defaultValue)
+  const [query, setQuery] = React.useState("")
+
+  const current = value !== undefined ? value : internalValue
+  const selected = options.find((o) => o.value === current)
+
+  const handleValueChange = (next: string | null) => {
+    if (value === undefined) setInternalValue(next)
+    onValueChange?.(next)
+  }
+
+  return (
+    <SearchCombobox
+      value={current}
+      onValueChange={(next) => handleValueChange(next as string | null)}
+      inputValue={query}
+      onInputValueChange={(next) => setQuery(next)}
+      onOpenChange={(open) => {
+        if (!open) setQuery("")
+      }}
+      disabled={disabled}
+      name={name}
+    >
+      <SearchComboboxTrigger
+        disabled={disabled}
+        className={cn(
+          selectTriggerVariants({ variant, size }),
+          "w-full",
+          !selected && "text-muted-foreground",
+          className
+        )}
+      >
+        <span className="min-w-0 flex-1 truncate text-left">
+          {selected?.label ?? placeholder}
+        </span>
+      </SearchComboboxTrigger>
+      <SearchComboboxContent side={side} sideOffset={sideOffset} className={contentClassName}>
+        <SearchComboboxInput showTrigger={false} placeholder={searchPlaceholder} />
+        <SearchComboboxList>
+          {options.map((option) => (
+            <SearchComboboxItem key={option.value} value={option.value} disabled={option.disabled}>
+              {option.label}
+            </SearchComboboxItem>
+          ))}
+          <SearchComboboxEmpty>{emptyMessage}</SearchComboboxEmpty>
+        </SearchComboboxList>
+      </SearchComboboxContent>
+    </SearchCombobox>
+  )
 }

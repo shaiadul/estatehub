@@ -47,11 +47,9 @@ export default function PropertiesMapInner({
   const tileLayerRef = React.useRef<L.TileLayer | null>(null)
   const [mapType, setMapType] = React.useState<"street" | "satellite">("satellite")
 
-  // Initialize Map
   React.useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
 
-    // Default center (Los Angeles area as prime enclave)
     const initialCenter: [number, number] = [34.0837, -118.4485]
     const initialZoom = 11
 
@@ -91,12 +89,9 @@ export default function PropertiesMapInner({
     tileLayerRef.current = newTiles
   }, [mapType])
 
-  // Update Markers when properties or activeProperty change
   React.useEffect(() => {
     const map = mapRef.current
     if (!map) return
-
-    // Clear existing markers
     Object.values(markersRef.current).forEach((marker) => marker.remove())
     markersRef.current = {}
 
@@ -111,35 +106,41 @@ export default function PropertiesMapInner({
       const latLng: [number, number] = [prop.coordinates.lat, prop.coordinates.lng]
       bounds.extend(latLng)
 
-      // Custom high-end price pill marker
+      // Dynamic price pill marker:
+      // Uses iconSize: [0, 0] and iconAnchor: [0, 0] with translate(-50%, -100%)
+      // so the pill auto-sizes to any price string without overflowing rigid dimensions,
+      // and the pointer arrow remains perfectly centered on the coordinates.
       const customIcon = L.divIcon({
-        className: "custom-property-pin",
+        className: "custom-property-pin !border-0 !bg-transparent",
+        iconSize: [0, 0],
+        iconAnchor: [0, 0],
         html: `
-          <div class="relative group cursor-pointer transition-transform duration-200 ${
-            isSelected ? "scale-110 z-50" : "hover:scale-105 z-20"
-          }">
-            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs shadow-xl transition-all ${
-              isSelected
-                ? "bg-secondary text-on-secondary ring-4 ring-secondary/30 font-black shadow-amber-500/20"
-                : "bg-primary-container/90 text-primary-foreground border border-primary-foreground/20 backdrop-blur-md hover:bg-primary-container"
+          <div style="transform: translate(-50%, -100%)" class="w-max">
+            <div class="flex flex-col items-center cursor-pointer transition-transform duration-200 origin-bottom ${
+              isSelected ? "scale-110" : "hover:scale-105"
             }">
-              <span class="w-1.5 h-1.5 rounded-full ${
-                isSelected ? "bg-primary-container animate-pulse" : "bg-secondary"
-              }"></span>
-              <span>${prop.priceFormatted}</span>
+              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs whitespace-nowrap shadow-xl transition-colors ${
+                isSelected
+                  ? "bg-secondary text-on-secondary ring-4 ring-secondary/30 font-black shadow-amber-500/20"
+                  : "bg-primary-container text-primary-foreground border border-primary-foreground/20 backdrop-blur-md hover:bg-primary-container"
+              }">
+                <span class="w-1.5 h-1.5 rounded-full shrink-0 ${
+                  isSelected ? "bg-primary-container animate-pulse" : "bg-secondary"
+                }"></span>
+                <span class="tabular-nums tracking-tight whitespace-nowrap leading-none">${prop.priceFormatted}</span>
+              </div>
+              <div class="w-2 h-2 -mt-[5px] rotate-45 shrink-0 ${
+                isSelected
+                  ? "bg-secondary"
+                  : "bg-primary-container border-r border-b border-primary-foreground/20"
+              }"></div>
             </div>
-            ${
-              isSelected
-                ? '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-secondary rotate-45"></div>'
-                : '<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary-container rotate-45 border-r border-b border-primary-foreground/20"></div>'
-            }
           </div>
         `,
-        iconSize: [80, 34],
-        iconAnchor: [40, 34],
       })
 
       const marker = L.marker(latLng, { icon: customIcon }).addTo(map)
+      marker.setZIndexOffset(isSelected ? 1000 : 0)
 
       marker.on("click", () => {
         onSelectProperty(prop)

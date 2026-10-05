@@ -140,7 +140,7 @@ export function LoiGenerator({
               onChange={(e) => onPriceChange(Number(e.target.value))}
               aria-invalid={Boolean(error)}
               aria-describedby={error ? "loi-price-error" : undefined}
-              className="h-full px-0! font-mono text-sm font-bold text-on-surface [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="h-full px-0! font-mono text-sm font-bold text-on-surface [appearance:textfield]"
             />
           </InputGroup>
           {error ? (
