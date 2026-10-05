@@ -1,9 +1,9 @@
 "use client"
 
-import { IconSparkles } from "@tabler/icons-react"
 import { Header } from "@/components/home/header"
 import { Footer } from "@/components/home/footer"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { AppToasts } from "@/components/ui/app-toast"
 import { useCommandState } from "./_components/use-command-state"
 import { CommandHeader } from "./_components/command-header"
 import { CommandSidebar } from "./_components/command-sidebar"
@@ -35,12 +35,7 @@ export function SmartEstateCommandView() {
     <div className="flex min-h-screen flex-col bg-surface font-sans text-on-surface">
       <Header />
 
-      {toastMessage && (
-        <div className="fixed right-6 bottom-6 z-50 flex animate-in items-center gap-3 rounded-2xl border border-primary/30 bg-surface-container-highest/95 px-5 py-3 text-primary-foreground shadow-2xl backdrop-blur-xl slide-in-from-bottom-5 fade-in">
-          <IconSparkles size={18} className="shrink-0 text-secondary" />
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
+      <AppToasts toasts={toastMessage ? [{ id: toastMessage, title: toastMessage }] : []} />
 
       <main className="flex w-full flex-1 flex-col pt-20">
         <CommandHeader state={state} />
