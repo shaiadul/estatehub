@@ -37,6 +37,7 @@ import {
 import { PROPERTIES, PropertyData } from "@/lib/properties-data"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { PropertiesMap } from "@/components/map/properties-map"
 
 export default function PropertiesPage() {
   const router = useRouter()
@@ -536,110 +537,12 @@ export default function PropertiesPage() {
 
             {/* Right Column: Interactive Map Panel */}
             {showMap && (
-              <div className="lg:col-span-5 xl:col-span-5 sticky top-28 h-[calc(100vh-8.5rem)] rounded-2xl overflow-hidden shadow-lg border border-outline-variant/30 bg-surface-container-low flex flex-col">
-                {/* Simulated High-Res Map Viewport */}
-                <div className="relative w-full flex-1 bg-cover bg-center overflow-hidden"
-                  style={{
-                    backgroundImage:
-                      "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop')",
-                  }}
-                >
-                  <div className="absolute inset-0 bg-primary/20 backdrop-blur-[0.5px]" />
-
-                  {/* Top Map Controls */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface/90 backdrop-blur-md text-xs font-bold text-on-surface shadow-md">
-                      <span className="w-2 h-2 rounded-full bg-secondary-fixed animate-ping" />
-                      <span>Bel Air &amp; Beverly Hills Cluster</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 bg-surface/90 backdrop-blur-md p-1 rounded-xl shadow-md">
-                      <Button variant="ghost" size="xs" className="font-bold text-[11px] rounded-lg">
-                        Satellite
-                      </Button>
-                      <Button variant="default" size="xs" className="font-bold text-[11px] rounded-lg">
-                        Street
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Interactive Property Map Pins */}
-                  {filteredProperties.map((prop, idx) => {
-                    const isSelected = activePin?.id === prop.id
-                    // distribute pins visually across the container
-                    const positions = [
-                      { top: "35%", left: "45%" },
-                      { top: "55%", left: "60%" },
-                      { top: "25%", left: "70%" },
-                      { top: "65%", left: "30%" },
-                      { top: "40%", left: "20%" },
-                      { top: "75%", left: "65%" },
-                    ]
-                    const pos = positions[idx % positions.length]
-                    return (
-                      <button
-                        key={prop.id}
-                        type="button"
-                        onClick={() => setActivePin(prop)}
-                        style={{ top: pos.top, left: pos.left }}
-                        className={`absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 z-20 cursor-pointer ${
-                          isSelected
-                            ? "scale-110 z-30"
-                            : "hover:scale-105 opacity-95"
-                        }`}
-                      >
-                        <div
-                          className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 ${
-                            isSelected
-                              ? "bg-secondary text-primary ring-2 ring-white"
-                              : "bg-primary text-on-primary border border-white/20"
-                          }`}
-                        >
-                          <IconMapPin size={13} />
-                          <span>{prop.priceFormatted}</span>
-                        </div>
-                      </button>
-                    )
-                  })}
-
-                  {/* Selected Map Card Overlay */}
-                  {activePin && (
-                    <div className="absolute bottom-4 left-4 right-4 z-30">
-                      <Card className="bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-outline-variant/30 p-3 flex flex-row items-center gap-4">
-                        <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                          <Image
-                            src={activePin.heroImage}
-                            alt={activePin.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-col flex-1 min-w-0 pr-2">
-                          <Badge variant="gold" className="text-[10px] w-fit mb-1 py-0">
-                            {activePin.badge}
-                          </Badge>
-                          <h4 className="text-sm font-bold text-on-surface truncate">
-                            {activePin.title}
-                          </h4>
-                          <span className="text-xs text-secondary font-bold">
-                            {activePin.priceFormatted}
-                          </span>
-                          <span className="text-[11px] text-on-surface-variant truncate mt-0.5">
-                            {activePin.beds} Beds • {activePin.baths} Baths • {activePin.sqftFormatted} Sq Ft
-                          </span>
-                        </div>
-                        <Button
-                          variant="luxury"
-                          size="sm"
-                          className="rounded-xl shrink-0"
-                          render={<Link href={`/properties/${activePin.slug}`} />}
-                        >
-                          View
-                        </Button>
-                      </Card>
-                    </div>
-                  )}
-                </div>
+              <div className="lg:col-span-5 xl:col-span-5 sticky top-28 h-[calc(100vh-8.5rem)] rounded-2xl overflow-hidden shadow-xl border border-outline-variant/30 bg-surface-container-low flex flex-col">
+                <PropertiesMap
+                  properties={filteredProperties}
+                  activeProperty={activePin}
+                  onSelectProperty={(prop) => setActivePin(prop)}
+                />
               </div>
             )}
           </div>

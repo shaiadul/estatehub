@@ -46,6 +46,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SinglePropertyMap } from "@/components/map/single-property-map"
 
 interface PropertyDetailsViewProps {
   property: PropertyData
@@ -955,28 +956,15 @@ export function PropertyDetailsView({ property, similarProperties }: PropertyDet
                     </div>
                   </div>
 
-                  {/* Integrated Map Container */}
-                  <div className="w-full h-60 rounded-xl relative overflow-hidden shadow-sm border border-outline-variant/20 bg-slate-900">
-                    <Image
-                      src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200&auto=format&fit=crop"
-                      alt="Neighborhood Location Map"
-                      fill
-                      className="object-cover opacity-60"
+                  {/* Integrated Interactive Map Container */}
+                  <div className="w-full rounded-2xl overflow-hidden shadow-sm border border-outline-variant/30">
+                    <SinglePropertyMap
+                      coordinates={property.coordinates}
+                      title={property.title}
+                      address={property.address}
+                      city={property.city}
+                      priceFormatted={property.priceFormatted}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <div className="absolute bottom-4 left-4 p-3 rounded-xl bg-surface-container-lowest/95 backdrop-blur-md shadow-lg flex items-center gap-3 border border-outline-variant/30">
-                      <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-fixed">
-                        <IconMapPin className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-on-surface">
-                          {property.city}
-                        </div>
-                        <div className="text-[11px] text-on-surface-variant">
-                          Exclusive 24/7 Security Patrol Zone • {property.coordinates.lat.toFixed(4)}° N, {property.coordinates.lng.toFixed(4)}° W
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
