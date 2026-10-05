@@ -47,11 +47,9 @@ export default function PropertiesMapInner({
   const tileLayerRef = React.useRef<L.TileLayer | null>(null)
   const [mapType, setMapType] = React.useState<"street" | "satellite">("satellite")
 
-  // Initialize Map
   React.useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
 
-    // Default center (Los Angeles area as prime enclave)
     const initialCenter: [number, number] = [34.0837, -118.4485]
     const initialZoom = 11
 
@@ -91,12 +89,9 @@ export default function PropertiesMapInner({
     tileLayerRef.current = newTiles
   }, [mapType])
 
-  // Update Markers when properties or activeProperty change
   React.useEffect(() => {
     const map = mapRef.current
     if (!map) return
-
-    // Clear existing markers
     Object.values(markersRef.current).forEach((marker) => marker.remove())
     markersRef.current = {}
 
