@@ -133,7 +133,7 @@ export function FeaturedListings() {
               key={prop.id}
               className="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden group hover:shadow-2xl transition-all duration-300 border border-outline-variant/30 p-0 gap-0"
             >
-              <Link href={`/properties/${prop.slug}`} className="relative block w-full aspect-[16/10] overflow-hidden bg-surface-container">
+              <Link href={`/properties/${prop.slug}`} className="relative block w-full aspect-16/10 overflow-hidden bg-surface-container">
                 <Image
                   src={prop.image}
                   alt={prop.title}
@@ -141,7 +141,7 @@ export function FeaturedListings() {
                   sizes="(max-width: 1024px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-primary-container/30 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-primary-container/90 via-primary-container/30 to-transparent" />
 
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <Badge variant="verified" className="text-xs font-semibold gap-1 px-3 py-1">

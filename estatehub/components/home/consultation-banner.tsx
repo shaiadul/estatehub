@@ -4,10 +4,11 @@ import * as React from "react"
 import { IconShieldLock, IconCalendarEvent, IconFileText } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function ConsultationBanner() {
   return (
-    <section className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-12 pb-16">
+    <SectionWrapper className="pb-16">
       <div className="relative w-full rounded-3xl bg-surface-container-high p-8 lg:p-12 overflow-hidden shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-outline-variant/40">
         {/* Decorative metallic glow */}
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-secondary-fixed/25 blur-3xl pointer-events-none" />
@@ -51,6 +52,6 @@ export function ConsultationBanner() {
           </Button>
         </div>
       </div>
-    </section>
+    </SectionWrapper>
   )
 }

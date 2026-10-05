@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Fido2Modal } from "@/components/auth/fido2-modal"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function ClosingDeskView() {
   const [wireDisbursed, setWireDisbursed] = React.useState(false)
@@ -33,8 +34,8 @@ export function ClosingDeskView() {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-5rem)] bg-surface py-6 md:py-10 px-4 md:px-8">
-      <div className="max-w-[1360px] w-full mx-auto flex flex-col gap-6 md:gap-8">
+    <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
+      <SectionWrapper fullWidth innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8">
         {/* Deal Command & Status Ribbon */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-surface-container">
           <nav className="flex items-center gap-2 text-on-surface-variant text-xs flex-wrap font-mono">
@@ -381,7 +382,7 @@ export function ClosingDeskView() {
             </div>
           </div>
         </div>
-      </div>
+      </SectionWrapper>
 
       {/* FIDO2 Modal */}
       <Fido2Modal

@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 interface DiligenceDoc {
   id: string
@@ -134,8 +135,8 @@ export function VirtualDataRoomView() {
   })
 
   return (
-    <div className="w-full min-h-[calc(100vh-5rem)] bg-surface py-6 md:py-10 px-4 md:px-8">
-      <div className="max-w-[1400px] w-full mx-auto flex flex-col gap-6 md:gap-8">
+    <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
+      <SectionWrapper fullWidth innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8">
         {/* PROPERTY HERO BANNER WITH VDR CLEARANCE */}
         <div className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-slate-950 text-white shadow-xl border border-outline-variant/30">
           <div
@@ -824,7 +825,7 @@ export function VirtualDataRoomView() {
             </div>
           </div>
         </div>
-      </div>
+      </SectionWrapper>
 
       {/* Exhibit Preview Modal */}
       {previewDoc && (
