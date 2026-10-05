@@ -105,13 +105,11 @@ export function SellPropertyWizard() {
   })
 
   const steps = [
-    { num: 1, name: "Asset Category" },
-    { num: 2, name: "Location & Parcel" },
-    { num: 3, name: "Specs & Architecture" },
-    { num: 4, name: "Imagery & Media" },
-    { num: 5, name: "Pricing & Terms" },
-    { num: 6, name: "Amenities & Finishes" },
-    { num: 7, name: "Syndicate & Audit" },
+    { num: 1, name: "Asset & Location" },
+    { num: 2, name: "Specs & Amenities" },
+    { num: 3, name: "Imagery & Media" },
+    { num: 4, name: "Pricing & Terms" },
+    { num: 5, name: "Syndicate & Audit" },
   ]
 
   const propertyTypes = [
@@ -268,7 +266,7 @@ export function SellPropertyWizard() {
 
             {/* Horizontal Multi-Step Bar */}
             <div className="pt-6 overflow-x-auto no-scrollbar">
-              <div className="flex items-center min-w-[780px] justify-between pb-2">
+              <div className="flex items-center min-w-[640px] justify-between pb-2">
                 {steps.map((st) => {
                   const isDone = st.num < currentStep
                   const isActive = st.num === currentStep
@@ -382,15 +380,15 @@ export function SellPropertyWizard() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                 {/* Form Column (7 Cols) */}
                 <div className="lg:col-span-7 flex flex-col gap-8">
-                  {/* Step 1: Asset Category */}
+                  {/* Step 1: Asset & Location */}
                   {currentStep === 1 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
                         <h2 className="text-2xl font-bold text-on-surface tracking-tight">
-                          Select Asset Category
+                          Asset Category &amp; Location
                         </h2>
                         <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-                          Choose the architectural archetype that defines this luxury holding.
+                          Choose the architectural archetype and geographical positioning for this luxury holding.
                         </p>
                       </div>
 
@@ -442,22 +440,10 @@ export function SellPropertyWizard() {
                           className="h-11"
                         />
                       </div>
-                    </div>
-                  )}
 
-                  {/* Step 2: Location & Parcel */}
-                  {currentStep === 2 && (
-                    <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
-                      <div>
-                        <h2 className="text-2xl font-bold text-on-surface tracking-tight">
-                          Location &amp; Parcel Data
-                        </h2>
-                        <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-                          Enter geographical positioning and jurisdictional boundary information.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-4">
+                      <div className="pt-4 border-t border-outline-variant/30 flex flex-col gap-4">
+                        <h3 className="text-base font-bold text-on-surface">Location &amp; Parcel Data</h3>
+                        
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
                             Street Address
@@ -508,7 +494,7 @@ export function SellPropertyWizard() {
                           </div>
                         </div>
 
-                        <div className="pt-3 flex flex-col gap-3 border-t border-outline-variant/30">
+                        <div className="pt-2 flex flex-col gap-3">
                           <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-surface-container-low">
                             <Checkbox
                               id="gated"
@@ -551,15 +537,15 @@ export function SellPropertyWizard() {
                     </div>
                   )}
 
-                  {/* Step 3: Specs & Architecture */}
-                  {currentStep === 3 && (
+                  {/* Step 2: Specs & Amenities */}
+                  {currentStep === 2 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
                         <h2 className="text-2xl font-bold text-on-surface tracking-tight">
-                          Architectural Specifications
+                          Architectural Specifications &amp; Amenities
                         </h2>
                         <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-                          Detail the scale, interior square footage, and structural metrics.
+                          Detail the scale, interior metrics, and signature luxury features of this estate.
                         </p>
                       </div>
 
@@ -635,11 +621,42 @@ export function SellPropertyWizard() {
                           />
                         </div>
                       </div>
+
+                      <div className="pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
+                        <div>
+                          <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">
+                            Luxury Finishes &amp; Amenities
+                          </h3>
+                          <p className="text-xs text-on-surface-variant mt-0.5">
+                            Highlight distinguishing estate assets for high-net-worth filter indexing.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {luxuryAmenitiesList.map((amenity) => {
+                            const isChecked = form.selectedAmenities.includes(amenity)
+                            return (
+                              <div
+                                key={amenity}
+                                onClick={() => toggleAmenity(amenity)}
+                                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                                  isChecked
+                                    ? "border-secondary bg-secondary-container/20 text-on-surface font-semibold"
+                                    : "border-outline-variant/30 bg-surface-container-low text-on-surface-variant hover:border-outline-variant/60"
+                                }`}
+                              >
+                                <span className="text-xs">{amenity}</span>
+                                <Checkbox checked={isChecked} onCheckedChange={() => toggleAmenity(amenity)} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
                     </div>
                   )}
 
-                  {/* Step 4: Imagery & Media */}
-                  {currentStep === 4 && (
+                  {/* Step 3: Imagery & Media */}
+                  {currentStep === 3 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
                         <h2 className="text-2xl font-bold text-on-surface tracking-tight">
@@ -693,8 +710,8 @@ export function SellPropertyWizard() {
                     </div>
                   )}
 
-                  {/* Step 5: Pricing & Terms */}
-                  {currentStep === 5 && (
+                  {/* Step 4: Pricing & Terms */}
+                  {currentStep === 4 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
                         <h2 className="text-2xl font-bold text-on-surface tracking-tight">
@@ -770,42 +787,8 @@ export function SellPropertyWizard() {
                     </div>
                   )}
 
-                  {/* Step 6: Amenities & Finishes */}
-                  {currentStep === 6 && (
-                    <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
-                      <div>
-                        <h2 className="text-2xl font-bold text-on-surface tracking-tight">
-                          Luxury Finishes &amp; Amenities
-                        </h2>
-                        <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-                          Highlight distinguishing estate assets for high-net-worth filter indexing.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {luxuryAmenitiesList.map((amenity) => {
-                          const isChecked = form.selectedAmenities.includes(amenity)
-                          return (
-                            <div
-                              key={amenity}
-                              onClick={() => toggleAmenity(amenity)}
-                              className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                                isChecked
-                                  ? "border-secondary bg-secondary-container/20 text-on-surface font-semibold"
-                                  : "border-outline-variant/30 bg-surface-container-low text-on-surface-variant hover:border-outline-variant/60"
-                              }`}
-                            >
-                              <span className="text-xs">{amenity}</span>
-                              <Checkbox checked={isChecked} onCheckedChange={() => toggleAmenity(amenity)} />
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 7: Syndicate & Audit Review */}
-                  {currentStep === 7 && (
+                  {/* Step 5: Syndicate & Audit Review */}
+                  {currentStep === 5 && (
                     <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col gap-6">
                       <div>
                         <h2 className="text-2xl font-bold text-on-surface tracking-tight">
