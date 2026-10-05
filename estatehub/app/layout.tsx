@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -12,7 +13,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "EstateHub — Luxury Real Estate & Private Portfolios",
+  title: "EstateHub — Luxury Real Estate & Sovereign Portfolios",
   description:
     "Discover private estates, architectural residences, and luxury penthouses curated by premier certified brokers across North America.",
 }
@@ -28,8 +29,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased scroll-smooth", plusJakartaSans.variable, "font-sans")}
     >
-      <body className="min-h-screen bg-surface font-sans text-on-surface antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-screen bg-surface font-sans text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
