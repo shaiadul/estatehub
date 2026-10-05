@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   IconShieldLock,
   IconFingerprint,
@@ -26,6 +26,12 @@ import { Fido2Modal } from "@/components/auth/fido2-modal"
 
 export function LoginView() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const roleParam = (searchParams.get("role") as "buyer" | "seller" | "broker") || "buyer"
+  const redirectParam = searchParams.get("redirect") || "/dashboard"
+  const isRentContext = redirectParam.includes("type=rent") || roleParam === "buyer"
+  const isSellerContext = redirectParam.includes("/sell") || roleParam === "seller"
+
   const { login, switchDemoUser, isLoggedIn, user } = useAuth()
   const [authMode, setAuthMode] = React.useState<"passkey" | "password">("passkey")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -40,24 +46,29 @@ export function LoginView() {
     if (!email) return
     setIsSubmitting(true)
     setTimeout(() => {
-      login(email, "buyer")
+      login(email, roleParam)
       setIsSubmitting(false)
-      router.push("/dashboard")
+      router.push(redirectParam)
     }, 600)
   }
 
   const handlePasskeyAuth = () => {
     setIsSubmitting(true)
     setTimeout(() => {
-      login("rossi.familyoffice@swiss-holdings.ch", "buyer")
+      login(
+        roleParam === "seller"
+          ? "sterling@belair-trust.com"
+          : "rossi.familyoffice@swiss-holdings.ch",
+        roleParam
+      )
       setIsSubmitting(false)
-      router.push("/dashboard")
+      router.push(redirectParam)
     }, 800)
   }
 
   const handleDemoSelect = (role: "broker" | "buyer" | "seller") => {
     switchDemoUser(role)
-    router.push("/dashboard")
+    router.push(redirectParam)
   }
 
   return (
@@ -233,7 +244,11 @@ export function LoginView() {
               <div className="space-y-1 mb-6">
                 <div className="flex items-center justify-between">
                   <span className="font-caption text-xs tracking-widest uppercase font-bold text-amber-700 dark:text-amber-400">
-                    Single Sign-On Terminal
+                    {isRentContext
+                      ? "Client Rental Portal"
+                      : isSellerContext
+                      ? "Seller Syndication Portal"
+                      : "Single Sign-On Terminal"}
                   </span>
                   <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
                     <IconShieldLock className="w-4 h-4" />
@@ -241,10 +256,18 @@ export function LoginView() {
                   </div>
                 </div>
                 <h2 className="font-headline-md text-2xl sm:text-3xl text-on-surface font-extrabold tracking-tight">
-                  Institutional Portal Sign-In
+                  {isRentContext
+                    ? "Client Portal Sign-In"
+                    : isSellerContext
+                    ? "Seller Portal Sign-In"
+                    : "Institutional Portal Sign-In"}
                 </h2>
                 <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant">
-                  Authenticate using verified credentials or registered hardware token.
+                  {isRentContext
+                    ? "Sign in to access private rental portfolios, schedule client viewings, and request terms."
+                    : isSellerContext
+                    ? "Authenticate to list, syndicate, and manage your luxury properties on the private exchange."
+                    : "Authenticate using verified credentials or registered hardware token."}
                 </p>
               </div>
 

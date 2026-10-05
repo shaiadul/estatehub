@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   IconBuildingBank,
   IconBuildingSkyscraper,
@@ -28,16 +28,31 @@ import { useAuth } from "@/lib/auth-context"
 
 export function RegisterView() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const roleParam = (searchParams.get("role") as "buyer" | "seller" | "broker") || "buyer"
+  const redirectParam = searchParams.get("redirect") || (roleParam === "seller" ? "/sell" : "/dashboard")
+  const isSellerMode = roleParam === "seller" || redirectParam.includes("/sell")
+
   const { login } = useAuth()
   const [currentStep, setCurrentStep] = React.useState<number>(1)
-  const [selectedEntityClass, setSelectedEntityClass] = React.useState("family-office")
-  const [fullName, setFullName] = React.useState("Baron Henrik Von Stauffen")
-  const [title, setTitle] = React.useState("Managing General Partner")
-  const [entityName, setEntityName] = React.useState("Alpha Crest Sovereign Capital AG")
-  const [jurisdiction, setJurisdiction] = React.useState("CH-ZH")
-  const [phonePrefix, setPhonePrefix] = React.useState("+41")
-  const [phone, setPhone] = React.useState("79 402 1892")
-  const [email, setEmail] = React.useState("h.vonstauffen@alphacrest.ch")
+  const [selectedEntityClass, setSelectedEntityClass] = React.useState(
+    isSellerMode ? "hnw-principal" : "family-office"
+  )
+  const [fullName, setFullName] = React.useState(
+    isSellerMode ? "Marcus Sterling" : "Baron Henrik Von Stauffen"
+  )
+  const [title, setTitle] = React.useState(
+    isSellerMode ? "Family Office Estate Principal" : "Managing General Partner"
+  )
+  const [entityName, setEntityName] = React.useState(
+    isSellerMode ? "Bel Air Trust Holdings LLC" : "Alpha Crest Sovereign Capital AG"
+  )
+  const [jurisdiction, setJurisdiction] = React.useState("US-CA")
+  const [phonePrefix, setPhonePrefix] = React.useState("+1")
+  const [phone, setPhone] = React.useState("310 882 1904")
+  const [email, setEmail] = React.useState(
+    isSellerMode ? "sterling@belair-trust.com" : "h.vonstauffen@alphacrest.ch"
+  )
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [, setSuccessComplete] = React.useState(false)
 
@@ -60,10 +75,10 @@ export function RegisterView() {
       setTimeout(() => {
         setIsSubmitting(false)
         setSuccessComplete(true)
-        login(email, "buyer")
+        login(email, roleParam)
         setTimeout(() => {
-          router.push("/dashboard")
-        }, 1500)
+          router.push(redirectParam)
+        }, 1200)
       }, 1000)
     }
   }
@@ -272,15 +287,19 @@ export function RegisterView() {
             <div className="p-6 md:p-8 rounded-2xl bg-surface-container-lowest shadow-xs border border-outline-variant/30 flex flex-col gap-2 relative overflow-hidden">
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 font-caption text-xs font-bold uppercase tracking-wider">
-                  Confidential Desk
+                  {isSellerMode ? "Seller Desk // Listing Intake" : "Confidential Desk"}
                 </span>
                 <span className="font-caption text-xs text-on-surface-variant font-mono">Form Reg-D-506C</span>
               </div>
               <h1 className="font-headline-lg text-2xl sm:text-3xl text-on-surface font-extrabold tracking-tight">
-                Institutional Membership Application
+                {isSellerMode
+                  ? "Seller Registration & Property Syndication"
+                  : "Institutional Membership Application"}
               </h1>
               <p className="font-body-md text-sm sm:text-base text-on-surface-variant max-w-2xl leading-relaxed">
-                EstateHub maintains strict accreditation thresholds to guarantee confidential off-market dealrooms and frictionless multi-million dollar bilateral closings.
+                {isSellerMode
+                  ? "Register as an accredited property owner or seller to list, syndicate, and manage your luxury properties directly on the private exchange."
+                  : "EstateHub maintains strict accreditation thresholds to guarantee confidential off-market dealrooms and frictionless multi-million dollar bilateral closings."}
               </p>
             </div>
 

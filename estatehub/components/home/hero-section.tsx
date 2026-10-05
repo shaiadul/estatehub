@@ -19,8 +19,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 
 export function HeroSection() {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
   const [activeMode, setActiveMode] = React.useState<"buy" | "rent" | "commercial">("buy")
   const [location, setLocation] = React.useState("Bel Air, CA")
   const [propertyType, setPropertyType] = React.useState("villa")
@@ -103,7 +107,13 @@ export function HeroSection() {
                 type="button"
                 variant={activeMode === "rent" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setActiveMode("rent")}
+                onClick={() => {
+                  if (!isLoggedIn) {
+                    router.push("/login?role=buyer&redirect=/properties?type=rent")
+                  } else {
+                    setActiveMode("rent")
+                  }
+                }}
                 className={`rounded-lg px-4 text-xs sm:text-sm font-semibold transition-all ${
                   activeMode === "rent"
                     ? "bg-primary text-on-primary shadow-sm"
@@ -250,6 +260,17 @@ export function HeroSection() {
               type="button"
               variant="luxury"
               size="hero"
+              onClick={() => {
+                if (activeMode === "rent") {
+                  if (!isLoggedIn) {
+                    router.push("/login?role=buyer&redirect=/properties?type=rent")
+                  } else {
+                    router.push("/properties?type=rent")
+                  }
+                } else {
+                  router.push("/properties")
+                }
+              }}
               className="gap-2 group shadow-md"
             >
               <span>Search Available Estates</span>

@@ -35,8 +35,12 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { PROPERTIES, PropertyData } from "@/lib/properties-data"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 
 export default function PropertiesPage() {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [showMap, setShowMap] = React.useState(true)
   const [filterPanelOpen, setFilterPanelOpen] = React.useState(true)
@@ -288,7 +292,13 @@ export default function PropertiesPage() {
                             type="button"
                             variant={transactionType === "rent" ? "default" : "ghost"}
                             size="sm"
-                            onClick={() => setTransactionType("rent")}
+                            onClick={() => {
+                              if (!isLoggedIn) {
+                                router.push("/login?role=buyer&redirect=/properties?type=rent")
+                              } else {
+                                setTransactionType("rent")
+                              }
+                            }}
                             className="rounded-lg text-xs font-semibold"
                           >
                             Rent

@@ -19,6 +19,7 @@ import {
   IconUsers,
   IconDeviceAnalytics,
   IconPlus,
+  IconKey,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
@@ -106,6 +107,21 @@ export function Header() {
                 <Link
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => {
+                    if (link.href === "/rent") {
+                      e.preventDefault()
+                      if (!isLoggedIn) {
+                        router.push("/login?role=buyer&redirect=/properties?type=rent")
+                      } else {
+                        router.push("/properties?type=rent")
+                      }
+                    } else if (link.href === "/sell") {
+                      if (!isLoggedIn) {
+                        e.preventDefault()
+                        router.push("/register?role=seller&redirect=/sell")
+                      }
+                    }
+                  }}
                   className={`inline-flex h-9 items-center justify-center rounded-xl px-3 text-xs font-semibold whitespace-nowrap transition-all xl:px-3.5 xl:text-sm ${
                     active
                       ? "text-on-primary bg-primary font-bold shadow-xs"
@@ -130,18 +146,23 @@ export function Header() {
             </Button>
 
             {/* List Property CTA Button */}
-            <Link href="/sell" className="hidden sm:inline-flex">
-              <Button
-                variant="gold"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-xs xl:text-sm"
-              >
-                <IconPlus className="h-3.5 w-3.5 stroke-[3]" />
-                <span>List Property</span>
-              </Button>
-            </Link>
+            <Button
+              variant="gold"
+              onClick={() => {
+                if (!isLoggedIn) {
+                  router.push("/register?role=seller&redirect=/sell")
+                } else {
+                  router.push("/sell")
+                }
+              }}
+              className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-xs xl:text-sm"
+            >
+              <IconPlus className="h-3.5 w-3.5 stroke-[3]" />
+              <span>List Property</span>
+            </Button>
 
-            {/* User Profile / Auth State Dropdown */}
-            {isLoggedIn && user ? (
+            {/* User Profile / Auth State Dropdown (Only when logged in) */}
+            {isLoggedIn && user && (
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -271,25 +292,6 @@ export function Header() {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Link href="/login">
-                  <Button
-                    variant="ghost"
-                    className="inline-flex h-9 items-center rounded-xl px-3.5 text-xs font-bold xl:text-sm"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button
-                    variant="gold"
-                    className="inline-flex h-9 items-center rounded-xl px-3.5 text-xs font-bold shadow-xs xl:text-sm"
-                  >
-                    Join
-                  </Button>
-                </Link>
-              </div>
             )}
 
             {/* Mobile Menu Hamburger Button (visible on mobile/tablet below lg: 1024px) */}
@@ -329,7 +331,22 @@ export function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      setMobileMenuOpen(false)
+                      if (link.href === "/rent") {
+                        e.preventDefault()
+                        if (!isLoggedIn) {
+                          router.push("/login?role=buyer&redirect=/properties?type=rent")
+                        } else {
+                          router.push("/properties?type=rent")
+                        }
+                      } else if (link.href === "/sell") {
+                        if (!isLoggedIn) {
+                          e.preventDefault()
+                          router.push("/register?role=seller&redirect=/sell")
+                        }
+                      }
+                    }}
                     className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all ${
                       active
                         ? "text-on-primary bg-primary font-bold shadow-xs"
@@ -347,21 +364,23 @@ export function Header() {
 
             {/* Mobile Actions & Auth */}
             <div className="flex flex-col gap-3 border-t border-outline-variant/30 pt-3">
-              <Link
-                href="/sell"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full"
+              <Button
+                variant="gold"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  if (!isLoggedIn) {
+                    router.push("/register?role=seller&redirect=/sell")
+                  } else {
+                    router.push("/sell")
+                  }
+                }}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-xs"
               >
-                <Button
-                  variant="gold"
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-xs"
-                >
-                  <IconPlus className="h-4 w-4 stroke-[3]" />
-                  <span>List Property for Syndication</span>
-                </Button>
-              </Link>
+                <IconPlus className="h-4 w-4 stroke-[3]" />
+                <span>List Property for Syndication</span>
+              </Button>
 
-              {isLoggedIn && user ? (
+              {isLoggedIn && user && (
                 <div className="flex flex-col gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-low p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -407,23 +426,6 @@ export function Header() {
                   >
                     Sign Out
                   </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-xl bg-surface-container text-center text-xs font-bold text-on-surface transition-colors hover:bg-surface-container-high sm:text-sm"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-on-primary inline-flex h-11 items-center justify-center rounded-xl bg-primary text-center text-xs font-bold shadow-xs transition-colors hover:bg-primary/90 sm:text-sm"
-                  >
-                    Join Enclave
-                  </Link>
                 </div>
               )}
             </div>

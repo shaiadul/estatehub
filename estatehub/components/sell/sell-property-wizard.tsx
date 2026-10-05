@@ -33,6 +33,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 
 interface FormState {
   propertyType: "villa" | "penthouse" | "waterfront" | "chalet" | "compound"
@@ -59,9 +61,17 @@ interface FormState {
 }
 
 export function SellPropertyWizard() {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [isPublished, setIsPublished] = React.useState<boolean>(false)
   const [saveDraftToast, setSaveDraftToast] = React.useState<boolean>(false)
+
+  React.useEffect(() => {
+    if (!isLoggedIn) {
+      router.replace("/register?role=seller&redirect=/sell")
+    }
+  }, [isLoggedIn, router])
 
   const [form, setForm] = React.useState<FormState>({
     propertyType: "villa",
