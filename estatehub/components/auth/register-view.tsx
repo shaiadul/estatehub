@@ -39,7 +39,7 @@ export function RegisterView() {
   const [phone, setPhone] = React.useState("79 402 1892")
   const [email, setEmail] = React.useState("h.vonstauffen@alphacrest.ch")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [successComplete, setSuccessComplete] = React.useState(false)
+  const [, setSuccessComplete] = React.useState(false)
 
   // Step 2 Accreditation state
   const [netWorthTier, setNetWorthTier] = React.useState("25m-50m")
