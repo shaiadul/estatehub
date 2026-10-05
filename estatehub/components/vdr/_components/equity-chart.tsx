@@ -1,101 +1,241 @@
 "use client"
 
 import * as React from "react"
+import {
+  Area,
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  XAxis,
+  YAxis,
+} from "recharts"
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+import { formatUSD } from "./vdr-utils"
 
 interface EquityChartProps {
   yearlyEquity: number[]
   holdYears?: number
+  /** Original purchase price — used for gain / YoY math. */
+  basePrice?: number
+  annualTax?: number
+  annualOperating?: number
+  cagr?: number
 }
 
-/** Business chart: equity curve (area) + holding-cost bars, scaled to data. */
-export function EquityChart({ yearlyEquity, holdYears = 5 }: EquityChartProps) {
-  const { points, bars, labels } = React.useMemo(() => {
-    const values = yearlyEquity.slice(0, holdYears)
-    if (values.length === 0) return { points: "", bars: [], labels: [] as string[] }
-    const W = 700
-    const H = 110
-    const padX = 50
-    const min = Math.min(...values) * 0.97
-    const max = Math.max(...values) * 1.02
-    const span = Math.max(max - min, 1)
-    const stepX = values.length > 1 ? (W - padX * 2) / (values.length - 1) : 0
-    const yFor = (v: number) => H - ((v - min) / span) * (H - 20) - 5
-    const xFor = (i: number) => padX + i * stepX
-    const pts = values.map((v, i) => `${xFor(i).toFixed(1)},${yFor(v).toFixed(1)}`).join(" ")
-    const barRects = values.map((v, i) => ({
-      x: xFor(i) - 8,
-      // holding-cost proxy bar grows slowly — visual only, equity is source of truth
-      height: 14 + i * 3,
-      y: H + 2,
-    }))
-    const lbls = values.map(
-      (v, i) => `Year ${i + 1} ($${(v / 1_000_000).toFixed(2)}M)`,
-    )
-    return { points: pts, bars: barRects, labels: lbls }
-  }, [yearlyEquity, holdYears])
+interface ChartRow {
+  year: string
+  fullLabel: string
+  equity: number
+  carry: number
+  gain: number
+  net: number
+  yoyPct: number
+}
+
+const chartConfig: ChartConfig = {
+  equity: {
+    label: "Asset Equity",
+    color: "var(--secondary)",
+  },
+  carry: {
+    label: "Holding Cost (cumul.)",
+    color: "var(--primary)",
+  },
+} satisfies ChartConfig
+
+/** Business chart: equity area + cumulative holding-cost bars, driven by pro-forma data. */
+export function EquityChart({
+  yearlyEquity,
+  holdYears = 5,
+  basePrice,
+  annualTax = 0,
+  annualOperating = 0,
+  cagr,
+}: EquityChartProps) {
+  const gradientId = React.useId().replace(/:/g, "")
+
+  const { rows, yMin, yMax, totalGain, totalCarry, netAfterCarry } = React.useMemo(() => {
+    const equityValues = yearlyEquity.slice(0, holdYears)
+    if (equityValues.length === 0) {
+      return { rows: [] as ChartRow[], yMin: 0, yMax: 0, totalGain: 0, totalCarry: 0, netAfterCarry: 0 }
+    }
+    const base = basePrice ?? equityValues[0] / 1.058
+    const annualCarry = annualTax + annualOperating
+
+    const rows: ChartRow[] = equityValues.map((equity, i) => {
+      const prev = i === 0 ? base : equityValues[i - 1]
+      const carry = Math.round(annualCarry * (i + 1))
+      const gain = Math.round(equity - base)
+      return {
+        year: `Yr ${i + 1}`,
+        fullLabel: `Year ${i + 1} (${formatUSD(equity, { decimals: 0 })})`,
+        equity: Math.round(equity),
+        carry,
+        gain,
+        net: gain - carry,
+        yoyPct: prev > 0 ? ((equity - prev) / prev) * 100 : 0,
+      }
+    })
+
+    const min = Math.min(base, ...rows.map((r) => Math.min(r.equity, r.carry)))
+    const max = Math.max(...rows.map((r) => Math.max(r.equity, r.carry)))
+    const pad = Math.max((max - min) * 0.12, max * 0.02)
+    const last = rows[rows.length - 1]
+    return {
+      rows,
+      yMin: Math.max(Math.floor((min - pad) / 500_000) * 500_000, 0),
+      yMax: Math.ceil((max + pad) / 500_000) * 500_000,
+      totalGain: last.gain,
+      totalCarry: last.carry,
+      netAfterCarry: last.net,
+    }
+  }, [yearlyEquity, holdYears, basePrice, annualTax, annualOperating])
+
+  if (rows.length === 0) return null
 
   return (
-    <div className="bg-surface-container-low p-4 sm:p-5 rounded-2xl border border-outline-variant/20">
-      <div className="flex items-center justify-between mb-3 text-xs flex-wrap gap-2">
-        <span className="font-bold text-on-surface">
-          {holdYears}-Year Equity Accrual &amp; Capital Projection ($M)
-        </span>
-        <div className="flex items-center gap-3 text-on-surface-variant">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded bg-primary" /> Holding Cost
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded bg-secondary" /> Asset Equity
-          </span>
+    <div className="bg-surface-container-low p-4 sm:p-5 rounded-2xl border border-outline-variant/20 flex flex-col gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <p className="font-bold text-sm text-on-surface">
+            {holdYears}-Year Equity Accrual &amp; Capital Projection
+          </p>
+          <p className="text-[11px] text-on-surface-variant">
+            Equity compounding
+            {cagr ? ` @ ${(cagr * 100).toFixed(1)}% CAGR` : ""} vs cumulative carry (tax + ops)
+          </p>
         </div>
+        {cagr ? (
+          <span className="px-2.5 py-1 rounded-full bg-secondary/15 text-on-secondary-container font-mono text-[11px] font-bold">
+            +{(cagr * 100).toFixed(1)}% p.a.
+          </span>
+        ) : null}
       </div>
 
-      <div className="w-full h-32 sm:h-36" role="img" aria-label="Projected equity growth chart">
-        <svg className="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 700 140">
+      <ChartContainer config={chartConfig} className="aspect-auto h-64 sm:h-72 w-full">
+        <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap="28%">
           <defs>
-            <linearGradient id="equityGrad" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="var(--secondary)" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="var(--secondary)" stopOpacity="0.0" />
+            <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--secondary)" stopOpacity={0.45} />
+              <stop offset="100%" stopColor="var(--secondary)" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          {[30, 70, 110].map((y) => (
-            <line
-              key={y}
-              stroke="var(--outline-variant)"
-              strokeDasharray="4 4"
-              strokeOpacity="0.25"
-              x1="0"
-              x2="700"
-              y1={y}
-              y2={y}
-            />
-          ))}
-          {points && (
-            <polygon fill="url(#equityGrad)" points={`${points} 650,130 50,130`} />
-          )}
-          {points && (
-            <polyline
-              points={points}
-              stroke="var(--secondary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          )}
-          {bars.map((b, i) => (
-            <rect key={i} fill="var(--primary)" height={b.height} rx="2" width="16" x={b.x} y={b.y} />
-          ))}
-          {labels.map((label, i) => {
-            const n = labels.length
-            const x = n > 1 ? 50 + (i * (650 - 50)) / (n - 1) : 350
-            return (
-              <text key={label} fill="var(--muted-foreground)" fontSize="10" textAnchor="middle" x={x} y="138">
-                {label}
-              </text>
-            )
-          })}
-        </svg>
+          <CartesianGrid vertical={false} strokeDasharray="4 4" strokeOpacity={0.35} />
+          <XAxis
+            dataKey="year"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            minTickGap={8}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            width={64}
+            domain={[yMin, yMax]}
+            tickFormatter={(v: number) => `$${(Number(v) / 1_000_000).toFixed(1)}M`}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                labelFormatter={(_, payload) => {
+                  const row = payload?.[0]?.payload as ChartRow | undefined
+                  return row?.fullLabel ?? ""
+                }}
+                formatter={(value, name, item) => {
+                  const row = item?.payload as ChartRow | undefined
+                  const items: React.ReactNode[] = []
+                  if (name === "equity" || name === undefined) {
+                    items.push(
+                      <div key="eq" className="flex w-full items-center justify-between gap-6">
+                        <span className="text-muted-foreground">Asset Equity</span>
+                        <span className="font-mono font-medium tabular-nums">
+                          {formatUSD(Number(value))}
+                        </span>
+                      </div>,
+                    )
+                    if (row) {
+                      items.push(
+                        <div key="gain" className="flex w-full items-center justify-between gap-6">
+                          <span className="text-muted-foreground">Capital gain</span>
+                          <span className="font-mono font-medium tabular-nums text-emerald-600">
+                            +{formatUSD(row.gain)}
+                          </span>
+                        </div>,
+                        <div key="yoy" className="flex w-full items-center justify-between gap-6">
+                          <span className="text-muted-foreground">YoY growth</span>
+                          <span className="font-mono font-medium tabular-nums">
+                            +{row.yoyPct.toFixed(2)}%
+                          </span>
+                        </div>,
+                      )
+                    }
+                  } else {
+                    items.push(
+                      <div key="carry" className="flex w-full items-center justify-between gap-6">
+                        <span className="text-muted-foreground">Holding cost (cumul.)</span>
+                        <span className="font-mono font-medium tabular-nums">
+                          {formatUSD(Number(value))}
+                        </span>
+                      </div>,
+                    )
+                    if (row) {
+                      items.push(
+                        <div key="net" className="flex w-full items-center justify-between gap-6">
+                          <span className="text-muted-foreground">Net after carry</span>
+                          <span className="font-mono font-medium tabular-nums">
+                            {formatUSD(row.net)}
+                          </span>
+                        </div>,
+                      )
+                    }
+                  }
+                  return <div className="grid w-full gap-1.5">{items}</div>
+                }}
+              />
+            }
+          />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Bar dataKey="carry" fill="var(--color-carry)" radius={[5, 5, 0, 0]} barSize={22} />
+          <Area
+            type="monotone"
+            dataKey="equity"
+            stroke="var(--color-equity)"
+            strokeWidth={2.5}
+            fill={`url(#${gradientId})`}
+            dot={{ r: 3.5, fill: "var(--color-equity)", strokeWidth: 0 }}
+            activeDot={{ r: 5 }}
+          />
+        </ComposedChart>
+      </ChartContainer>
+
+      {/* Business summary strip — derived from the same rows */}
+      <div className="grid grid-cols-3 gap-2 pt-1 border-t border-outline-variant/20">
+        {[
+          { label: `Exit equity (Yr ${rows.length})`, value: formatUSD(rows[rows.length - 1].equity) },
+          { label: "Total capital gain", value: `+${formatUSD(totalGain)}` },
+          { label: "Net after carry", value: formatUSD(netAfterCarry) },
+        ].map((s) => (
+          <div key={s.label} className="flex flex-col px-1 py-1.5">
+            <span className="text-[10px] uppercase tracking-wide text-on-surface-variant font-semibold">
+              {s.label}
+            </span>
+            <span className="text-sm font-bold font-mono text-on-surface tabular-nums">
+              {s.value}
+            </span>
+          </div>
+        ))}
       </div>
+      <p className="text-[10px] text-outline">
+        Cumulative carry {formatUSD(totalCarry)} (tax + ops) already netted in the right-hand figure.
+      </p>
     </div>
   )
 }

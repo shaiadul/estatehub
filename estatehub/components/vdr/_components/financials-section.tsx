@@ -124,7 +124,14 @@ export function FinancialsSection({ property, comps }: FinancialsSectionProps) {
         ))}
       </div>
 
-      <EquityChart yearlyEquity={proforma.yearlyEquity} holdYears={holdYears} />
+      <EquityChart
+        yearlyEquity={proforma.yearlyEquity}
+        holdYears={holdYears}
+        basePrice={property.price}
+        annualTax={proforma.annualTax}
+        annualOperating={proforma.annualOperating}
+        cagr={property.cagr}
+      />
       <CompsTable comps={comps} property={property} />
     </section>
   )
