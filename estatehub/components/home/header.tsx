@@ -17,9 +17,7 @@ import {
   IconReceipt2,
   IconBuildingEstate,
   IconUsers,
-  IconDeviceAnalytics,
   IconPlus,
-  IconKey,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
@@ -109,6 +107,7 @@ export function Header() {
                 <Link
                   key={link.name}
                   href={link.href}
+                  aria-current={active ? "page" : undefined}
                   onClick={(e) => {
                     if (link.href === "/rent") {
                       e.preventDefault()
@@ -124,13 +123,21 @@ export function Header() {
                       }
                     }
                   }}
-                  className={`inline-flex h-9 items-center justify-center rounded-xl px-3 text-xs font-semibold whitespace-nowrap transition-all xl:px-3.5 xl:text-sm ${
+                  className={`group relative inline-flex h-9 items-center justify-center px-3 text-xs font-semibold whitespace-nowrap transition-colors xl:px-3.5 xl:text-sm ${
                     active
-                      ? "text-on-primary bg-primary font-bold shadow-xs"
-                      : "text-on-surface-variant hover:bg-surface-container/60 hover:text-on-surface"
+                      ? "font-bold text-on-surface"
+                      : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   {link.name}
+                  <span
+                    aria-hidden
+                    className={`absolute inset-x-3 bottom-[5px] h-0.5 origin-center rounded-full bg-secondary transition-all duration-300 ${
+                      active
+                        ? "scale-x-100 opacity-100"
+                        : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
+                    }`}
+                  />
                 </Link>
               )
             })}
@@ -348,14 +355,23 @@ export function Header() {
                         }
                       }
                     }}
-                    className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all ${
+                    className={`group relative flex items-center gap-3 px-3.5 py-2.5 transition-colors ${
                       active
-                        ? "text-on-primary bg-primary font-bold shadow-xs"
-                        : "font-semibold text-on-surface hover:bg-surface-container"
+                        ? "font-bold text-on-surface"
+                        : "font-semibold text-on-surface-variant hover:text-on-surface"
                     }`}
+                    aria-current={active ? "page" : undefined}
                   >
+                    <span
+                      aria-hidden
+                      className={`absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-full bg-secondary transition-all duration-300 ${
+                        active
+                          ? "scale-y-100 opacity-100"
+                          : "scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100"
+                      }`}
+                    />
                     <Icon
-                      className={`h-4 w-4 ${active ? "text-secondary" : "text-on-surface-variant"}`}
+                      className={`h-4 w-4 ${active ? "text-secondary" : "text-on-surface-variant group-hover:text-secondary"}`}
                     />
                     <span className="text-sm">{link.name}</span>
                   </Link>
