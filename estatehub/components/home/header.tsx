@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import {
   IconWorld,
   IconHeart,
@@ -17,6 +18,23 @@ import { Badge } from "@/components/ui/badge"
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [favoritesCount] = React.useState(4)
+  const pathname = usePathname()
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Buy", href: "/properties?type=buy" },
+    { name: "Rent", href: "/properties?type=rent" },
+    { name: "Properties", href: "/properties" },
+    { name: "Sell", href: "/sell" },
+    { name: "Agents", href: "/agents" },
+    { name: "Dashboard", href: "/dashboard" },
+  ]
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/"
+    if (href.startsWith("/properties")) return pathname.startsWith("/properties")
+    return pathname.startsWith(href)
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
@@ -36,50 +54,21 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={`text-sm py-2 transition-colors ${
+                isActive(link.href)
+                  ? "font-semibold text-on-surface border-b-2 border-secondary"
+                  : "font-medium text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
           <Link
-            href="/"
-            className="text-sm font-semibold text-on-surface py-2 border-b-2 border-secondary"
-          >
-            Home
-          </Link>
-          <Link
-            href="#buy"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Buy
-          </Link>
-          <Link
-            href="#rent"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Rent
-          </Link>
-          <Link
-            href="#properties"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Properties
-          </Link>
-          <Link
-            href="#sell"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Sell
-          </Link>
-          <Link
-            href="#agents"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Agents
-          </Link>
-          <Link
-            href="#dashboard"
-            className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="#favorites"
+            href="/properties"
             className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors py-2 flex items-center gap-1.5"
           >
             Favorites
@@ -106,6 +95,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             aria-label="Saved Properties"
+            render={<Link href="/properties" />}
             className="relative rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
           >
             <IconHeart size={19} />
@@ -117,6 +107,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             aria-label="Notifications"
+            render={<Link href="/dashboard" />}
             className="relative rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
           >
             <IconBell size={19} />
@@ -127,14 +118,14 @@ export function Header() {
           <Button
             variant="gold"
             size="sm"
-            className="hidden sm:inline-flex px-4 py-2 text-sm rounded-lg"
-            render={<Link href="#sell" />}
+            className="hidden sm:inline-flex px-4 py-2 text-sm rounded-lg font-bold"
+            render={<Link href="/sell" />}
           >
             List Property
           </Button>
 
           {/* Profile pill */}
-          <div className="flex items-center gap-2 pl-1 border-l border-outline-variant/40">
+          <Link href="/dashboard" className="flex items-center gap-2 pl-1 border-l border-outline-variant/40">
             <div className="flex items-center gap-2 cursor-pointer group">
               <Image
                 alt="Profile"
@@ -156,7 +147,7 @@ export function Header() {
                 className="text-on-surface-variant hidden 2xl:block"
               />
             </div>
-          </div>
+          </Link>
 
           {/* Mobile hamburger button */}
           <Button
@@ -174,60 +165,26 @@ export function Header() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-b border-outline-variant/30 bg-surface/98 backdrop-blur-2xl px-6 py-4 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-200">
-          <Link
-            href="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-semibold text-secondary py-1"
-          >
-            Home
-          </Link>
-          <Link
-            href="#buy"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Buy
-          </Link>
-          <Link
-            href="#rent"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Rent
-          </Link>
-          <Link
-            href="#properties"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Properties
-          </Link>
-          <Link
-            href="#sell"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Sell
-          </Link>
-          <Link
-            href="#agents"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Agents
-          </Link>
-          <Link
-            href="#dashboard"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-on-surface py-1"
-          >
-            Dashboard
-          </Link>
-          <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`text-sm py-1.5 ${
+                isActive(link.href)
+                  ? "font-bold text-secondary"
+                  : "font-medium text-on-surface"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <div className="pt-3 border-t border-outline-variant/30 flex flex-col gap-2">
             <Button
               variant="gold"
-              className="w-full text-center py-2.5 rounded-lg text-sm"
-              render={<Link href="#sell" onClick={() => setMobileMenuOpen(false)} />}
+              size="md"
+              className="w-full font-bold"
+              render={<Link href="/sell" onClick={() => setMobileMenuOpen(false)} />}
             >
               List Property
             </Button>
