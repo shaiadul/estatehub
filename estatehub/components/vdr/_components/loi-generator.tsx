@@ -4,6 +4,11 @@ import Link from "next/link"
 import { IconReceipt2, IconSend, IconShieldCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { LOI_BOUNDS } from "./vdr-data"
 import { earnestLabel, formatUSD } from "./vdr-utils"
 import type { ClosingOption, ContingencyOption, EarnestOption } from "./types"
@@ -118,11 +123,14 @@ export function LoiGenerator({
             <span>Proposed Purchase Price (USD)</span>
             <span className="text-on-secondary-container font-mono">{formatUSD(price)}</span>
           </label>
-          <div className="relative">
-            <span aria-hidden className="absolute left-3 top-2.5 font-bold text-on-surface-variant text-sm">
+          <InputGroup className="h-10 gap-1.5 rounded-xl border-outline-variant/30 bg-surface-container-low px-3">
+            <InputGroupAddon
+              aria-hidden
+              className="h-full p-0 font-mono text-sm font-bold text-on-surface-variant"
+            >
               $
-            </span>
-            <Input
+            </InputGroupAddon>
+            <InputGroupInput
               id="loi-price"
               type="number"
               min={LOI_BOUNDS.min}
@@ -132,9 +140,9 @@ export function LoiGenerator({
               onChange={(e) => onPriceChange(Number(e.target.value))}
               aria-invalid={Boolean(error)}
               aria-describedby={error ? "loi-price-error" : undefined}
-              className="bg-surface-container-low pl-8 font-mono font-bold text-sm rounded-xl py-2"
+              className="h-full px-0! font-mono text-sm font-bold text-on-surface [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
-          </div>
+          </InputGroup>
           {error ? (
             <span id="loi-price-error" role="alert" className="text-[11px] text-destructive font-semibold">
               {error}
