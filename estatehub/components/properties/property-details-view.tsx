@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react"
 import { PropertyData } from "@/lib/properties-data"
 import { Header } from "@/components/home/header"
 import { Footer } from "@/components/home/footer"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 import {
   AmenitiesMatrix,
   BookingSidebar,
@@ -135,8 +136,7 @@ export function PropertyDetailsView({ property, similarProperties }: PropertyDet
           onOpenLightbox={handleOpenLightbox}
         />
 
-        <section className="w-full bg-surface pb-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionWrapper className="bg-surface pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               <div className="lg:col-span-8 flex flex-col gap-8">
                 <DetailsSpecs property={property} />
@@ -182,8 +182,7 @@ export function PropertyDetailsView({ property, similarProperties }: PropertyDet
                 onBrokerMsgSubmit={handleSendBrokerMsg}
               />
             </div>
-          </div>
-        </section>
+        </SectionWrapper>
 
         <DetailsLightbox
           open={lightboxOpen}

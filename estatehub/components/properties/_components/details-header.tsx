@@ -5,6 +5,7 @@ import { IconArrowsExchange, IconCalculator, IconChevronRight, IconFileText, Ico
 import { PropertyData } from "@/lib/properties-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 interface DetailsHeaderProps {
   property: PropertyData
@@ -32,7 +33,7 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
   return (
     <>
       <div className="w-full bg-surface-container-lowest border-b border-outline-variant/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <SectionWrapper as="div" className="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant">
             <Link href="/properties" className="hover:text-on-surface transition-colors font-medium">
               Properties
@@ -57,11 +58,10 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
               {property.badge || "Verified Exclusive"}
             </Badge>
           </div>
-        </div>
+        </SectionWrapper>
       </div>
 
-      <section className="w-full bg-surface border-b border-outline-variant/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
+      <SectionWrapper className="bg-surface border-b border-outline-variant/20 pt-6 pb-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 flex-wrap">
@@ -133,8 +133,7 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
               </div>
             </div>
           </div>
-        </div>
-      </section>
+      </SectionWrapper>
     </>
   )
 }

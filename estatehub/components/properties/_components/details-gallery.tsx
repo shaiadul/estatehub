@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { IconPhoto } from "@tabler/icons-react"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { photoLabels } from "./types"
 
 interface DetailsGalleryProps {
@@ -19,8 +20,7 @@ const SECONDARY_TILES = [
 export function DetailsGallery({ allPhotos, propertyTitle, onOpenLightbox }: DetailsGalleryProps) {
   return (
     <>
-      <section className="w-full bg-surface pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <SectionWrapper className="bg-surface pb-10">
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2.5 h-[420px] md:h-[560px] rounded-2xl overflow-hidden relative shadow-md">
             <div
               className="md:col-span-2 md:row-span-2 relative group overflow-hidden cursor-pointer"
@@ -97,8 +97,7 @@ export function DetailsGallery({ allPhotos, propertyTitle, onOpenLightbox }: Det
               </button>
             </div>
           </div>
-        </div>
-      </section>
+      </SectionWrapper>
     </>
   )
 }
