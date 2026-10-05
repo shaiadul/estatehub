@@ -31,6 +31,20 @@ function Fido2ModalInner({
   entityName = "Alpha Crest Sovereign Capital LLC",
   tokenId = "#9842",
 }: Omit<Fido2ModalProps, "isOpen">) {
+  const fallbackMethods = [
+    {
+      key: "mobile",
+      Icon: IconDeviceMobile,
+      title: "Mobile Authenticator",
+      desc: "6-digit rotating code via EstateHub Guard",
+    },
+    {
+      key: "biometric",
+      Icon: IconFingerprint,
+      title: "Biometric Platform Passkey",
+      desc: "Touch ID, Face Recognition or Windows Hello",
+    },
+  ]
   const [pin, setPin] = React.useState<string[]>(["", "", "", "", "", ""])
   const [timeLeft, setTimeLeft] = React.useState(90)
   const [isVerifying, setIsVerifying] = React.useState(false)
@@ -57,7 +71,6 @@ function Fido2ModalInner({
     newPin[index] = val.slice(-1)
     setPin(newPin)
 
-    // auto advance
     if (val && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
@@ -88,7 +101,7 @@ function Fido2ModalInner({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/70 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-xl bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden border border-outline-variant/30 flex flex-col">
-        {/* Progress Countdown Bar */}
+        
         <div className="h-1.5 w-full bg-surface-container-low overflow-hidden">
           <div
             className="h-full bg-primary transition-all duration-1000 ease-linear"
@@ -96,7 +109,7 @@ function Fido2ModalInner({
           />
         </div>
 
-        {/* Close Button */}
+        
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors z-10"
@@ -105,14 +118,14 @@ function Fido2ModalInner({
         </button>
 
         <div className="p-6 md:p-8 flex flex-col items-center text-center">
-          {/* Node badge */}
+          
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low shadow-sm mb-4">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
             <span className="font-caption text-[11px] tracking-widest uppercase text-on-surface-variant font-semibold">
               Zero-Trust Protocol // Session Elevation
             </span>
             <span className="text-outline-variant text-[11px]">|</span>
-            <span className="font-caption text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            <span className="font-caption text-[11px] text-on-tertiary-container font-semibold flex items-center gap-1">
               <IconLock className="w-3.5 h-3.5" /> FIPS 140-3 Level 4
             </span>
           </div>
@@ -124,7 +137,7 @@ function Fido2ModalInner({
             High-assurance clearance required to elevate session and access the sovereign closing enclave.
           </p>
 
-          {/* Interactive Security Key Graphic */}
+          
           <div
             onClick={handleVerify}
             className="relative flex items-center justify-center my-6 cursor-pointer group"
@@ -132,10 +145,10 @@ function Fido2ModalInner({
             <div className="absolute w-24 h-24 rounded-full bg-surface-container-high/60 animate-ping opacity-40" />
             <div className="absolute w-20 h-20 rounded-full bg-surface-container-highest animate-pulse" />
             <div className="relative w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-xl group-hover:scale-105 active:scale-95 transition-transform">
-              <IconUsb className="w-8 h-8 text-amber-400" />
+              <IconUsb className="w-8 h-8 text-secondary" />
             </div>
             <div className="absolute -bottom-2.5 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[10px] uppercase font-bold tracking-wider shadow-md flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping" />
               <span>Awaiting Touch</span>
             </div>
           </div>
@@ -147,7 +160,7 @@ function Fido2ModalInner({
             </p>
           </div>
 
-          {/* Registered Token Pill */}
+          
           <div className="w-full mt-4 p-3 bg-surface-container-low rounded-xl text-left flex items-start gap-3 border border-surface-variant/30">
             <IconKey className="w-5 h-5 text-on-surface shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
@@ -155,7 +168,7 @@ function Fido2ModalInner({
                 <span className="font-label-sm text-xs text-on-surface uppercase tracking-wider font-semibold">
                   Registered Token {tokenId}
                 </span>
-                <span className="font-caption text-[10px] text-emerald-700 dark:text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-surface-container-lowest shadow-xs">
+                <span className="font-caption text-[10px] text-on-tertiary-container font-bold px-1.5 py-0.5 rounded bg-surface-container-lowest shadow-xs">
                   FIDO2 / WebAuthn
                 </span>
               </div>
@@ -165,7 +178,7 @@ function Fido2ModalInner({
             </div>
           </div>
 
-          {/* 6-Digit PIN Boxes */}
+          
           <div className="w-full mt-5">
             <div className="flex items-center justify-between mb-2">
               <label className="font-label-sm text-xs text-on-surface font-semibold flex items-center gap-1">
@@ -207,14 +220,14 @@ function Fido2ModalInner({
             </p>
           </div>
 
-          {/* Elevate Button */}
+          
           <div className="w-full mt-5 space-y-2">
             <Button
               onClick={handleVerify}
               disabled={isVerifying}
               className="w-full py-3 h-auto bg-primary hover:bg-primary/90 text-on-primary font-semibold text-sm rounded-xl shadow-md flex items-center justify-center gap-2"
             >
-              <IconShieldCheck className="w-4 h-4 text-emerald-400" />
+              <IconShieldCheck className="w-4 h-4 text-tertiary" />
               <span>{isVerifying ? "Verifying Enclave Cryptography..." : "Confirm & Elevate Session"}</span>
             </Button>
 
@@ -224,13 +237,13 @@ function Fido2ModalInner({
                 <strong className="font-mono text-on-surface font-semibold">{formatTimer(timeLeft)}</strong>
               </span>
               <span className="flex items-center gap-1 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Nonce #4f9a
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary" /> Nonce #4f9a
               </span>
             </div>
           </div>
         </div>
 
-        {/* Alternative Elevated Methods Accordion */}
+        
         <div className="bg-surface-container-low p-4 border-t border-surface-variant/30">
           <button
             type="button"
@@ -255,37 +268,24 @@ function Fido2ModalInner({
 
           {showFallbacks && (
             <div className="mt-3 space-y-2 pt-2 border-t border-surface-container animate-fade-in">
-              <div
-                onClick={handleVerify}
-                className="p-2.5 bg-surface-container-lowest rounded-lg flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group shadow-xs"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
-                    <IconDeviceMobile className="w-4 h-4" />
+              {fallbackMethods.map((method) => (
+                <div
+                  key={method.key}
+                  onClick={handleVerify}
+                  className="p-2.5 bg-surface-container-lowest rounded-lg flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group shadow-xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+                      <method.Icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-label-sm text-xs font-semibold text-on-surface">{method.title}</p>
+                      <p className="font-caption text-[10px] text-on-surface-variant">{method.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-label-sm text-xs font-semibold text-on-surface">Mobile Authenticator</p>
-                    <p className="font-caption text-[10px] text-on-surface-variant">6-digit rotating code via EstateHub Guard</p>
-                  </div>
+                  <IconArrowRight className="w-4 h-4 text-on-surface-variant group-hover:text-on-surface transition-colors" />
                 </div>
-                <IconArrowRight className="w-4 h-4 text-on-surface-variant group-hover:text-on-surface transition-colors" />
-              </div>
-
-              <div
-                onClick={handleVerify}
-                className="p-2.5 bg-surface-container-lowest rounded-lg flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group shadow-xs"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
-                    <IconFingerprint className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="font-label-sm text-xs font-semibold text-on-surface">Biometric Platform Passkey</p>
-                    <p className="font-caption text-[10px] text-on-surface-variant">Touch ID, Face Recognition or Windows Hello</p>
-                  </div>
-                </div>
-                <IconArrowRight className="w-4 h-4 text-on-surface-variant group-hover:text-on-surface transition-colors" />
-              </div>
+              ))}
             </div>
           )}
         </div>

@@ -70,7 +70,7 @@ export function AdvantagePillars() {
             return (
               <div
                 key={pillar.title}
-                className="p-6 rounded-2xl bg-surface/5 backdrop-blur-md shadow-sm flex flex-col justify-between border border-white/10 hover:border-secondary-fixed/30 transition-all group"
+                className="p-6 rounded-2xl bg-surface/5 backdrop-blur-md shadow-sm flex flex-col justify-between border border-primary-foreground/10 hover:border-secondary-fixed/30 transition-all group"
               >
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-secondary-fixed/20 flex items-center justify-center mb-5 text-secondary-fixed group-hover:scale-110 transition-transform">
@@ -85,7 +85,7 @@ export function AdvantagePillars() {
                 </div>
                 <Link
                   href="#contact"
-                  className="pt-5 mt-5 flex items-center gap-1 text-secondary-fixed text-xs font-semibold hover:text-white transition-colors"
+                  className="pt-5 mt-5 flex items-center gap-1 text-secondary-fixed text-xs font-semibold hover:text-primary-foreground transition-colors"
                 >
                   <span>{pillar.cta}</span>
                   <IconChevronRight size={16} />

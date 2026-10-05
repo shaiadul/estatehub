@@ -20,7 +20,7 @@ const badgeVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         gold: "bg-secondary-container text-on-secondary-fixed border-transparent font-bold",
         verified:
-          "bg-primary-container/85 backdrop-blur-md text-surface border-white/10 font-semibold",
+          "bg-primary-container/85 backdrop-blur-md text-surface border-primary-foreground/10 font-semibold",
         accent:
           "bg-secondary text-primary font-bold shadow-sm border-transparent",
       },

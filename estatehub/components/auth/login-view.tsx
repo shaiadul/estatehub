@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   IconShieldLock,
@@ -70,23 +71,55 @@ export function LoginView() {
     switchDemoUser(role)
     router.push(redirectParam)
   }
+  const demoRoles: { id: "broker" | "buyer" | "seller"; label: string; name: string }[] = [
+    { id: "broker", label: "Broker", name: "(Sarah)" },
+    { id: "buyer", label: "Buyer", name: "(Julian)" },
+    { id: "seller", label: "Seller", name: "(Marcus)" },
+  ]
+  const authModes = [
+    { id: "passkey" as const, label: "Passkey & Biometric", Icon: IconFingerprint },
+    { id: "password" as const, label: "Institutional Password", Icon: IconKey },
+  ]
+  const pillars = [
+    {
+      Icon: IconBuildingBank,
+      iconClassName: "w-5 h-5 text-on-secondary-container",
+      title: "Off-Market Deal Rooms",
+      badge: "> $10M+",
+      desc: "Vetted access to confidential listings exceeding $10,000,000 with cryptographic non-disclosure agreements embedded on-chain.",
+    },
+    {
+      Icon: IconShieldLock,
+      iconClassName: "w-5 h-5 text-on-tertiary-container",
+      title: "Bilateral Cryptographic Closings",
+      badge: null as string | null,
+      desc: "Legal digital PSA execution with verifiable settlement records, multisig escrows, and instantaneous sovereign deed generation.",
+    },
+    {
+      Icon: IconDeviceAnalytics,
+      iconClassName: "w-5 h-5 text-chart-5",
+      title: "Integrated Facility IoT",
+      badge: null as string | null,
+      desc: "Autonomous telemetry, biometric perimeter access, aerial drone patrols, and high-precision microclimate telemetry feeds.",
+    },
+  ]
 
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] flex flex-col justify-center items-center py-8 md:py-16 px-4 md:px-8 relative overflow-hidden bg-surface">
-      {/* Ambient Structural Lighting Glows */}
+      
       <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute top-1/2 -right-20 w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-[1360px] w-full mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* LEFT COLUMN: Sovereign Exchange Brand Showcase */}
+          
           <div className="lg:col-span-6 flex flex-col justify-between space-y-8 pr-0 lg:pr-6">
             <div className="flex flex-col space-y-4">
-              {/* Active Node Status Pill */}
+              
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest shadow-sm w-fit border border-outline-variant/30">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600 dark:bg-emerald-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-tertiary" />
                 </span>
                 <span className="font-caption text-xs text-on-surface-variant font-semibold tracking-wider uppercase">
                   Zurich Secure Node // TLS 1.3 Active
@@ -95,9 +128,9 @@ export function LoginView() {
                 <span className="font-caption text-xs text-on-surface-variant font-mono">0.14ms Latency</span>
               </div>
 
-              {/* Main Typography Lockup */}
+              
               <div className="space-y-1">
-                <span className="font-label-sm text-xs uppercase tracking-widest text-amber-700 dark:text-amber-400 font-bold">
+                <span className="font-label-sm text-xs uppercase tracking-widest text-on-secondary-container font-bold">
                   Restricted Terminal Architecture
                 </span>
                 <h1 className="font-headline-lg text-3xl sm:text-4xl lg:text-5xl text-on-surface font-extrabold tracking-tight leading-tight">
@@ -110,30 +143,32 @@ export function LoginView() {
               </p>
             </div>
 
-            {/* Curated Visual Asset Vignette */}
+            
             <div className="relative rounded-2xl overflow-hidden shadow-lg bg-surface-container border border-outline-variant/20">
               <div className="relative h-48 w-full">
-                <img
-                  className="w-full h-full object-cover"
+                <Image
+                  className="object-cover"
                   alt="Monolithic brutalist glass and black marble luxury estate perched over Lake Zurich at twilight"
                   src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 600px"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/40 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                   <div>
-                    <span className="font-caption text-[11px] uppercase text-amber-400 font-bold tracking-wider block">
+                    <span className="font-caption text-[11px] uppercase text-secondary font-bold tracking-wider block">
                       Featured Tier-0 Property
                     </span>
-                    <span className="font-headline-sm text-lg font-bold text-white">
+                    <span className="font-headline-sm text-lg font-bold text-primary-foreground">
                       The Enclave at Alpine Ridge
                     </span>
-                    <p className="font-caption text-xs text-slate-300">
+                    <p className="font-caption text-xs text-muted-foreground">
                       Confidential Asset #CH-8829 // CHF 68,500,000
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-slate-700">
-                    <IconLock className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="font-caption text-[11px] text-white font-mono tracking-tight font-bold">
+                  <div className="flex items-center gap-1.5 bg-primary-container/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-outline-variant">
+                    <IconLock className="w-3.5 h-3.5 text-tertiary" />
+                    <span className="font-caption text-[11px] text-primary-foreground font-mono tracking-tight font-bold">
                       ENCRYPTED
                     </span>
                   </div>
@@ -141,116 +176,78 @@ export function LoginView() {
               </div>
             </div>
 
-            {/* Strategic Pillar Highlights */}
+            
             <div className="grid grid-cols-1 gap-3 pt-2">
-              <div className="group p-4 rounded-xl bg-surface-container-lowest shadow-xs border border-outline-variant/20 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center shrink-0 text-on-surface">
-                  <IconBuildingBank className="w-5 h-5 text-amber-700 dark:text-amber-400" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-label-md text-sm font-bold text-on-surface">Off-Market Deal Rooms</h3>
-                    <span className="font-caption text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-800 dark:text-amber-300 font-bold">
-                      &gt; $10M+
-                    </span>
+                {pillars.map((pillar) => (
+                  <div
+                    key={pillar.title}
+                    className="group p-4 rounded-xl bg-surface-container-lowest shadow-xs border border-outline-variant/20 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex items-start gap-4"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center shrink-0 text-on-surface">
+                      <pillar.Icon className={pillar.iconClassName} />
+                    </div>
+                    <div className="space-y-0.5">
+                      {pillar.badge ? (
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-label-md text-sm font-bold text-on-surface">{pillar.title}</h3>
+                          <span className="font-caption text-[10px] px-1.5 py-0.5 rounded bg-secondary/10 text-on-secondary-container font-bold">
+                            {pillar.badge}
+                          </span>
+                        </div>
+                      ) : (
+                        <h3 className="font-label-md text-sm font-bold text-on-surface">{pillar.title}</h3>
+                      )}
+                      <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">{pillar.desc}</p>
+                    </div>
                   </div>
-                  <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                    Vetted access to confidential listings exceeding $10,000,000 with cryptographic non-disclosure agreements embedded on-chain.
-                  </p>
-                </div>
+                ))}
               </div>
-
-              <div className="group p-4 rounded-xl bg-surface-container-lowest shadow-xs border border-outline-variant/20 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center shrink-0 text-on-surface">
-                  <IconShieldLock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div className="space-y-0.5">
-                  <h3 className="font-label-md text-sm font-bold text-on-surface">Bilateral Cryptographic Closings</h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                    Legal digital PSA execution with verifiable settlement records, multisig escrows, and instantaneous sovereign deed generation.
-                  </p>
-                </div>
-              </div>
-
-              <div className="group p-4 rounded-xl bg-surface-container-lowest shadow-xs border border-outline-variant/20 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center shrink-0 text-on-surface">
-                  <IconDeviceAnalytics className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div className="space-y-0.5">
-                  <h3 className="font-label-md text-sm font-bold text-on-surface">Integrated Facility IoT</h3>
-                  <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">
-                    Autonomous telemetry, biometric perimeter access, aerial drone patrols, and high-precision microclimate telemetry feeds.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* RIGHT COLUMN: Sign-In Card */}
+          
           <div className="lg:col-span-6 w-full max-w-xl mx-auto lg:ml-auto">
-            {/* Quick Demo Switcher Strip */}
+            
             <div className="mb-4 p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-xs flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="font-caption text-xs uppercase font-bold tracking-wider text-on-surface-variant flex items-center gap-1.5">
-                  <IconUserCheck className="w-3.5 h-3.5 text-amber-600" /> Quick Demo Sign-In
+                  <IconUserCheck className="w-3.5 h-3.5 text-on-secondary-container" /> Quick Demo Sign-In
                 </span>
                 <span className="text-[11px] text-muted-foreground">Instant 1-Click Access</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect("broker")}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                    user?.role === "broker" && isLoggedIn
-                      ? "bg-primary text-on-primary border-primary"
-                      : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/40"
-                  }`}
-                >
-                  <span>Broker</span>
-                  <span className="text-[10px] opacity-75">(Sarah)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect("buyer")}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                    user?.role === "buyer" && isLoggedIn
-                      ? "bg-primary text-on-primary border-primary"
-                      : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/40"
-                  }`}
-                >
-                  <span>Buyer</span>
-                  <span className="text-[10px] opacity-75">(Julian)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect("seller")}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                    user?.role === "seller" && isLoggedIn
-                      ? "bg-primary text-on-primary border-primary"
-                      : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/40"
-                  }`}
-                >
-                  <span>Seller</span>
-                  <span className="text-[10px] opacity-75">(Marcus)</span>
-                </button>
+                {demoRoles.map((role) => (
+                  <button
+                    key={role.id}
+                    type="button"
+                    onClick={() => handleDemoSelect(role.id)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
+                      user?.role === role.id && isLoggedIn
+                        ? "bg-primary text-on-primary border-primary"
+                        : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/40"
+                    }`}
+                  >
+                    <span>{role.label}</span>
+                    <span className="text-[10px] opacity-75">{role.name}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
             <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10 relative overflow-hidden border border-outline-variant/30">
-              {/* Top Fine Metallic Accent Trim */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-amber-400 to-primary" />
+              
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
 
-              {/* Card Header Lockup */}
+              
               <div className="space-y-1 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="font-caption text-xs tracking-widest uppercase font-bold text-amber-700 dark:text-amber-400">
+                  <span className="font-caption text-xs tracking-widest uppercase font-bold text-on-secondary-container">
                     {isRentContext
                       ? "Client Rental Portal"
                       : isSellerContext
                       ? "Seller Syndication Portal"
                       : "Single Sign-On Terminal"}
                   </span>
-                  <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                  <div className="flex items-center gap-1 text-on-tertiary-container">
                     <IconShieldLock className="w-4 h-4" />
                     <span className="font-caption text-xs font-mono font-bold">FIPS 140-3</span>
                   </div>
@@ -271,35 +268,26 @@ export function LoginView() {
                 </p>
               </div>
 
-              {/* Authentication Segmented Toggle */}
+              
               <div className="p-1 rounded-xl bg-surface-container-low flex items-center gap-1 mb-6">
-                <button
-                  type="button"
-                  onClick={() => setAuthMode("passkey")}
-                  className={`flex-1 py-2 px-3 rounded-lg font-label-md text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
-                    authMode === "passkey"
-                      ? "bg-surface-container-lowest text-on-surface font-bold shadow-sm"
-                      : "text-on-surface-variant hover:text-on-surface font-medium"
-                  }`}
-                >
-                  <IconFingerprint className="w-4 h-4" />
-                  <span>Passkey &amp; Biometric</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAuthMode("password")}
-                  className={`flex-1 py-2 px-3 rounded-lg font-label-md text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
-                    authMode === "password"
-                      ? "bg-surface-container-lowest text-on-surface font-bold shadow-sm"
-                      : "text-on-surface-variant hover:text-on-surface font-medium"
-                  }`}
-                >
-                  <IconKey className="w-4 h-4" />
-                  <span>Institutional Password</span>
-                </button>
+                {authModes.map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setAuthMode(mode.id)}
+                    className={`flex-1 py-2 px-3 rounded-lg font-label-md text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                      authMode === mode.id
+                        ? "bg-surface-container-lowest text-on-surface font-bold shadow-sm"
+                        : "text-on-surface-variant hover:text-on-surface font-medium"
+                    }`}
+                  >
+                    <mode.Icon className="w-4 h-4" />
+                    <span>{mode.label}</span>
+                  </button>
+                ))}
               </div>
 
-              {/* Passkey Mode CTA */}
+              
               {authMode === "passkey" ? (
                 <div className="space-y-4 mb-4">
                   <Button
@@ -307,11 +295,11 @@ export function LoginView() {
                     disabled={isSubmitting}
                     className="w-full py-4 h-auto rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-semibold text-sm sm:text-base flex items-center justify-center gap-3 shadow-md group transition-all"
                   >
-                    <IconFingerprint className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
+                    <IconFingerprint className="w-6 h-6 text-secondary group-hover:scale-110 transition-transform" />
                     <span>{isSubmitting ? "Verifying Passkey..." : "Authenticate with Passkey / Face ID"}</span>
                   </Button>
 
-                  {/* Subtle Divider */}
+                  
                   <div className="relative flex items-center justify-center py-2">
                     <div className="w-full h-px bg-surface-variant" />
                     <span className="absolute bg-surface-container-lowest px-3 font-caption text-xs text-on-surface-variant uppercase tracking-wider">
@@ -321,9 +309,9 @@ export function LoginView() {
                 </div>
               ) : null}
 
-              {/* Credentials Form Block */}
+              
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                {/* Email Field */}
+                
                 <div className="space-y-1.5">
                   <label className="font-label-sm text-xs text-on-surface font-semibold flex items-center justify-between">
                     <span>Confidential Work Email</span>
@@ -342,7 +330,7 @@ export function LoginView() {
                   </div>
                 </div>
 
-                {/* Password Field */}
+                
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="font-label-sm text-xs text-on-surface font-semibold">Security Password</label>
@@ -373,7 +361,7 @@ export function LoginView() {
                   </div>
                 </div>
 
-                {/* Session Persistence Checkbox */}
+                
                 <div className="flex items-start gap-2.5 pt-1">
                   <input
                     type="checkbox"
@@ -387,7 +375,7 @@ export function LoginView() {
                   </label>
                 </div>
 
-                {/* Authorize Primary CTA */}
+                
                 <Button
                   type="submit"
                   disabled={isSubmitting}
@@ -397,7 +385,7 @@ export function LoginView() {
                   <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
 
-                {/* FIDO2 Hardware Alternative Trigger */}
+                
                 <div className="pt-1">
                   <button
                     type="button"
@@ -410,13 +398,13 @@ export function LoginView() {
                 </div>
               </form>
 
-              {/* Footer Switch Link */}
+              
               <div className="mt-6 pt-4 border-t border-surface-container -mx-6 sm:-mx-8 lg:-mx-10 -mb-6 sm:-mb-8 lg:-mb-10 p-4 bg-surface-container-low/40 text-center">
                 <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant">
                   New institutional counterparty?{" "}
                   <Link
                     href="/register"
-                    className="font-label-sm text-on-surface hover:text-amber-600 dark:hover:text-amber-400 font-bold transition-colors inline-flex items-center gap-0.5 ml-1"
+                    className="font-label-sm text-on-surface hover:text-on-secondary-container font-bold transition-colors inline-flex items-center gap-0.5 ml-1"
                   >
                     <span>Request Membership &amp; Begin KYC Application</span>
                     <IconChevronRight className="w-3.5 h-3.5" />
@@ -425,10 +413,10 @@ export function LoginView() {
               </div>
             </div>
 
-            {/* Terminal Security Micro-Card Below Box */}
+            
             <div className="mt-4 flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="w-2 h-2 rounded-full bg-tertiary" />
                 <span className="font-caption text-xs text-on-surface-variant font-mono">
                   Hardware Security Module (HSM) Online
                 </span>
@@ -445,7 +433,7 @@ export function LoginView() {
         </div>
       </div>
 
-      {/* FIDO2 Modal */}
+      
       <Fido2Modal
         isOpen={isFidoOpen}
         onClose={() => setIsFidoOpen(false)}

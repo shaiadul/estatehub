@@ -24,13 +24,18 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFavorite }: PropertyCardProps) {
+  const specs = [
+    { key: "beds", Icon: IconBed, value: prop.beds, label: "Beds", wrapperClassName: "flex flex-col items-center" },
+    { key: "baths", Icon: IconBath, value: prop.baths, label: "Baths", wrapperClassName: "flex flex-col items-center border-x border-outline-variant/30" },
+    { key: "sqft", Icon: IconRulerMeasure, value: prop.sqftFormatted, label: "Sq Ft", wrapperClassName: "flex flex-col items-center" },
+  ]
   return (
     <Card
       className={`bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-outline-variant/30 overflow-hidden group p-0 ${
         viewMode === "list" ? "flex flex-col sm:flex-row" : "flex flex-col"
       }`}
     >
-      {/* Image Preview */}
+      
       <Link
         href={`/properties/${prop.slug}`}
         className={`relative block overflow-hidden bg-surface-container ${
@@ -46,7 +51,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
         />
         <div className="absolute inset-0 bg-linear-to-t from-primary-container/85 via-transparent to-transparent" />
 
-        {/* Badges */}
+        
         <div className="absolute top-3 left-3 flex items-center gap-1.5">
           <Badge variant="verified" className="text-[11px] px-2.5 py-0.5 font-semibold gap-1">
             <IconRosetteDiscountCheckFilled size={12} className="text-secondary-fixed shrink-0" />
@@ -57,7 +62,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
           </Badge>
         </div>
 
-        {/* Favorite button */}
+        
         <Button
           type="button"
           variant="ghost"
@@ -77,7 +82,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
           )}
         </Button>
 
-        {/* Price Tag over image */}
+        
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div>
             <span className="text-[10px] text-surface-container-high uppercase tracking-wider block font-medium">
@@ -93,38 +98,26 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
         </div>
       </Link>
 
-      {/* Content */}
+      
       <CardContent className="p-4 flex flex-col justify-between flex-1 gap-4">
         <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
           {prop.description}
         </p>
 
-        {/* Specs Row */}
+        
         <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-surface-container-low text-center border border-outline-variant/20">
-          <div className="flex flex-col items-center">
-            <span className="text-xs font-bold text-on-surface flex items-center gap-1">
-              <IconBed size={14} className="text-secondary" />
-              {prop.beds}
-            </span>
-            <span className="text-[10px] text-on-surface-variant">Beds</span>
-          </div>
-          <div className="flex flex-col items-center border-x border-outline-variant/30">
-            <span className="text-xs font-bold text-on-surface flex items-center gap-1">
-              <IconBath size={14} className="text-secondary" />
-              {prop.baths}
-            </span>
-            <span className="text-[10px] text-on-surface-variant">Baths</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-xs font-bold text-on-surface flex items-center gap-1">
-              <IconRulerMeasure size={14} className="text-secondary" />
-              {prop.sqftFormatted}
-            </span>
-            <span className="text-[10px] text-on-surface-variant">Sq Ft</span>
-          </div>
+          {specs.map((spec) => (
+            <div key={spec.key} className={spec.wrapperClassName}>
+              <span className="text-xs font-bold text-on-surface flex items-center gap-1">
+                <spec.Icon size={14} className="text-secondary" />
+                {spec.value}
+              </span>
+              <span className="text-[10px] text-on-surface-variant">{spec.label}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Footer action */}
+        
         <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20">
           <div>
             <span className="text-[10px] text-on-surface-variant block">Est. Mortgage</span>

@@ -22,6 +22,11 @@ interface PropertiesHeaderProps {
   onToggleMap: () => void
 }
 
+const VIEW_MODES = [
+  { id: "grid", label: "Grid View", Icon: IconLayoutGrid },
+  { id: "list", label: "List View", Icon: IconList },
+] as const
+
 export function PropertiesHeader({
   filteredCount,
   priceSort,
@@ -33,7 +38,7 @@ export function PropertiesHeader({
 }: PropertiesHeaderProps) {
   return (
     <>
-      {/* Breadcrumb Trail */}
+      
       <nav className="flex items-center gap-2 text-xs text-on-surface-variant mb-3">
         <Link href="/" className="hover:text-on-surface transition-colors flex items-center gap-1">
           <IconHome size={14} />
@@ -47,7 +52,7 @@ export function PropertiesHeader({
         <span className="text-secondary font-bold">Los Angeles</span>
       </nav>
 
-      {/* Title & Utilities */}
+      
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-on-surface tracking-tight">
@@ -63,9 +68,9 @@ export function PropertiesHeader({
           </div>
         </div>
 
-        {/* View & Sort Controls */}
+        
         <div className="flex flex-wrap items-center gap-3">
-          {/* Sort Selector */}
+          
           <div className="flex items-center gap-2">
             <span className="text-xs text-on-surface-variant font-medium hidden sm:inline">Sort:</span>
             <Select value={priceSort} onValueChange={(val) => { if (typeof val === "string") onPriceSortChange(val) }}>
@@ -80,31 +85,24 @@ export function PropertiesHeader({
             </Select>
           </div>
 
-          {/* Grid / List Switcher */}
+          
           <div className="flex items-center bg-surface-container-low p-1 rounded-xl border border-outline-variant/30">
-            <Button
-              type="button"
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="icon-xs"
-              onClick={() => onViewModeChange("grid")}
-              aria-label="Grid View"
-              className="rounded-lg"
-            >
-              <IconLayoutGrid size={16} />
-            </Button>
-            <Button
-              type="button"
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="icon-xs"
-              onClick={() => onViewModeChange("list")}
-              aria-label="List View"
-              className="rounded-lg"
-            >
-              <IconList size={16} />
-            </Button>
+            {VIEW_MODES.map((mode) => (
+              <Button
+                key={mode.id}
+                type="button"
+                variant={viewMode === mode.id ? "default" : "ghost"}
+                size="icon-xs"
+                onClick={() => onViewModeChange(mode.id)}
+                aria-label={mode.label}
+                className="rounded-lg"
+              >
+                <mode.Icon size={16} />
+              </Button>
+            ))}
           </div>
 
-          {/* Split Map Toggle */}
+          
           <Button
             type="button"
             variant={showMap ? "luxury" : "outline"}
