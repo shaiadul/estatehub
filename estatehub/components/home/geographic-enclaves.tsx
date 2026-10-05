@@ -4,13 +4,12 @@ import * as React from "react"
 import Link from "next/link"
 import { IconMapPinFilled } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function GeographicEnclaves() {
   return (
-    <section className="w-full bg-surface-container-low py-16 my-8 border-y border-outline-variant/30">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-10 gap-2">
+    <SectionWrapper fullWidth className="bg-surface-container-low py-16 my-8 border-y border-outline-variant/30">
+      <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-10 gap-2">
           <div>
             <span className="text-xs text-secondary uppercase tracking-widest font-bold block mb-1">
               Prime Territories
@@ -25,9 +24,7 @@ export function GeographicEnclaves() {
           </p>
         </div>
 
-        {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Beverly Hills: Spans 7 cols */}
           <Link
             href="#properties"
             className="md:col-span-7 relative h-80 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
@@ -60,7 +57,6 @@ export function GeographicEnclaves() {
             </div>
           </Link>
 
-          {/* Manhattan: Spans 5 cols */}
           <Link
             href="#properties"
             className="md:col-span-5 relative h-80 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
@@ -92,7 +88,6 @@ export function GeographicEnclaves() {
             </div>
           </Link>
 
-          {/* Miami Waterfront: Spans 5 cols */}
           <Link
             href="#properties"
             className="md:col-span-5 relative h-72 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
@@ -124,7 +119,6 @@ export function GeographicEnclaves() {
             </div>
           </Link>
 
-          {/* Aspen Ski Chalets: Spans 7 cols */}
           <Link
             href="#properties"
             className="md:col-span-7 relative h-72 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
@@ -157,7 +151,6 @@ export function GeographicEnclaves() {
             </div>
           </Link>
         </div>
-      </div>
-    </section>
+    </SectionWrapper>
   )
 }

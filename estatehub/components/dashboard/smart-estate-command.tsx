@@ -21,6 +21,7 @@ import { Header } from "@/components/home/header"
 import { Footer } from "@/components/home/footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function SmartEstateCommandView() {
   const [activeTab, setActiveTab] = React.useState<"facility" | "security" | "vdr" | "syndicate">("facility")
@@ -41,10 +42,8 @@ export function SmartEstateCommandView() {
       <Header />
 
       <main className="w-full pt-20 flex-1">
-        {/* Top Operational Status Banner */}
-        <section className="w-full bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6">
-            <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
+        <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-6">
+          <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-surface-container font-mono text-[11px] text-on-surface-variant uppercase font-semibold">
@@ -136,15 +135,11 @@ export function SmartEstateCommandView() {
                 <span className="text-2xl font-black text-emerald-600 mt-1">12 AQI</span>
                 <span className="text-[11px] text-on-surface-variant mt-0.5">HEPA Commercial Filtration</span>
               </div>
-            </div>
           </div>
-        </section>
+        </SectionWrapper>
 
-        {/* Dashboard Content & Tabbed Management */}
-        <section className="w-full py-10">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
-            {/* View Selection Tabs */}
-            <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-4 mb-8 overflow-x-auto no-scrollbar">
+        <SectionWrapper className="py-10">
+          <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-4 mb-8 overflow-x-auto no-scrollbar">
               <Button
                 variant={activeTab === "facility" ? "default" : "outline"}
                 size="sm"
@@ -475,8 +470,7 @@ export function SmartEstateCommandView() {
                 </div>
               </div>
             )}
-          </div>
-        </section>
+        </SectionWrapper>
 
         {/* Global Action Toast Notification */}
         {actionToast && (

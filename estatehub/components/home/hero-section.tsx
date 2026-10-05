@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function HeroSection() {
   const router = useRouter()
@@ -48,7 +49,6 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-primary-container pt-32 pb-20 lg:pt-36 lg:pb-28">
-      {/* Background Architectural Scrim */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 transform pointer-events-none"
         style={{
@@ -58,37 +58,33 @@ export function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-primary-container/85 via-primary-container/70 to-surface pointer-events-none" />
 
-      {/* Atmospheric Glow Accents */}
       <div className="absolute -top-32 right-1/4 w-96 h-96 rounded-full bg-secondary-fixed/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-80 h-80 rounded-full bg-surface-container-highest/15 blur-3xl pointer-events-none" />
 
-      <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 z-10 flex flex-col items-center text-center">
-        {/* Verified Syndicate Pill using Badge */}
-        <Badge
-          variant="verified"
-          className="text-xs font-semibold tracking-wider uppercase px-4 py-1.5 h-auto mb-6 gap-2"
-        >
-          <IconRosetteDiscountCheckFilled size={18} className="text-secondary-fixed shrink-0" />
-          <span>Premier Luxury Real Estate Syndicate</span>
-        </Badge>
+      <SectionWrapper as="div" className="relative z-10 flex flex-col items-center text-center">
 
-        {/* Main Headline */}
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-surface max-w-4xl tracking-tight mb-4 drop-shadow-sm leading-tight">
-          Exceptional Properties for{" "}
-          <span className="text-secondary-fixed underline decoration-secondary-fixed/40 underline-offset-8">
-            Discerning Lifestyles
-          </span>
-        </h1>
+      <Badge
+        variant="verified"
+        className="text-xs font-semibold tracking-wider uppercase px-4 py-1.5 h-auto mb-6 gap-2"
+      >
+        <IconRosetteDiscountCheckFilled size={18} className="text-secondary-fixed shrink-0" />
+        <span>Premier Luxury Real Estate Syndicate</span>
+      </Badge>
 
-        <p className="text-sm sm:text-base lg:text-lg text-surface-container-high max-w-2xl font-light mb-8 lg:mb-10">
-          Discover private estates, architectural residences, and luxury penthouses curated
-          by premier certified brokers across North America.
-        </p>
+      <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-surface max-w-4xl tracking-tight mb-4 drop-shadow-sm leading-tight">
+        Exceptional Properties for{" "}
+        <span className="text-secondary-fixed underline decoration-secondary-fixed/40 underline-offset-8">
+          Discerning Lifestyles
+        </span>
+      </h1>
 
-        {/* Omni-Search Filter Card */}
-        <div className="w-full max-w-5xl bg-surface-container-lowest rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-left border border-outline-variant/30">
-          {/* Segmented Mode Selector */}
-          <div className="flex items-center justify-between flex-wrap gap-3 pb-5 border-b border-outline-variant/20">
+      <p className="text-sm sm:text-base lg:text-lg text-surface-container-high max-w-2xl font-light mb-8 lg:mb-10">
+        Discover private estates, architectural residences, and luxury penthouses curated
+        by premier certified brokers across North America.
+      </p>
+
+      <div className="w-full max-w-5xl bg-surface-container-lowest rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-left border border-outline-variant/30">
+        <div className="flex items-center justify-between flex-wrap gap-3 pb-5 border-b border-outline-variant/20">
             <div className="inline-flex p-1 bg-surface-container-low rounded-xl gap-1">
               <Button
                 type="button"
@@ -143,9 +139,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Inputs Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4">
-            {/* Location Input using reusable Input */}
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconMapPin size={16} className="text-secondary shrink-0" />
@@ -160,7 +154,6 @@ export function HeroSection() {
               />
             </div>
 
-            {/* Property Type using reusable Select */}
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconHome size={16} className="text-secondary shrink-0" />
@@ -280,7 +273,6 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Institutional Metrics Bar */}
         <div className="w-full max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-10">
           <div className="flex flex-col items-center text-center p-4 rounded-xl bg-surface-container-lowest/90 backdrop-blur-md shadow-sm border border-outline-variant/30">
             <span className="text-2xl lg:text-3xl font-bold text-secondary">$6.2B+</span>
@@ -307,7 +299,7 @@ export function HeroSection() {
             </span>
           </div>
         </div>
-      </div>
+      </SectionWrapper>
     </section>
   )
 }

@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function Footer() {
   const [email, setEmail] = React.useState("")
@@ -25,10 +26,9 @@ export function Footer() {
   }
 
   return (
-    <footer className="w-full bg-surface-container-lowest border-t border-outline-variant/30">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pt-16 pb-8">
+    <SectionWrapper as="footer" fullWidth className="bg-surface-container-lowest border-t border-outline-variant/30" innerClassName="pt-16 pb-8">
+      <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-          {/* Brand Info */}
           <div className="lg:col-span-2 flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-secondary font-bold text-lg shadow-sm">
@@ -193,7 +193,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-8 border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-on-surface-variant text-xs">
           <p>© 2025 EstateHub Global Inc. All rights reserved. Licensed Real Estate Brokerage.</p>
           <div className="flex items-center gap-6">
@@ -209,6 +208,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </SectionWrapper>
   )
 }
