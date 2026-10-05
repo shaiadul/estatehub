@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { SellPropertyWizard } from "@/components/sell/sell-property-wizard"
+import { SellPageView } from "./_components"
 
 export const metadata: Metadata = {
   title: "Sell & Syndicate Trophy Estate | EstateHub Private Portfolio",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function SellPage() {
-  return <SellPropertyWizard />
+  return <SellPageView />
 }

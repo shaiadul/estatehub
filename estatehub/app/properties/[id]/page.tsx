@@ -1,5 +1,5 @@
 import { getPropertyByIdOrSlug, getSimilarProperties, PROPERTIES } from "@/lib/properties-data"
-import { PropertyDetailsView } from "@/components/properties/property-details-view"
+import { PropertyDetailPageView } from "./_components"
 import type { Metadata } from "next"
 
 interface PageProps {
@@ -31,5 +31,5 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const property = getPropertyByIdOrSlug(id)
   const similar = getSimilarProperties(property.id, 2)
 
-  return <PropertyDetailsView property={property} similarProperties={similar} />
+  return <PropertyDetailPageView property={property} similarProperties={similar} />
 }
