@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-context"
+import { I18nProvider } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -31,9 +32,11 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-surface font-sans text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container">
         <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <I18nProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -5,6 +5,7 @@ import { IconCircleCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { AgentRecord } from "./types"
+import { useI18n } from "@/lib/i18n"
 
 interface ConsultModalProps {
   agent: AgentRecord | null
@@ -14,11 +15,13 @@ interface ConsultModalProps {
 }
 
 export function ConsultModal({ agent, booked, onClose, onBooked }: ConsultModalProps) {
+  const { t } = useI18n()
+
   const consultFields = [
-    { key: "name", placeholder: "Full Legal Name", type: undefined as string | undefined, required: true },
-    { key: "phone", placeholder: "Private Phone (+1)", type: "tel", required: true },
-    { key: "email", placeholder: "Institutional Email", type: "email", required: true },
-    { key: "target", placeholder: "Holding or Syndicate Target (e.g. $10M - $25M)", type: undefined as string | undefined, required: false },
+    { key: "name", placeholder: t("agents.fullName", "Full Legal Name"), type: undefined as string | undefined, required: true },
+    { key: "phone", placeholder: t("agents.phone", "Private Phone (+1)"), type: "tel", required: true },
+    { key: "email", placeholder: t("agents.email", "Institutional Email"), type: "email", required: true },
+    { key: "target", placeholder: t("agents.target", "Holding or Syndicate Target (e.g. $10M - $25M)"), type: undefined as string | undefined, required: false },
   ]
 
   if (!agent) return null
@@ -47,7 +50,7 @@ export function ConsultModal({ agent, booked, onClose, onBooked }: ConsultModalP
               onClick={onClose}
               className="mt-6 font-bold"
             >
-              Done
+              {t("agents.done", "Done")}
             </Button>
           </div>
         ) : (
@@ -63,7 +66,7 @@ export function ConsultModal({ agent, booked, onClose, onBooked }: ConsultModalP
               </div>
               <div>
                 <h3 className="text-base font-bold text-on-surface">
-                  Schedule Private Advisory with {agent.name}
+                  {t("agents.scheduleAdvisory", "Schedule Private Advisory with")} {agent.name}
                 </h3>
                 <span className="text-xs text-secondary font-medium">
                   {agent.title}
@@ -93,7 +96,7 @@ export function ConsultModal({ agent, booked, onClose, onBooked }: ConsultModalP
               ))}
 
               <Button type="submit" variant="gold" size="lg" className="w-full font-bold shadow-md mt-2">
-                Confirm Advisory Dispatch
+                {t("agents.confirmDispatch", "Confirm Advisory Dispatch")}
               </Button>
             </form>
           </div>

@@ -12,8 +12,11 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 
 export function BrokerSpotlight() {
+  const { t } = useI18n()
+
   const brokers = [
     {
       name: "Marcus Sterling",
@@ -55,14 +58,13 @@ export function BrokerSpotlight() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <span className="text-xs text-secondary uppercase tracking-widest font-bold block mb-1">
-            Human Expertise
+            {t("spotlight.badge", "Human Expertise")}
           </span>
           <h2 className="text-3xl lg:text-4xl font-bold text-on-surface">
-            Certified Broker Spotlight
+            {t("spotlight.title", "Certified Broker Spotlight")}
           </h2>
           <p className="text-sm sm:text-base text-on-surface-variant max-w-lg mt-1">
-            Each advisor ranks within the top percentile of global luxury transaction volume and
-            holds active licensure.
+            {t("spotlight.subtitle", "Each advisor ranks within the top percentile of global luxury transaction volume and holds active licensure.")}
           </p>
         </div>
 
@@ -70,7 +72,7 @@ export function BrokerSpotlight() {
           href="#agents"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-secondary hover:text-on-secondary-fixed transition-colors"
         >
-          <span>Browse All 84 Advisors</span>
+          <span>{t("spotlight.browseAll", "Browse All 84 Advisors")}</span>
           <IconArrowRight size={18} />
         </Link>
       </div>
@@ -110,13 +112,13 @@ export function BrokerSpotlight() {
                 <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-surface-container-low mb-4 text-center border border-outline-variant/20">
                   <div>
                     <span className="text-[10px] text-on-surface-variant uppercase font-semibold block">
-                      Career Volume
+                      {t("spotlight.careerVolume", "Career Volume")}
                     </span>
                     <span className="text-sm font-bold text-on-surface">{broker.volume}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-on-surface-variant uppercase font-semibold block">
-                      Avg. Close Days
+                      {t("spotlight.avgClose", "Avg. Close Days")}
                     </span>
                     <span className="text-sm font-bold text-on-surface">{broker.avgClose}</span>
                   </div>
@@ -135,7 +137,7 @@ export function BrokerSpotlight() {
                   className="flex-1 rounded-xl gap-1.5 shadow-sm"
                 >
                   <IconPhone size={15} />
-                  <span>Direct Call</span>
+                  <span>{t("spotlight.directCall", "Direct Call")}</span>
                 </Button>
                 <Button
                   type="button"
@@ -144,7 +146,7 @@ export function BrokerSpotlight() {
                   className="flex-1 rounded-xl gap-1.5"
                 >
                   <IconMail size={15} />
-                  <span>Email Broker</span>
+                  <span>{t("spotlight.emailBroker", "Email Broker")}</span>
                 </Button>
               </div>
             </CardContent>

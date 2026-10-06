@@ -21,11 +21,13 @@ import {
 } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useI18n } from "@/lib/i18n"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 
 export function HeroSection() {
   const router = useRouter()
   const { isLoggedIn } = useAuth()
+  const { t } = useI18n()
   const [activeMode, setActiveMode] = React.useState<"buy" | "rent" | "commercial">("buy")
   const [location, setLocation] = React.useState("Bel Air, CA")
   const [propertyType, setPropertyType] = React.useState("villa")
@@ -34,16 +36,16 @@ export function HeroSection() {
   const [selectedTags, setSelectedTags] = React.useState<string[]>([])
 
   const trendingTags = [
-    "Oceanfront",
-    "New Construction",
-    "Equestrian",
-    "Private Gate",
-    "Skyline Views",
+    { id: "oceanfront", labelKey: "tags.oceanfront", fallback: "Oceanfront" },
+    { id: "newConstruction", labelKey: "tags.newConstruction", fallback: "New Construction" },
+    { id: "equestrian", labelKey: "tags.equestrian", fallback: "Equestrian" },
+    { id: "privateGate", labelKey: "tags.privateGate", fallback: "Private Gate" },
+    { id: "skylineViews", labelKey: "tags.skylineViews", fallback: "Skyline Views" },
   ]
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = (tagId: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]
     )
   }
 
@@ -56,7 +58,7 @@ export function HeroSection() {
             "url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop')",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-primary-container/85 via-primary-container/70 to-surface pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-b from-primary-container/85 via-primary-container/70 to-surface pointer-events-none" />
 
       <div className="absolute -top-32 right-1/4 w-96 h-96 rounded-full bg-secondary-fixed/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-80 h-80 rounded-full bg-surface-container-highest/15 blur-3xl pointer-events-none" />
@@ -68,19 +70,18 @@ export function HeroSection() {
         className="text-xs font-semibold tracking-wider uppercase px-4 py-1.5 h-auto mb-6 gap-2"
       >
         <IconRosetteDiscountCheckFilled size={18} className="text-secondary-fixed shrink-0" />
-        <span>Premier Luxury Real Estate Syndicate</span>
+        <span>{t("hero.badge", "Premier Luxury Real Estate Syndicate")}</span>
       </Badge>
 
       <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-surface max-w-4xl tracking-tight mb-4 drop-shadow-sm leading-tight">
-        Exceptional Properties for{" "}
+        {t("hero.titlePart1", "Exceptional Properties for ")}
         <span className="text-secondary-fixed underline decoration-secondary-fixed/40 underline-offset-8">
-          Discerning Lifestyles
+          {t("hero.titleHighlight", "Discerning Lifestyles")}
         </span>
       </h1>
 
       <p className="text-sm sm:text-base lg:text-lg text-surface-container-high max-w-2xl font-light mb-8 lg:mb-10">
-        Discover private estates, architectural residences, and luxury penthouses curated
-        by premier certified brokers across North America.
+        {t("hero.subtitle", "Discover private estates, architectural residences, and luxury penthouses curated by premier certified brokers across North America.")}
       </p>
 
       <div className="w-full max-w-5xl bg-surface-container-lowest rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-left border border-outline-variant/30">
@@ -97,7 +98,7 @@ export function HeroSection() {
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Buy
+                {t("hero.tabBuy", "Buy")}
               </Button>
               <Button
                 type="button"
@@ -116,7 +117,7 @@ export function HeroSection() {
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Rent
+                {t("hero.tabRent", "Rent")}
               </Button>
               <Button
                 type="button"
@@ -129,13 +130,13 @@ export function HeroSection() {
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Commercial Holdings
+                {t("hero.tabCommercial", "Commercial Holdings")}
               </Button>
             </div>
 
             <div className="flex items-center gap-2 text-on-surface-variant text-xs">
               <span className="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="font-medium">Live MLS &amp; Off-Market Access</span>
+              <span className="font-medium">{t("hero.liveMls", "Live MLS & Off-Market Access")}</span>
             </div>
           </div>
 
@@ -143,21 +144,21 @@ export function HeroSection() {
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconMapPin size={16} className="text-secondary shrink-0" />
-                Location
+                {t("hero.labelLocation", "Location")}
               </label>
               <Input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Bel Air, CA"
-                className="h-7 border-none bg-transparent p-0 text-sm text-on-surface font-medium placeholder:text-outline focus-visible:ring-0 shadow-none"
+                placeholder={t("hero.placeholderLocation", "e.g. Bel Air, CA")}
+                className="h-7 border-none bg-transparent p-0 text-sm text-on-surface font-medium focus-visible:ring-0 shadow-none"
               />
             </div>
 
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconHome size={16} className="text-secondary shrink-0" />
-                Property Type
+                {t("hero.labelPropertyType", "Property Type")}
               </label>
               <Select
                 value={propertyType}
@@ -166,14 +167,14 @@ export function HeroSection() {
                 }}
               >
                 <SelectTrigger variant="borderless">
-                  <SelectValue placeholder="All Asset Classes" />
+                  <SelectValue placeholder={t("select.allAssetClasses", "All Asset Classes")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Asset Classes</SelectItem>
-                  <SelectItem value="villa">Luxury Villa</SelectItem>
-                  <SelectItem value="penthouse">Modern Penthouse</SelectItem>
-                  <SelectItem value="waterfront">Waterfront Estate</SelectItem>
-                  <SelectItem value="chalet">Ski Chalet</SelectItem>
+                  <SelectItem value="all">{t("select.allAssetClasses", "All Asset Classes")}</SelectItem>
+                  <SelectItem value="villa">{t("select.luxuryVilla", "Luxury Villa")}</SelectItem>
+                  <SelectItem value="penthouse">{t("select.modernPenthouse", "Modern Penthouse")}</SelectItem>
+                  <SelectItem value="waterfront">{t("select.waterfrontEstate", "Waterfront Estate")}</SelectItem>
+                  <SelectItem value="chalet">{t("select.skiChalet", "Ski Chalet")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -182,7 +183,7 @@ export function HeroSection() {
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconCurrencyDollar size={16} className="text-secondary shrink-0" />
-                Price Spectrum
+                {t("hero.labelPriceSpectrum", "Price Spectrum")}
               </label>
               <Select
                 value={priceRange}
@@ -191,10 +192,10 @@ export function HeroSection() {
                 }}
               >
                 <SelectTrigger variant="borderless">
-                  <SelectValue placeholder="Select price" />
+                  <SelectValue placeholder={t("select.selectPrice", "Select price")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Any Price</SelectItem>
+                  <SelectItem value="any">{t("select.anyPrice", "Any Price")}</SelectItem>
                   <SelectItem value="1-5">$1.5M - $5.0M</SelectItem>
                   <SelectItem value="5-10">$5.0M - $10.0M+</SelectItem>
                   <SelectItem value="10plus">$10.0M - $35.0M+</SelectItem>
@@ -207,7 +208,7 @@ export function HeroSection() {
             <div className="flex flex-col gap-1.5 bg-surface-container-low/70 rounded-xl p-3 hover:bg-surface-container-low transition-colors border border-outline-variant/20">
               <label className="text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
                 <IconBed size={16} className="text-secondary shrink-0" />
-                Bedrooms
+                {t("hero.labelBedrooms", "Bedrooms")}
               </label>
               <Select
                 value={bedrooms}
@@ -216,13 +217,13 @@ export function HeroSection() {
                 }}
               >
                 <SelectTrigger variant="borderless">
-                  <SelectValue placeholder="Select bedrooms" />
+                  <SelectValue placeholder={t("select.selectBedrooms", "Select bedrooms")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Studio to 2+ Beds</SelectItem>
-                  <SelectItem value="3">3+ Bedrooms</SelectItem>
-                  <SelectItem value="5">5+ Bedrooms</SelectItem>
-                  <SelectItem value="estate">Private Compound (8+)</SelectItem>
+                  <SelectItem value="any">{t("select.studioTo2", "Studio to 2+ Beds")}</SelectItem>
+                  <SelectItem value="3">{t("select.threePlusBeds", "3+ Bedrooms")}</SelectItem>
+                  <SelectItem value="5">{t("select.fivePlusBeds", "5+ Bedrooms")}</SelectItem>
+                  <SelectItem value="estate">{t("select.compound8Plus", "Private Compound (8+)")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -231,19 +232,19 @@ export function HeroSection() {
           {/* Quick Tags & Search CTA Row */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pt-4 mt-2">
             <div className="flex items-center flex-wrap gap-2">
-              <span className="text-xs text-on-surface-variant font-medium">Trending:</span>
+              <span className="text-xs text-on-surface-variant font-medium">{t("hero.trending", "Trending:")}</span>
               {trendingTags.map((tag) => {
-                const isSelected = selectedTags.includes(tag)
+                const isSelected = selectedTags.includes(tag.id)
                 return (
                   <Button
-                    key={tag}
+                    key={tag.id}
                     type="button"
                     variant={isSelected ? "gold" : "outline"}
                     size="xs"
-                    onClick={() => toggleTag(tag)}
+                    onClick={() => toggleTag(tag.id)}
                     className="rounded-full text-xs"
                   >
-                    {tag}
+                    {t(tag.labelKey, tag.fallback)}
                   </Button>
                 )
               })}
@@ -266,7 +267,7 @@ export function HeroSection() {
               }}
               className="gap-2 group shadow-md"
             >
-              <span>Search Available Estates</span>
+              <span>{t("hero.searchCta", "Search Available Estates")}</span>
               <span className="w-2 h-2 rounded-full bg-secondary-fixed group-hover:scale-125 transition-transform" />
               <IconArrowRight size={18} />
             </Button>
@@ -277,25 +278,25 @@ export function HeroSection() {
           <div className="flex flex-col items-center text-center p-4 rounded-xl bg-surface-container-lowest/90 backdrop-blur-md shadow-sm border border-outline-variant/30">
             <span className="text-2xl lg:text-3xl font-bold text-secondary">$6.2B+</span>
             <span className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">
-              Volume Closed
+              {t("hero.statVolume", "Volume Closed")}
             </span>
           </div>
           <div className="flex flex-col items-center text-center p-4 rounded-xl bg-surface-container-lowest/90 backdrop-blur-md shadow-sm border border-outline-variant/30">
             <span className="text-2xl lg:text-3xl font-bold text-secondary">99.6%</span>
             <span className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">
-              Title Verified
+              {t("hero.statTitle", "Title Verified")}
             </span>
           </div>
           <div className="flex flex-col items-center text-center p-4 rounded-xl bg-surface-container-lowest/90 backdrop-blur-md shadow-sm border border-outline-variant/30">
             <span className="text-2xl lg:text-3xl font-bold text-secondary">14,000+</span>
             <span className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">
-              HNW Buyers
+              {t("hero.statBuyers", "HNW Buyers")}
             </span>
           </div>
           <div className="flex flex-col items-center text-center p-4 rounded-xl bg-surface-container-lowest/90 backdrop-blur-md shadow-sm border border-outline-variant/30">
             <span className="text-2xl lg:text-3xl font-bold text-secondary">Top 1%</span>
             <span className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">
-              Certified Brokers
+              {t("hero.statBrokers", "Certified Brokers")}
             </span>
           </div>
         </div>

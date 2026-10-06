@@ -3,6 +3,7 @@
 import { IconSearch, IconRefresh, IconDownload } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useI18n } from "@/lib/i18n"
 import type { CommandState } from "./use-command-state"
 
 interface CommandToolbarProps {
@@ -10,11 +11,12 @@ interface CommandToolbarProps {
 }
 
 const TOOLBAR_BUTTONS = [
-  { id: "reset", label: "Reset", Icon: IconRefresh },
-  { id: "export", label: "Export Ledger", Icon: IconDownload },
+  { id: "reset", key: "dash.reset", label: "Reset", Icon: IconRefresh },
+  { id: "export", key: "dash.exportLedger", label: "Export Ledger", Icon: IconDownload },
 ] as const
 
 export function CommandToolbar({ state }: CommandToolbarProps) {
+  const { t } = useI18n()
   const {
     searchQuery,
     setSearchQuery,
@@ -35,13 +37,13 @@ export function CommandToolbar({ state }: CommandToolbarProps) {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by estate name, buyer, ID or enclave..."
+          placeholder={t("dash.searchPlaceholder", "Search by estate name, buyer, ID or enclave...")}
           className="h-10 rounded-xl border-outline-variant/40 bg-surface-container-low pr-4 pl-9 text-xs"
         />
       </div>
 
       <div className="flex items-center gap-2">
-        {TOOLBAR_BUTTONS.map(({ id, label, Icon }) => (
+        {TOOLBAR_BUTTONS.map(({ id, key, label, Icon }) => (
           <Button
             key={id}
             variant="outline"
@@ -60,7 +62,7 @@ export function CommandToolbar({ state }: CommandToolbarProps) {
             className="h-10 rounded-xl border-outline-variant/40 px-3.5 text-xs font-bold hover:bg-surface-container-high/40"
           >
             <Icon size={15} />
-            <span className="hidden sm:inline">{label}</span>
+            <span className="hidden sm:inline">{t(key, label)}</span>
           </Button>
         ))}
       </div>

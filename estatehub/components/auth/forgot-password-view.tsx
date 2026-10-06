@@ -12,8 +12,16 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 
 export function ForgotPasswordView() {
+  const { t } = useI18n()
   const [email, setEmail] = React.useState("")
   const [submitted, setSubmitted] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -29,8 +37,12 @@ export function ForgotPasswordView() {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-5rem)] flex flex-col justify-center items-center py-12 px-4 md:px-8 relative bg-surface">
-      <div className="w-full max-w-lg mx-auto relative z-10">
+    <SectionWrapper
+      fullWidth
+      className="relative bg-surface min-h-[calc(100vh-5rem)] flex items-center justify-center py-12"
+      innerClassName="w-full max-w-lg mx-auto relative z-10"
+    >
+      <div className="w-full">
         <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-outline-variant/30 relative overflow-hidden">
           {/* Top Metallic Accent */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
@@ -54,7 +66,7 @@ export function ForgotPasswordView() {
               <div className="pt-2 w-full">
                 <Link href="/login">
                   <Button className="w-full py-3 h-auto rounded-xl bg-primary text-on-primary font-bold">
-                    Return to Terminal Sign-In
+                    {t("auth.backToSignIn", "Return to Terminal Sign-In")}
                   </Button>
                 </Link>
               </div>
@@ -77,20 +89,22 @@ export function ForgotPasswordView() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="font-label-sm text-xs font-semibold text-on-surface flex items-center justify-between">
-                    <span>Confidential Work Email</span>
-                    <span className="font-caption text-[11px] text-on-surface-variant">Authorized Entity Only</span>
+                    <span>{t("auth.emailLabel", "Confidential Work Email")}</span>
+                    <span className="font-caption text-[11px] text-on-surface-variant">{t("auth.domainVerified", "Authorized Entity Only")}</span>
                   </label>
-                  <div className="relative">
-                    <Input
+                  <InputGroup className="h-11 rounded-xl bg-surface-container-low border-outline-variant/30 focus-within:bg-surface-container-lowest focus-within:border-primary transition-all">
+                    <InputGroupAddon align="inline-start">
+                      <IconAt className="w-4 h-4 text-outline" />
+                    </InputGroupAddon>
+                    <InputGroupInput
                       type="email"
                       required
                       placeholder="principal@familyoffice.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-surface-container-low pl-10 pr-3 py-2.5 rounded-xl text-on-surface focus:bg-surface-container-lowest"
+                      className="text-on-surface placeholder:text-outline text-xs sm:text-sm"
                     />
-                    <IconAt className="w-4 h-4 text-outline absolute left-3.5 top-3.5" />
-                  </div>
+                  </InputGroup>
                 </div>
 
                 <Button
@@ -98,7 +112,7 @@ export function ForgotPasswordView() {
                   disabled={isLoading}
                   className="w-full py-3.5 h-auto rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>{isLoading ? "Validating Enclave Registry..." : "Dispatch Recovery Link"}</span>
+                  <span>{isLoading ? "Validating Enclave Registry..." : t("auth.recoveryLink", "Dispatch Recovery Link")}</span>
                   <IconArrowRight className="w-4 h-4" />
                 </Button>
               </form>
@@ -109,7 +123,7 @@ export function ForgotPasswordView() {
                   className="font-label-sm text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors inline-flex items-center justify-center gap-1"
                 >
                   <IconArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Institutional Sign-In</span>
+                  <span>{t("auth.backToSignIn", "Back to Institutional Sign-In")}</span>
                 </Link>
                 <div className="flex items-center justify-center gap-1.5 text-on-surface-variant font-caption text-xs">
                   <IconHeadset className="w-3.5 h-3.5" />
@@ -120,6 +134,6 @@ export function ForgotPasswordView() {
           )}
         </div>
       </div>
-    </div>
+    </SectionWrapper>
   )
 }

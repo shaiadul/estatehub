@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { CommandState } from "./use-command-state"
 import type { PropertyItem } from "./types"
+import { useI18n } from "@/lib/i18n"
 
 interface CommandModalsProps {
   state: CommandState
@@ -28,6 +29,7 @@ interface ModalTextField {
 }
 
 export function CommandModals({ state }: CommandModalsProps) {
+  const { t } = useI18n()
   const {
     isAddPropertyModalOpen,
     setIsAddPropertyModalOpen,
@@ -235,13 +237,13 @@ export function CommandModals({ state }: CommandModalsProps) {
                   onClick={() => setIsAddPropertyModalOpen(false)}
                   className="h-10 rounded-xl border-outline-variant/40 px-4 text-xs font-bold"
                 >
-                  Cancel
+                  {t("dash.cancel", "Cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="h-10 rounded-xl bg-primary px-5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
                 >
-                  Save Listing
+                  {t("dash.saveListing", "Save Listing")}
                 </Button>
               </div>
             </form>
@@ -303,13 +305,13 @@ export function CommandModals({ state }: CommandModalsProps) {
                   onClick={() => setCounterModalOffer(null)}
                   className="h-10 rounded-xl border-outline-variant/40 px-4 text-xs font-bold"
                 >
-                  Cancel
+                  {t("dash.cancel", "Cancel")}
                 </Button>
                 <Button
                   onClick={handleApplyCounterOffer}
                   className="h-10 rounded-xl bg-primary px-5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
                 >
-                  Transmit Counter-Offer
+                  {t("dash.submitCounter", "Transmit Counter-Offer")}
                 </Button>
               </div>
             </div>
@@ -406,13 +408,13 @@ export function CommandModals({ state }: CommandModalsProps) {
                   onClick={() => setIsAddClientModalOpen(false)}
                   className="h-10 rounded-xl border-outline-variant/40 px-4 text-xs font-bold"
                 >
-                  Cancel
+                  {t("dash.cancel", "Cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="h-10 rounded-xl bg-primary px-5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
                 >
-                  Save Client
+                  {t("dash.saveClient", "Save Client")}
                 </Button>
               </div>
             </form>
