@@ -18,18 +18,30 @@ import {
   IconBuildingEstate,
   IconUsers,
   IconPlus,
+  IconSun,
+  IconMoon,
 } from "@tabler/icons-react"
+import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useAuth } from "@/lib/auth-context"
 
 export function Header() {
   const router = useRouter()
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = React.useState(false)
   const pathname = usePathname()
   const { user, isLoggedIn, logout, switchDemoUser } = useAuth()
   const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const currentTheme = mounted ? (resolvedTheme || theme || "light") : "light"
+  const isDark = currentTheme === "dark"
 
   // Close dropdown on outside click
   React.useEffect(() => {
@@ -252,6 +264,44 @@ export function Header() {
                       </div>
                     </div>
 
+                    {/* Theme Mode Toggle */}
+                    <div className="mb-2 border-t border-surface-container px-3 pt-2">
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
+                          Theme Mode
+                        </span>
+                        <span className="font-mono text-[10px] text-on-secondary-container font-semibold capitalize">
+                          {isDark ? "Dark" : "Light"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-container p-1">
+                        <button
+                          type="button"
+                          onClick={() => setTheme("light")}
+                          className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                            !isDark
+                              ? "bg-surface-container-lowest text-on-surface shadow-xs font-bold"
+                              : "text-on-surface-variant hover:text-on-surface"
+                          }`}
+                        >
+                          <IconSun className="h-3.5 w-3.5 text-secondary" />
+                          <span>Light</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTheme("dark")}
+                          className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                            isDark
+                              ? "bg-surface-container-lowest text-on-surface shadow-xs font-bold"
+                              : "text-on-surface-variant hover:text-on-surface"
+                          }`}
+                        >
+                          <IconMoon className="h-3.5 w-3.5 text-secondary" />
+                          <span>Dark</span>
+                        </button>
+                      </div>
+                    </div>
+
                     {/* Links */}
                     <div className="space-y-0.5 border-t border-surface-container pt-1">
                       <Link
@@ -301,6 +351,16 @@ export function Header() {
                   </div>
                 )}
               </div>
+            )}
+
+            {!isLoggedIn && (
+              <Link
+                href="/login"
+                className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl border border-outline-variant/40 px-3.5 text-xs font-bold text-on-surface hover:bg-surface-container transition-colors"
+              >
+                <IconUser className="h-3.5 w-3.5 text-on-surface-variant" />
+                <span>Sign In</span>
+              </Link>
             )}
 
             {/* Mobile Menu Hamburger Button (visible on mobile/tablet below lg: 1024px) */}
@@ -435,6 +495,44 @@ export function Header() {
                         {item.label}
                       </button>
                     ))}
+                  </div>
+
+                  {/* Theme Mode Toggle (Mobile) */}
+                  <div className="mt-1 border-t border-surface-container pt-2">
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
+                        Theme Mode
+                      </span>
+                      <span className="font-mono text-[10px] text-on-secondary-container font-semibold capitalize">
+                        {isDark ? "Dark" : "Light"}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-container p-1">
+                      <button
+                        type="button"
+                        onClick={() => setTheme("light")}
+                        className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                          !isDark
+                            ? "bg-surface-container-lowest text-on-surface shadow-xs font-bold"
+                            : "text-on-surface-variant hover:text-on-surface"
+                        }`}
+                      >
+                        <IconSun className="h-3.5 w-3.5 text-secondary" />
+                        <span>Light</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme("dark")}
+                        className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                          isDark
+                            ? "bg-surface-container-lowest text-on-surface shadow-xs font-bold"
+                            : "text-on-surface-variant hover:text-on-surface"
+                        }`}
+                      >
+                        <IconMoon className="h-3.5 w-3.5 text-secondary" />
+                        <span>Dark</span>
+                      </button>
+                    </div>
                   </div>
 
                   <button
