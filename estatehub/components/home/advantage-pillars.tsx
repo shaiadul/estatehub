@@ -10,35 +10,46 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 
 export function AdvantagePillars() {
+  const { t } = useI18n()
+
   const pillars = [
     {
-      title: "Guaranteed Escrow & Title",
-      description:
-        "Full chain-of-title verification through tier-1 institutional escrow partners before any public listing or off-market distribution.",
-      cta: "Learn Protocol",
+      title: t("pillars.escrowTitle", "Guaranteed Escrow & Title"),
+      description: t(
+        "pillars.escrowDesc",
+        "Full chain-of-title verification through tier-1 institutional escrow partners before any public listing or off-market distribution."
+      ),
+      cta: t("pillars.escrowCta", "Learn Protocol"),
       icon: IconBuildingBank,
     },
     {
-      title: "Elite Broker Concierge",
-      description:
-        "Dedicated private client managers matching off-market pocket listings with sovereign wealth and family office mandates.",
-      cta: "Advisory Scope",
+      title: t("pillars.conciergeTitle", "Elite Broker Concierge"),
+      description: t(
+        "pillars.conciergeDesc",
+        "Dedicated private client managers matching off-market pocket listings with sovereign wealth and family office mandates."
+      ),
+      cta: t("pillars.conciergeCta", "Advisory Scope"),
       icon: IconHeadset,
     },
     {
-      title: "Algorithmic Valuation",
-      description:
-        "Machine-learning comp engine paired with physical hyper-local broker appraisal to eliminate valuation discrepancies.",
-      cta: "Model Analytics",
+      title: t("pillars.valuationTitle", "Algorithmic Valuation"),
+      description: t(
+        "pillars.valuationDesc",
+        "Machine-learning comp engine paired with physical hyper-local broker appraisal to eliminate valuation discrepancies."
+      ),
+      cta: t("pillars.valuationCta", "Model Analytics"),
       icon: IconChartBar,
     },
     {
-      title: "Zero Hidden Markups",
-      description:
-        "Direct advisory pricing structure with institutional fee transparency, transparent settlement schedules, and no syndicate fees.",
-      cta: "Fee Transparency",
+      title: t("pillars.markupTitle", "Zero Hidden Markups"),
+      description: t(
+        "pillars.markupDesc",
+        "Direct advisory pricing structure with institutional fee transparency, transparent settlement schedules, and no syndicate fees."
+      ),
+      cta: t("pillars.markupCta", "Fee Transparency"),
       icon: IconReceiptTax,
     },
   ]
@@ -52,15 +63,14 @@ export function AdvantagePillars() {
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
           <div>
             <span className="text-xs text-secondary-fixed uppercase tracking-widest font-bold block mb-1">
-              Institutional Integrity
+              {t("pillars.badge", "Institutional Integrity")}
             </span>
             <h2 className="text-3xl lg:text-4xl font-bold text-surface">
-              The EstateHub Advantage
+              {t("pillars.title", "The EstateHub Advantage")}
             </h2>
           </div>
           <p className="text-sm sm:text-base text-surface-container-high max-w-md">
-            Private transactional infrastructure designed for discretion, legal precision, and
-            rapid capital placement.
+            {t("pillars.subtitle", "Private transactional infrastructure designed for discretion, legal precision, and rapid capital placement.")}
           </p>
         </div>
 

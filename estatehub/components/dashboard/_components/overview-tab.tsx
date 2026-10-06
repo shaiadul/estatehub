@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CommandState } from "./use-command-state"
+import { useI18n } from "@/lib/i18n"
 
 interface OverviewTabProps {
   state: CommandState
@@ -24,6 +25,7 @@ const OVERVIEW_COLUMNS = [
 ]
 
 export function OverviewTab({ state }: OverviewTabProps) {
+  const { t } = useI18n()
   const {
     STATS_DATA,
     URGENT_ITEMS,
@@ -140,7 +142,7 @@ export function OverviewTab({ state }: OverviewTabProps) {
             onClick={() => setActiveNav("properties")}
             className="h-9 rounded-xl border-outline-variant/40 px-3 text-xs font-bold"
           >
-            <span>View All Properties ({properties.length})</span>
+            <span>{t("dash.viewAllProperties", "View All Properties")} ({properties.length})</span>
             <IconChevronRight size={15} />
           </Button>
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { MortgageCalculations } from "./types"
+import { useI18n } from "@/lib/i18n"
 
 interface MortgageCalculatorProps {
   calcPrice: number
@@ -28,6 +29,8 @@ export function MortgageCalculator({
   onCalcPriceChange,
   onDownPercentChange,
 }: MortgageCalculatorProps) {
+  const { t } = useI18n()
+
   const legendRows = [
     {
       key: "principal",
@@ -53,9 +56,11 @@ export function MortgageCalculator({
       <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-2xl font-bold text-on-surface">Mortgage &amp; Ownership Cost Calculator</h2>
+            <h2 className="text-2xl font-bold text-on-surface">
+              {t("mortgage.title", "Mortgage & Ownership Cost Calculator")}
+            </h2>
             <p className="text-xs text-on-surface-variant">
-              Customize your acquisition model and review estimated monthly capital obligations.
+              {t("mortgage.subtitle", "Customize your acquisition model and review estimated monthly capital obligations.")}
             </p>
           </div>
           <span className="px-3 py-1 rounded-full bg-surface-container text-xs font-semibold text-on-surface w-fit">
@@ -67,7 +72,9 @@ export function MortgageCalculator({
           <div className="lg:col-span-7 flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between text-xs font-semibold">
-                <span className="text-on-surface-variant">Purchase Price</span>
+                <span className="text-on-surface-variant">
+                  {t("mortgage.purchasePrice", "Purchase Price")}
+                </span>
                 <span className="text-on-surface font-bold text-sm">
                   ${calcPrice.toLocaleString()}
                 </span>
@@ -86,7 +93,7 @@ export function MortgageCalculator({
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between text-xs font-semibold">
                 <span className="text-on-surface-variant">
-                  Down Payment ({downPercent}%)
+                  {t("mortgage.downPayment", "Down Payment")} ({downPercent}%)
                 </span>
                 <span className="text-on-surface font-bold text-sm">
                   ${Math.round(mortgageCalculations.downAmount).toLocaleString()}

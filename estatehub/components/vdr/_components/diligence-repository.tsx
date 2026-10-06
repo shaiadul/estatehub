@@ -2,6 +2,7 @@
 
 import { IconFileSearch, IconSearch } from "@tabler/icons-react"
 import { Input } from "@/components/ui/input"
+import { useI18n } from "@/lib/i18n"
 import { DocumentCard } from "./document-card"
 import type { DiligenceDoc } from "./types"
 
@@ -26,6 +27,8 @@ export function DiligenceRepository({
   onPreview,
   onClearFilters,
 }: DiligenceRepositoryProps) {
+  const { t } = useI18n()
+
   return (
     <section
       aria-label="Diligence repository"
@@ -35,23 +38,22 @@ export function DiligenceRepository({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-lg sm:text-xl font-bold text-on-surface">
-              Unredacted Diligence Repository
+              {t("vdr.repoTitle", "Unredacted Diligence Repository")}
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container font-mono text-[10px] font-bold">
               SHA-256 Validated • {filteredDocs.length}/{totalCount}
             </span>
           </div>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            All exhibits contain unredacted legal descriptors, surveyor stamps, and bilateral escrow
-            disclosures.
+            {t("vdr.repoSubtitle", "All exhibits contain unredacted legal descriptors, surveyor stamps, and bilateral escrow disclosures.")}
           </p>
         </div>
 
         <div className="relative">
           <Input
             type="search"
-            placeholder="Filter exhibits..."
-            aria-label="Filter exhibits"
+            placeholder={t("vdr.filterExhibits", "Filter exhibits...")}
+            aria-label={t("vdr.filterExhibits", "Filter exhibits...")}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="bg-surface-container-low text-xs pl-8 pr-3 py-1.5 h-auto rounded-xl w-40 sm:w-48"
@@ -63,16 +65,16 @@ export function DiligenceRepository({
       {filteredDocs.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-10 text-center">
           <IconFileSearch className="w-8 h-8 text-outline" />
-          <p className="text-sm font-bold text-on-surface">No exhibits match your filters</p>
+          <p className="text-sm font-bold text-on-surface">{t("vdr.noExhibits", "No exhibits match your filters")}</p>
           <p className="text-xs text-on-surface-variant">
-            Try a different keyword or category.
+            {t("vdr.tryKeyword", "Try a different keyword or category.")}
           </p>
           <button
             type="button"
             onClick={onClearFilters}
             className="mt-1 px-3 py-1.5 rounded-lg bg-surface-container text-xs font-semibold text-on-surface hover:bg-surface-container-high"
           >
-            Clear search &amp; filters
+            {t("vdr.clearFilters", "Clear search & filters")}
           </button>
         </div>
       ) : (

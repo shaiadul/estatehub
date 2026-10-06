@@ -12,8 +12,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 
 export function Footer() {
+  const { t } = useI18n()
   const [email, setEmail] = React.useState("")
   const [subscribed, setSubscribed] = React.useState(false)
 
@@ -40,9 +42,10 @@ export function Footer() {
             </Link>
 
             <p className="text-sm text-on-surface-variant max-w-sm leading-relaxed">
-              Institutional precision paired with bespoke luxury curation. Connecting
-              discerning private collectors, investors, and family offices to exceptional
-              architectural estates worldwide.
+              {t(
+                "footer.tagline",
+                "Institutional precision paired with bespoke luxury curation. Connecting discerning private collectors, investors, and family offices to exceptional architectural estates worldwide."
+              )}
             </p>
 
             <div className="flex items-center gap-2 text-on-surface-variant mt-2">
@@ -79,7 +82,7 @@ export function Footer() {
           {/* Portfolio Links */}
           <div className="flex flex-col gap-2.5">
             <span className="text-xs uppercase tracking-wider text-on-surface font-bold mb-1">
-              Portfolio
+              {t("footer.portfolio", "Portfolio")}
             </span>
             <Link
               href="#properties"
@@ -116,7 +119,7 @@ export function Footer() {
           {/* Intelligence Links */}
           <div className="flex flex-col gap-2.5">
             <span className="text-xs uppercase tracking-wider text-on-surface font-bold mb-1">
-              Intelligence
+              {t("footer.intelligence", "Intelligence")}
             </span>
             <Link
               href="#calculator"
@@ -153,11 +156,13 @@ export function Footer() {
           {/* Market Dispatch Newsletter */}
           <div className="flex flex-col gap-2.5">
             <span className="text-xs uppercase tracking-wider text-on-surface font-bold mb-1">
-              Market Dispatch
+              {t("footer.dispatch", "Market Dispatch")}
             </span>
             <p className="text-xs text-on-surface-variant leading-relaxed">
-              Receive exclusive quarterly off-market estate offerings and institutional asset
-              performance data.
+              {t(
+                "footer.dispatchText",
+                "Receive exclusive quarterly off-market estate offerings and institutional asset performance data."
+              )}
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-1">
@@ -166,7 +171,7 @@ export function Footer() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="investor@familyoffice.com"
+                  placeholder={t("footer.emailPlaceholder", "investor@familyoffice.com")}
                   required
                   className="h-8 border-none bg-transparent p-1 text-xs text-on-surface shadow-none focus-visible:ring-0"
                 />
@@ -174,7 +179,7 @@ export function Footer() {
                   type="submit"
                   variant="ghost"
                   size="icon-xs"
-                  aria-label="Subscribe to newsletter"
+                  aria-label={t("footer.subscribeBtn", "Subscribe to newsletter")}
                   className="text-on-surface-variant hover:text-secondary shrink-0"
                 >
                   <IconArrowRight size={16} />
@@ -182,11 +187,11 @@ export function Footer() {
               </div>
               {subscribed ? (
                 <span className="text-xs text-secondary flex items-center gap-1 font-semibold">
-                  <IconCheck size={14} /> Subscribed to confidential dispatch.
+                  <IconCheck size={14} /> {t("footer.subscribedNotice", "Subscribed to confidential dispatch.")}
                 </span>
               ) : (
                 <span className="text-[11px] text-on-surface-variant/80">
-                  Confidential. No third-party syndication.
+                  {t("footer.confidentialNote", "Confidential. No third-party syndication.")}
                 </span>
               )}
             </form>
@@ -194,16 +199,16 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-on-surface-variant text-xs">
-          <p>© 2025 EstateHub Global Inc. All rights reserved. Licensed Real Estate Brokerage.</p>
+          <p>{t("footer.rights", "© 2025 EstateHub Global Inc. All rights reserved. Licensed Real Estate Brokerage.")}</p>
           <div className="flex items-center gap-6">
             <Link href="#privacy" className="hover:text-on-surface transition-colors">
-              Privacy Policy
+              {t("footer.privacy", "Privacy Policy")}
             </Link>
             <Link href="#terms" className="hover:text-on-surface transition-colors">
-              Terms of Service
+              {t("footer.terms", "Terms of Service")}
             </Link>
             <Link href="#equal-housing" className="hover:text-on-surface transition-colors">
-              Equal Housing Opportunity
+              {t("footer.equalHousing", "Equal Housing Opportunity")}
             </Link>
           </div>
         </div>

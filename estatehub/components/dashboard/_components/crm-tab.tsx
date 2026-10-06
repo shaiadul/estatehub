@@ -4,6 +4,7 @@ import { IconPlus, IconPhone, IconMail } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CommandState } from "./use-command-state"
+import { useI18n } from "@/lib/i18n"
 
 interface CrmTabProps {
   state: CommandState
@@ -20,6 +21,7 @@ const CRM_COLUMNS = [
 ]
 
 export function CrmTab({ state }: CrmTabProps) {
+  const { t } = useI18n()
   const { filteredLeads, setIsAddClientModalOpen, triggerToast } = state
 
   return (
@@ -41,7 +43,7 @@ export function CrmTab({ state }: CrmTabProps) {
             className="flex h-10 items-center gap-2 self-start rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground hover:bg-primary/90 sm:self-auto"
           >
             <IconPlus size={16} />
-            <span>Enroll New Client</span>
+            <span>{t("dash.enrollClient", "Enroll New Client")}</span>
           </Button>
         </div>
 

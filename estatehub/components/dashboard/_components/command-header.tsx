@@ -4,6 +4,7 @@ import { IconLayoutDashboard, IconPlus } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 import type { CommandState } from "./use-command-state"
 
 interface CommandHeaderProps {
@@ -11,6 +12,7 @@ interface CommandHeaderProps {
 }
 
 export function CommandHeader({ state }: CommandHeaderProps) {
+  const { t } = useI18n()
   const { activeRole, handleRoleChange, setIsAddPropertyModalOpen, setActiveNav, triggerToast, ROLES } = state
 
   return (
@@ -30,11 +32,11 @@ export function CommandHeader({ state }: CommandHeaderProps) {
                 variant="gold"
                 className="px-2.5 py-0.5 text-[10px] font-bold tracking-widest uppercase"
               >
-                Enterprise ERP &amp; Asset Management
+                {t("dashboard.badge", "Enterprise ERP & Asset Management")}
               </Badge>
             </div>
             <h1 className="text-xl font-black tracking-tight text-on-surface sm:text-2xl">
-              Real Estate Management Console
+              {t("dashboard.title", "Real Estate Management Console")}
             </h1>
           </div>
         </div>
@@ -56,7 +58,7 @@ export function CommandHeader({ state }: CommandHeaderProps) {
                   }`}
                 >
                   <Icon size={16} />
-                  <span>{r.label}</span>
+                  <span>{t(`dash.role.${r.id}`, r.label)}</span>
                 </button>
               )
             })}
@@ -68,7 +70,7 @@ export function CommandHeader({ state }: CommandHeaderProps) {
               className="flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90"
             >
               <IconPlus size={16} />
-              <span>Add Property Listing</span>
+              <span>{t("dash.addListing", "Add Property Listing")}</span>
             </Button>
           ) : (
             <Button
@@ -79,7 +81,7 @@ export function CommandHeader({ state }: CommandHeaderProps) {
               className="flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90"
             >
               <IconPlus size={16} />
-              <span>Submit Purchase LOI</span>
+              <span>{t("dash.submitLoi", "Submit Purchase LOI")}</span>
             </Button>
           )}
         </div>

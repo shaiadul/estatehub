@@ -10,6 +10,7 @@ import {
   IconReceipt2,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/lib/i18n"
 import type { VdrProperty } from "./types"
 import { formatUSD } from "./vdr-utils"
 
@@ -30,6 +31,8 @@ export function HeroBanner({
   onRefreshHash,
   onDownloadVault,
 }: HeroBannerProps) {
+  const { t } = useI18n()
+
   return (
     <div className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-primary-container text-primary-foreground shadow-xl border border-outline-variant/30">
       <div
@@ -37,14 +40,14 @@ export function HeroBanner({
         className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
         style={{ backgroundImage: `url('${property.heroImage}')` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/80 to-primary-container/40" />
+      <div className="absolute inset-0 bg-linear-to-t from-primary-container via-primary-container/80 to-primary-container/40" />
 
       <div className="relative z-10 p-6 sm:p-8 lg:p-10 flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/15">
             <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
-              Level 4 Sovereign Diligence • Unredacted Access Active
+              {t("vdr.badge", "Level 4 Sovereign Diligence • Unredacted Access Active")}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -80,14 +83,13 @@ export function HeroBanner({
 
           <div className="lg:text-right flex flex-col lg:items-end">
             <span className="text-xs uppercase text-muted-foreground font-bold tracking-wider">
-              Sovereign Offering Valuation
+              {t("vdr.valuationLabel", "Sovereign Offering Valuation")}
             </span>
             <span className="font-mono text-3xl sm:text-4xl font-extrabold text-secondary">
               {formatUSD(property.price)}
             </span>
             <span className="text-xs text-tertiary font-semibold flex items-center gap-1 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-tertiary" /> Bilateral Escrow Ready • 21-Day
-              Close
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary" /> {t("vdr.escrowReady", "Bilateral Escrow Ready • 21-Day Close")}
             </span>
           </div>
         </div>

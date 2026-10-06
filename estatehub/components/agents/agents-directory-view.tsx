@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useI18n } from "@/lib/i18n"
 
 interface AgentRecord {
   id: string
@@ -105,6 +106,7 @@ const AGENTS_LIST: AgentRecord[] = [
 ]
 
 export function AgentsDirectoryView() {
+  const { t } = useI18n()
   const [selectedRegion, setSelectedRegion] = React.useState<string>("all")
   const [searchQuery, setSearchQuery] = React.useState<string>("")
   const [consultModalAgent, setConsultModalAgent] = React.useState<AgentRecord | null>(null)
@@ -129,23 +131,23 @@ export function AgentsDirectoryView() {
   }, [selectedRegion, searchQuery])
 
   const regionFilters = [
-    { key: "all", label: `All Jurisdictions (${AGENTS_LIST.length})` },
+    { key: "all", label: `${t("agents.allJurisdictions", "All Jurisdictions")} (${AGENTS_LIST.length})` },
     { key: "ca", label: "California (Bel Air & Beverly Hills)" },
     { key: "ny", label: "New York (Tribeca & Central Park)" },
     { key: "fl", label: "Florida (Miami & Palm Beach)" },
   ]
 
   const heroStats = [
-    { key: "volume", label: "Syndicated Volume", value: "$1.2B+", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
-    { key: "discretion", label: "Discretion Score", value: "99.8%", valueClassName: "text-xl sm:text-2xl font-black text-secondary mt-0.5" },
-    { key: "desks", label: "Global Desks", value: "42", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
+    { key: "volume", label: t("agents.volumeLabel", "Syndicated Volume"), value: "$1.2B+", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
+    { key: "discretion", label: t("agents.discretionLabel", "Discretion Score"), value: "99.8%", valueClassName: "text-xl sm:text-2xl font-black text-secondary mt-0.5" },
+    { key: "desks", label: t("agents.desksLabel", "Global Desks"), value: "42", valueClassName: "text-xl sm:text-2xl font-black text-on-surface mt-0.5" },
   ]
 
   const consultFields = [
-    { key: "name", placeholder: "Full Legal Name", type: undefined as string | undefined, required: true },
-    { key: "phone", placeholder: "Private Phone (+1)", type: "tel", required: true },
-    { key: "email", placeholder: "Institutional Email", type: "email", required: true },
-    { key: "target", placeholder: "Holding or Syndicate Target (e.g. $10M - $25M)", type: undefined as string | undefined, required: false },
+    { key: "name", placeholder: t("agents.fullName", "Full Legal Name"), type: undefined as string | undefined, required: true },
+    { key: "phone", placeholder: t("agents.phone", "Private Phone (+1)"), type: "tel", required: true },
+    { key: "email", placeholder: t("agents.email", "Institutional Email"), type: "email", required: true },
+    { key: "target", placeholder: t("agents.target", "Holding or Syndicate Target (e.g. $10M - $25M)"), type: undefined as string | undefined, required: false },
   ]
 
   return (
@@ -156,21 +158,24 @@ export function AgentsDirectoryView() {
         <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-8">
           <div>
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium mb-3">
-              <Link href="/" className="hover:text-on-surface transition-colors">Home</Link>
+              <Link href="/" className="hover:text-on-surface transition-colors">{t("properties.home", "Home")}</Link>
               <IconChevronRight size={14} className="text-outline-variant" />
-              <span className="text-on-surface font-semibold">Private Advisory &amp; Brokerage</span>
+              <span className="text-on-surface font-semibold">{t("agents.title", "Private Advisory & Brokerage")}</span>
             </nav>
 
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div>
                 <Badge variant="gold" className="mb-2 text-xs font-bold uppercase tracking-wider">
-                  Accredited Sovereign Advisory
+                  {t("agents.badge", "Accredited Sovereign Advisory")}
                 </Badge>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-on-surface tracking-tight">
-                  Premier Real Estate Directors
+                  {t("agents.title", "Premier Real Estate Directors")}
                 </h1>
                 <p className="text-sm sm:text-base text-on-surface-variant mt-2 max-w-2xl leading-relaxed">
-                  Discreet, institutional representation for ultra-high-net-worth acquisitions, generational trophy estates, and confidential private syndications.
+                  {t(
+                    "agents.subtitle",
+                    "Discreet, institutional representation for ultra-high-net-worth acquisitions, generational trophy estates, and confidential private syndications."
+                  )}
                 </p>
               </div>
 
@@ -207,7 +212,7 @@ export function AgentsDirectoryView() {
             <div className="relative w-full md:w-72">
               <IconSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant" />
               <Input
-                placeholder="Search advisor or specialty..."
+                placeholder={t("agents.searchPlaceholder", "Search advisor or specialty...")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 h-10 text-xs rounded-xl"
@@ -299,7 +304,7 @@ export function AgentsDirectoryView() {
                       className="gap-2 font-bold w-full"
                     >
                       <IconCalendarEvent size={16} />
-                      <span>Book Consultation</span>
+                      <span>{t("agents.bookConsultation", "Book Consultation")}</span>
                     </Button>
 
                     <Button
@@ -308,7 +313,7 @@ export function AgentsDirectoryView() {
                       render={<Link href={`/properties`} />}
                       className="gap-2 font-semibold w-full"
                     >
-                      <span>View Listings</span>
+                      <span>{t("agents.viewListings", "View Listings")}</span>
                       <IconArrowRight size={16} />
                     </Button>
                   </div>
@@ -347,7 +352,7 @@ export function AgentsDirectoryView() {
                     }}
                     className="mt-6 font-bold"
                   >
-                    Done
+                    {t("agents.done", "Done")}
                   </Button>
                 </div>
               ) : (
@@ -363,7 +368,7 @@ export function AgentsDirectoryView() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-on-surface">
-                        Schedule Private Advisory with {consultModalAgent.name}
+                        {t("agents.scheduleAdvisory", "Schedule Private Advisory with")} {consultModalAgent.name}
                       </h3>
                       <span className="text-xs text-secondary font-medium">
                         {consultModalAgent.title}
@@ -393,7 +398,7 @@ export function AgentsDirectoryView() {
                     ))}
 
                     <Button type="submit" variant="gold" size="lg" className="w-full font-bold shadow-md mt-2">
-                      Confirm Advisory Dispatch
+                      {t("agents.confirmDispatch", "Confirm Advisory Dispatch")}
                     </Button>
                   </form>
                 </div>

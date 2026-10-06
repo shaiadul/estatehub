@@ -38,6 +38,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useI18n } from "@/lib/i18n"
 
 interface FormState {
   propertyType: "villa" | "penthouse" | "waterfront" | "chalet" | "compound"
@@ -74,6 +75,7 @@ const STEP_META: Record<number, { Icon: typeof IconMapPin; blurb: string }> = {
 export function SellPropertyWizard() {
   const router = useRouter()
   const { isLoggedIn } = useAuth()
+  const { t } = useI18n()
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [isPublished, setIsPublished] = React.useState<boolean>(false)
   const [saveDraftToast, setSaveDraftToast] = React.useState<boolean>(false)
@@ -384,9 +386,9 @@ export function SellPropertyWizard() {
         <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-5">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-xs">
               <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant font-medium">
-                <Link href="/" className="hover:text-on-surface transition-colors">Home</Link>
+                <Link href="/" className="hover:text-on-surface transition-colors">{t("properties.home", "Home")}</Link>
                 <IconChevronRight size={14} className="text-outline-variant" />
-                <span className="text-on-surface font-semibold">Sell &amp; Syndicate Estate</span>
+                <span className="text-on-surface font-semibold">{t("sell.breadcrumb", "Sell & Syndicate Estate")}</span>
               </nav>
 
               <div className="flex items-center gap-3">
@@ -404,7 +406,7 @@ export function SellPropertyWizard() {
                   className="gap-1.5 text-xs"
                 >
                   <IconBookmark size={15} />
-                  <span>Save Draft</span>
+                  <span>{t("sell.saveDraft", "Save Draft")}</span>
                 </Button>
               </div>
             </div>
@@ -412,20 +414,20 @@ export function SellPropertyWizard() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
               <div>
                 <Badge variant="gold" className="mb-2 text-xs font-bold uppercase tracking-wider">
-                  Private Syndicate Listing Protocol
+                  {t("sell.badge", "Private Syndicate Listing Protocol")}
                 </Badge>
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight">
-                  List Your Trophy Asset
+                  {t("sell.title", "List Your Trophy Asset")}
                 </h1>
                 <p className="text-sm text-on-surface-variant mt-1 max-w-2xl">
-                  Direct access to 14,000+ vetted family offices, sovereign syndicates, and accredited high-net-worth investors across 42 jurisdictions.
+                  {t("sell.description", "Direct access to 14,000+ vetted family offices, sovereign syndicates, and accredited high-net-worth investors across 42 jurisdictions.")}
                 </p>
               </div>
 
               <div className="flex items-center gap-4 bg-surface-container-low px-5 py-3 rounded-2xl border border-outline-variant/30 shrink-0">
                 <div className="flex flex-col">
                   <span className="text-xs text-on-surface-variant font-bold uppercase tracking-wider">
-                    Listing Progress
+                    {t("sell.progress", "Listing Progress")}
                   </span>
                   <span className="text-lg font-extrabold text-on-surface">
                     Step {currentStep} of {steps.length} <span className="text-secondary font-bold text-sm">• {completionPercentage}</span>
@@ -601,7 +603,7 @@ export function SellPropertyWizard() {
                     render={<Link href="/properties" />}
                     className="gap-2"
                   >
-                    <span>View in Portfolio</span>
+                    <span>{t("wizard.viewInPortfolio", "View in Portfolio")}</span>
                     <IconArrowRight size={18} />
                   </Button>
                   <Button
@@ -612,7 +614,7 @@ export function SellPropertyWizard() {
                       setCurrentStep(1)
                     }}
                   >
-                    Submit Another Estate
+                    {t("wizard.submitAnother", "Submit Another Estate")}
                   </Button>
                 </div>
               </div>
@@ -941,7 +943,7 @@ export function SellPropertyWizard() {
                       className="gap-2"
                     >
                       <IconChevronLeft size={18} />
-                      <span>Previous Phase</span>
+                      <span>{t("wizard.previousPhase", "Previous Phase")}</span>
                     </Button>
 
                     {currentStep < steps.length ? (
@@ -952,7 +954,7 @@ export function SellPropertyWizard() {
                         onClick={() => setCurrentStep((prev) => Math.min(steps.length, prev + 1))}
                         className="gap-2 font-bold shadow-md"
                       >
-                        <span>Continue to Phase 0{currentStep + 1}</span>
+                        <span>{t("wizard.continueToPhase", "Continue to Phase")} 0{currentStep + 1}</span>
                         <IconChevronRight size={18} />
                       </Button>
                     ) : (
@@ -964,7 +966,7 @@ export function SellPropertyWizard() {
                         className="gap-2 font-extrabold shadow-lg bg-tertiary hover:bg-tertiary text-primary-foreground"
                       >
                         <IconSparkles size={18} />
-                        <span>Confirm &amp; Broadcast Syndicate</span>
+                        <span>{t("wizard.confirmBroadcast", "Confirm & Broadcast Syndicate")}</span>
                       </Button>
                     )}
                   </div>
@@ -975,7 +977,7 @@ export function SellPropertyWizard() {
                     <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
                       <span className="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
                         <IconEye size={16} className="text-secondary" />
-                        Live Investor Preview
+                        {t("wizard.livePreview", "Live Investor Preview")}
                       </span>
                       <Badge variant="gold" className="text-[10px]">Real-time IDX</Badge>
                     </div>
@@ -1042,7 +1044,7 @@ export function SellPropertyWizard() {
           <div className="fixed bottom-6 right-6 z-50 bg-primary-container text-primary-foreground px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-primary-foreground/20 animate-in slide-in-from-bottom duration-300">
             <IconCheck size={20} className="text-tertiary shrink-0" />
             <div className="flex flex-col">
-              <span className="text-xs font-bold">Draft Saved Successfully</span>
+              <span className="text-xs font-bold">{t("wizard.draftSaved", "Draft Saved Successfully")}</span>
               <span className="text-[11px] text-muted-foreground">
                 Listing state cached locally and synced with your advisor vault.
               </span>

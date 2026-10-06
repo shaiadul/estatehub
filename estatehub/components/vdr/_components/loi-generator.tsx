@@ -9,6 +9,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { useI18n } from "@/lib/i18n"
 import { LOI_BOUNDS } from "./vdr-data"
 import { earnestLabel, formatUSD } from "./vdr-utils"
 import type { ClosingOption, ContingencyOption, EarnestOption } from "./types"
@@ -33,10 +34,10 @@ interface LoiGeneratorProps {
 
 const EARNEST_OPTIONS: EarnestOption[] = ["3%", "5%", "10%"]
 const CLOSING_OPTIONS: ClosingOption[] = ["14", "21", "30"]
-const CONTINGENCY_OPTIONS: { id: ContingencyOption; label: string }[] = [
-  { id: "waived", label: "Waived" },
-  { id: "7days", label: "7 Days" },
-  { id: "14days", label: "14 Days" },
+const CONTINGENCY_OPTIONS: { id: ContingencyOption; labelKey?: string; days?: number; fallback: string }[] = [
+  { id: "waived", labelKey: "vdr.waived", fallback: "Waived" },
+  { id: "7days", days: 7, fallback: "7 Days" },
+  { id: "14days", days: 14, fallback: "14 Days" },
 ]
 
 export function LoiGenerator({
@@ -56,6 +57,8 @@ export function LoiGenerator({
   onSubmit,
   onReset,
 }: LoiGeneratorProps) {
+  const { t } = useI18n()
+
   if (submitted) {
     return (
       <div className="w-full bg-surface-container-lowest rounded-2xl shadow-xl p-5 sm:p-6 flex flex-col gap-4 border-2 border-secondary/40">
@@ -63,7 +66,7 @@ export function LoiGenerator({
           <div className="flex items-center gap-2">
             <IconReceipt2 className="w-5 h-5 text-on-secondary-container" />
             <h3 className="text-base sm:text-lg font-bold text-on-surface">
-              Institutional LOI Generator
+              {t("vdr.loiTitle", "Institutional LOI Generator")}
             </h3>
           </div>
           <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container text-[10px] font-mono font-bold">
@@ -81,7 +84,7 @@ export function LoiGenerator({
           </p>
           <Link href="/closing" className="mt-2">
             <Button className="w-full bg-tertiary hover:bg-tertiary text-primary-foreground font-bold text-xs rounded-xl py-2 h-auto">
-              Open Bilateral Closing Room
+              {t("vdr.openClosingRoom", "Open Bilateral Closing Room")}
             </Button>
           </Link>
           {onReset && (
@@ -90,7 +93,7 @@ export function LoiGenerator({
               onClick={onReset}
               className="text-[11px] text-on-surface-variant underline underline-offset-2 hover:text-on-surface"
             >
-              Draft a revised offer
+              {t("vdr.draftRevised", "Draft a revised offer")}
             </button>
           )}
         </div>
@@ -104,7 +107,7 @@ export function LoiGenerator({
         <div className="flex items-center gap-2">
           <IconReceipt2 className="w-5 h-5 text-on-secondary-container" />
           <h3 className="text-base sm:text-lg font-bold text-on-surface">
-            Institutional LOI Generator
+            {t("vdr.loiTitle", "Institutional LOI Generator")}
           </h3>
         </div>
         <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-on-secondary-container text-[10px] font-mono font-bold">
@@ -113,14 +116,13 @@ export function LoiGenerator({
       </div>
 
       <p className="text-xs text-on-surface-variant">
-        Draft and transmit a binding Letter of Intent directly to the Seller Family Office Legal
-        Counsel.
+        {t("vdr.loiSubtitle", "Draft and transmit a binding Letter of Intent directly to the Seller Family Office Legal Counsel.")}
       </p>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-3.5" noValidate>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="loi-price" className="text-xs font-bold text-on-surface flex justify-between">
-            <span>Proposed Purchase Price (USD)</span>
+            <span>{t("vdr.proposedPrice", "Proposed Purchase Price (USD)")}</span>
             <span className="text-on-secondary-container font-mono">{formatUSD(price)}</span>
           </label>
           <InputGroup className="h-10 gap-1.5 rounded-xl border-outline-variant/30 bg-surface-container-low px-3">
@@ -155,7 +157,7 @@ export function LoiGenerator({
         </div>
 
         <fieldset className="flex flex-col gap-1.5">
-          <legend className="text-xs font-bold text-on-surface">Earnest Money Deposit</legend>
+          <legend className="text-xs font-bold text-on-surface">{t("vdr.earnestDeposit", "Earnest Money Deposit")}</legend>
           <div className="grid grid-cols-3 gap-2">
             {EARNEST_OPTIONS.map((val) => (
               <button
@@ -179,7 +181,7 @@ export function LoiGenerator({
         </fieldset>
 
         <fieldset className="flex flex-col gap-1.5">
-          <legend className="text-xs font-bold text-on-surface">Closing Timeline</legend>
+          <legend className="text-xs font-bold text-on-surface">{t("vdr.closingTimeline", "Closing Timeline")}</legend>
           <div className="grid grid-cols-3 gap-2">
             {CLOSING_OPTIONS.map((days) => (
               <button
@@ -193,14 +195,14 @@ export function LoiGenerator({
                     : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/30"
                 }`}
               >
-                {days} Days
+                {days} {t("vdr.days", "Days")}
               </button>
             ))}
           </div>
         </fieldset>
 
         <fieldset className="flex flex-col gap-1.5">
-          <legend className="text-xs font-bold text-on-surface">Due Diligence Contingency</legend>
+          <legend className="text-xs font-bold text-on-surface">{t("vdr.contingency", "Due Diligence Contingency")}</legend>
           <div className="grid grid-cols-3 gap-2">
             {CONTINGENCY_OPTIONS.map((item) => (
               <button
@@ -214,7 +216,9 @@ export function LoiGenerator({
                     : "bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/30"
                 }`}
               >
-                {item.label}
+                {item.labelKey
+                  ? t(item.labelKey, item.fallback)
+                  : `${item.days} ${t("vdr.days", "Days")}`}
               </button>
             ))}
           </div>
@@ -222,7 +226,7 @@ export function LoiGenerator({
 
         <div className="flex flex-col gap-1">
           <label htmlFor="loi-principal" className="text-xs font-bold text-on-surface">
-            Submitting Principal
+            {t("vdr.submittingPrincipal", "Submitting Principal")}
           </label>
           <Input
             id="loi-principal"
@@ -238,10 +242,10 @@ export function LoiGenerator({
           className="w-full mt-2 py-3 h-auto rounded-xl bg-secondary hover:bg-secondary-fixed-dim text-on-secondary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
         >
           <IconSend className="w-4 h-4" />
-          <span>{submitting ? "Dispatching Enclave LOI..." : "Transmit Formal LOI"}</span>
+          <span>{submitting ? t("vdr.dispatchingLoi", "Dispatching Enclave LOI...") : t("vdr.transmitLoi", "Transmit Formal LOI")}</span>
         </Button>
         <span className="text-[10px] text-center text-outline block">
-          Triggers cryptographic DocuSign envelope to registered principal email
+          {t("vdr.docusignNote", "Triggers cryptographic DocuSign envelope to registered principal email")}
         </span>
       </form>
     </div>

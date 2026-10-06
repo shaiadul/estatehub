@@ -9,6 +9,11 @@ import {
   IconGavel,
 } from "@tabler/icons-react"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ENTITY_CLASSES } from "./auth-types"
 
@@ -178,45 +183,51 @@ export function RegisterIdentityStep({
           
           <div className="flex flex-col gap-1.5">
             <label className="font-label-sm text-xs text-on-surface font-semibold">Full Legal Name</label>
-            <div className="relative">
-              <Input
+            <InputGroup className="bg-surface-container-low rounded-xl focus-within:bg-surface-container-lowest">
+              <InputGroupInput
                 value={fullName}
                 onChange={(e) => onFullNameChange(e.target.value)}
                 placeholder="e.g. Henrik Von Stauffen"
-                className="w-full bg-surface-container-low pl-3 pr-10 py-2.5 rounded-xl text-on-surface focus:bg-surface-container-lowest"
+                className="py-2.5 text-on-surface"
               />
-              <IconBadge className="w-4 h-4 text-on-surface-variant absolute right-3 top-3.5 pointer-events-none" />
-            </div>
+              <InputGroupAddon align="inline-end" className="pointer-events-none text-on-surface-variant">
+                <IconBadge className="w-4 h-4" />
+              </InputGroupAddon>
+            </InputGroup>
             <span className="font-caption text-[11px] text-on-surface-variant">Matches official passport or biometric identity ledger.</span>
           </div>
 
           
           <div className="flex flex-col gap-1.5">
             <label className="font-label-sm text-xs text-on-surface font-semibold">Institutional / Entity Title</label>
-            <div className="relative">
-              <Input
+            <InputGroup className="bg-surface-container-low rounded-xl focus-within:bg-surface-container-lowest">
+              <InputGroupInput
                 value={title}
                 onChange={(e) => onTitleChange(e.target.value)}
                 placeholder="e.g. Managing General Partner"
-                className="w-full bg-surface-container-low pl-3 pr-10 py-2.5 rounded-xl text-on-surface focus:bg-surface-container-lowest"
+                className="py-2.5 text-on-surface"
               />
-              <IconBriefcase className="w-4 h-4 text-on-surface-variant absolute right-3 top-3.5 pointer-events-none" />
-            </div>
+              <InputGroupAddon align="inline-end" className="pointer-events-none text-on-surface-variant">
+                <IconBriefcase className="w-4 h-4" />
+              </InputGroupAddon>
+            </InputGroup>
             <span className="font-caption text-[11px] text-on-surface-variant">Authorized signatory status required for binding LOIs.</span>
           </div>
 
           
           <div className="flex flex-col gap-1.5">
             <label className="font-label-sm text-xs text-on-surface font-semibold">Entity Legal Name</label>
-            <div className="relative">
-              <Input
+            <InputGroup className="bg-surface-container-low rounded-xl focus-within:bg-surface-container-lowest">
+              <InputGroupInput
                 value={entityName}
                 onChange={(e) => onEntityNameChange(e.target.value)}
                 placeholder="e.g. Crestview Capital LLC"
-                className="w-full bg-surface-container-low pl-3 pr-10 py-2.5 rounded-xl text-on-surface focus:bg-surface-container-lowest"
+                className="py-2.5 text-on-surface"
               />
-              <IconBuildingBank className="w-4 h-4 text-on-surface-variant absolute right-3 top-3.5 pointer-events-none" />
-            </div>
+              <InputGroupAddon align="inline-end" className="pointer-events-none text-on-surface-variant">
+                <IconBuildingBank className="w-4 h-4" />
+              </InputGroupAddon>
+            </InputGroup>
             <span className="font-caption text-[11px] text-on-surface-variant">Registered legal entity entering dealroom escrow.</span>
           </div>
 
@@ -271,16 +282,18 @@ export function RegisterIdentityStep({
           
           <div className="flex flex-col gap-1.5">
             <label className="font-label-sm text-xs text-on-surface font-semibold">Confidential Institutional Email</label>
-            <div className="relative">
-              <Input
+            <InputGroup className="bg-surface-container-low rounded-xl focus-within:bg-surface-container-lowest">
+              <InputGroupInput
                 type="email"
                 value={email}
                 onChange={(e) => onEmailChange(e.target.value)}
                 placeholder="principal@familyoffice.com"
-                className="w-full bg-surface-container-low pl-3 pr-10 py-2.5 rounded-xl text-on-surface focus:bg-surface-container-lowest"
+                className="py-2.5 text-on-surface"
               />
-              <IconLock className="w-4 h-4 text-on-surface-variant absolute right-3 top-3.5 pointer-events-none" />
-            </div>
+              <InputGroupAddon align="inline-end" className="pointer-events-none text-on-surface-variant">
+                <IconLock className="w-4 h-4" />
+              </InputGroupAddon>
+            </InputGroup>
             <span className="font-caption text-[11px] text-on-surface-variant">Whitelisted domain; generic webmail addresses are rejected.</span>
           </div>
         </div>

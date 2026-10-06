@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { PropertyData } from "@/lib/properties-data"
+import { useCurrency, useI18n } from "@/lib/i18n"
 
 interface PropertyCardProps {
   property: PropertyData
@@ -24,10 +25,13 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFavorite }: PropertyCardProps) {
+  const { formatPrice } = useCurrency()
+  const { t } = useI18n()
+
   const specs = [
-    { key: "beds", Icon: IconBed, value: prop.beds, label: "Beds", wrapperClassName: "flex flex-col items-center" },
-    { key: "baths", Icon: IconBath, value: prop.baths, label: "Baths", wrapperClassName: "flex flex-col items-center border-x border-outline-variant/30" },
-    { key: "sqft", Icon: IconRulerMeasure, value: prop.sqftFormatted, label: "Sq Ft", wrapperClassName: "flex flex-col items-center" },
+    { key: "beds", Icon: IconBed, value: prop.beds, label: t("home.bedrooms", "Beds"), wrapperClassName: "flex flex-col items-center" },
+    { key: "baths", Icon: IconBath, value: prop.baths, label: t("home.bathrooms", "Baths"), wrapperClassName: "flex flex-col items-center border-x border-outline-variant/30" },
+    { key: "sqft", Icon: IconRulerMeasure, value: prop.sqftFormatted, label: t("home.sqft", "Sq Ft"), wrapperClassName: "flex flex-col items-center" },
   ]
   return (
     <Card
@@ -55,7 +59,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
         <div className="absolute top-3 left-3 flex items-center gap-1.5">
           <Badge variant="verified" className="text-[11px] px-2.5 py-0.5 font-semibold gap-1">
             <IconRosetteDiscountCheckFilled size={12} className="text-secondary-fixed shrink-0" />
-            <span>Title Verified</span>
+            <span>{t("hero.statTitle", "Title Verified")}</span>
           </Badge>
           <Badge variant="gold" className="text-[11px] px-2 py-0 font-bold">
             {prop.badge}
@@ -67,7 +71,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
           type="button"
           variant="ghost"
           size="icon-xs"
-          aria-label="Save Property"
+          aria-label={t("card.saveProperty", "Save Property")}
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -93,7 +97,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
             </h3>
           </div>
           <span className="text-lg font-bold text-secondary-fixed">
-            {prop.priceFormatted}
+            {formatPrice(prop.price)}
           </span>
         </div>
       </Link>
@@ -120,8 +124,12 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
         
         <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20">
           <div>
-            <span className="text-[10px] text-on-surface-variant block">Est. Mortgage</span>
-            <span className="text-xs font-bold text-on-surface">{prop.estMortgage}</span>
+            <span className="text-[10px] text-on-surface-variant block">
+              {t("home.estMortgage", "Est. Mortgage")}
+            </span>
+            <span className="text-xs font-bold text-on-surface">
+              ~{formatPrice(Math.round(prop.price * 0.00439))} {t("home.perMonth", "/ mo")}
+            </span>
           </div>
           <Button
             variant="luxury"
@@ -129,7 +137,7 @@ export function PropertyCard({ property: prop, viewMode, isFavorite, onToggleFav
             className="rounded-xl gap-1"
             render={<Link href={`/properties/${prop.slug}`} />}
           >
-            <span>Explore Details</span>
+            <span>{t("home.exploreDetails", "Explore Details")}</span>
             <IconArrowRight size={14} />
           </Button>
         </div>

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useCurrency, useI18n } from "@/lib/i18n"
 
 interface Property {
   id: string
@@ -22,6 +23,7 @@ interface Property {
   title: string
   location: string
   price: string
+  priceNumeric: number
   image: string
   badge: string
   description: string
@@ -32,6 +34,8 @@ interface Property {
 }
 
 export function FeaturedListings() {
+  const { formatPrice } = useCurrency()
+  const { t } = useI18n()
   const [favorites, setFavorites] = React.useState<Record<string, boolean>>({
     "1": true,
   })
@@ -43,6 +47,7 @@ export function FeaturedListings() {
       title: "The Glass Horizon Villa",
       location: "Bel Air, Los Angeles, CA 90077",
       price: "$8,750,000",
+      priceNumeric: 8750000,
       image:
         "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
       badge: "Verified Exclusive",
@@ -59,6 +64,7 @@ export function FeaturedListings() {
       title: "One Greenwich Penthouse",
       location: "Tribeca, New York, NY",
       price: "$14,200,000",
+      priceNumeric: 14200000,
       image:
         "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
       badge: "Rare Trophy",
@@ -75,6 +81,7 @@ export function FeaturedListings() {
       title: "The Biscayne Point Villa",
       location: "Biscayne Bay, Miami, FL",
       price: "$7,800,000",
+      priceNumeric: 7800000,
       image:
         "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
       badge: "Yacht Ready",
@@ -100,14 +107,16 @@ export function FeaturedListings() {
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs text-secondary uppercase tracking-widest font-bold mb-2">
             <IconStars size={16} />
-            <span>Curated Private Portfolio</span>
+            <span>{t("home.curatedPortfolio", "Curated Private Portfolio")}</span>
           </div>
           <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-on-surface">
-            Signature Collections
+            {t("home.signatureCollections", "Signature Collections")}
           </h2>
           <p className="text-sm sm:text-base text-on-surface-variant max-w-xl mt-2">
-            Hand-inspected, legally verified properties ready for discreet direct acquisition
-            or private viewings.
+            {t(
+              "home.portfolioDescription",
+              "Hand-inspected, legally verified properties ready for discreet direct acquisition or private viewings."
+            )}
           </p>
         </div>
 
@@ -119,7 +128,7 @@ export function FeaturedListings() {
             className="rounded-xl shadow-sm gap-1.5"
             render={<Link href="/properties" />}
           >
-            <span>View All 340+</span>
+            <span>{t("home.viewAll", "View All 340+")}</span>
             <IconArrowUpRight size={18} />
           </Button>
         </div>
@@ -186,7 +195,7 @@ export function FeaturedListings() {
                   </div>
                   <div className="text-right">
                     <span className="text-xl font-extrabold text-secondary-fixed leading-tight">
-                      {prop.price}
+                      {formatPrice(prop.priceNumeric)}
                     </span>
                   </div>
                 </div>
@@ -201,19 +210,19 @@ export function FeaturedListings() {
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-on-surface">{prop.beds}</span>
                     <span className="text-[11px] text-on-surface-variant font-medium">
-                      Bedrooms
+                      {t("home.bedrooms", "Bedrooms")}
                     </span>
                   </div>
                   <div className="flex flex-col border-x border-outline-variant/30">
                     <span className="text-sm font-bold text-on-surface">{prop.baths}</span>
                     <span className="text-[11px] text-on-surface-variant font-medium">
-                      Bathrooms
+                      {t("home.bathrooms", "Bathrooms")}
                     </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-on-surface">{prop.sqft}</span>
                     <span className="text-[11px] text-on-surface-variant font-medium">
-                      Sq Ft
+                      {t("home.sqft", "Sq Ft")}
                     </span>
                   </div>
                 </div>
@@ -221,10 +230,10 @@ export function FeaturedListings() {
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex flex-col">
                     <span className="text-[11px] text-on-surface-variant font-medium">
-                      Est. Mortgage
+                      {t("home.estMortgage", "Est. Mortgage")}
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-on-surface">
-                      {prop.estMortgage}
+                      ~{formatPrice(Math.round(prop.priceNumeric * 0.00439))} {t("home.perMonth", "/ mo")}
                     </span>
                   </div>
                   <Button
@@ -234,7 +243,7 @@ export function FeaturedListings() {
                     className="rounded-xl gap-1.5 shadow-sm group/btn"
                     render={<Link href={`/properties/${prop.slug}`} />}
                   >
-                    <span>Explore Property</span>
+                    <span>{t("home.exploreDetails", "Explore Property")}</span>
                     <IconArrowRight
                       size={15}
                       className="group-hover/btn:translate-x-0.5 transition-transform"

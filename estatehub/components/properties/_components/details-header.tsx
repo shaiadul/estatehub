@@ -6,6 +6,7 @@ import { PropertyData } from "@/lib/properties-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import { useCurrency, useI18n } from "@/lib/i18n"
 
 interface DetailsHeaderProps {
   property: PropertyData
@@ -15,16 +16,20 @@ interface DetailsHeaderProps {
 }
 
 export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: DetailsHeaderProps) {
+  const { formatPrice, currency } = useCurrency()
+  const { t } = useI18n()
   const secondaryActions = [
-    { key: "share", Icon: IconShare, label: "Share", onClick: onShare },
+    { key: "share", labelKey: "details.share", Icon: IconShare, label: "Share", onClick: onShare },
     {
       key: "brochure",
+      labelKey: "details.brochure",
       Icon: IconFileText,
       label: "Brochure",
       onClick: () => alert("Downloading encrypted property prospectus brochure (PDF)..."),
     },
     {
       key: "compare",
+      labelKey: "details.compare",
       Icon: IconArrowsExchange,
       label: "Compare",
       onClick: () => alert("Property added to confidential comparison tray."),
@@ -36,7 +41,7 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
         <SectionWrapper as="div" className="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant">
             <Link href="/properties" className="hover:text-on-surface transition-colors font-medium">
-              Properties
+              {t("nav.properties", "Properties")}
             </Link>
             <IconChevronRight className="w-3.5 h-3.5 text-outline-variant" />
             <span className="hover:text-on-surface transition-colors">{property.state === "CA" ? "California" : property.state === "NY" ? "New York" : property.state === "FL" ? "Florida" : "Colorado"}</span>
@@ -91,15 +96,15 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
             <div className="flex flex-col lg:items-end gap-3">
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-on-surface tracking-tight">
-                  {property.priceFormatted}
+                  {formatPrice(property.price)}
                 </span>
-                <span className="text-sm font-semibold text-on-surface-variant uppercase">USD</span>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase">{currency}</span>
               </div>
 
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <IconCalculator className="w-4 h-4 text-secondary" />
                 <span>
-                  Est. Mortgage: <strong className="text-on-surface font-bold">{property.estMortgage}</strong> with 20% down
+                  {t("home.estMortgage", "Est. Mortgage")}: <strong className="text-on-surface font-bold">~{formatPrice(Math.round(property.price * 0.00439))} {t("home.perMonth", "/ mo")}</strong> with 20% down
                 </span>
               </div>
 
@@ -115,10 +120,10 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
                   ) : (
                     <IconHeart className="w-4 h-4" />
                   )}
-                  <span>{isSaved ? "Saved" : "Save"}</span>
+                  <span>{isSaved ? t("details.saved", "Saved") : t("details.save", "Save")}</span>
                 </Button>
 
-                {secondaryActions.map(({ key, Icon, label, onClick }) => (
+                {secondaryActions.map(({ key, labelKey, Icon, label, onClick }) => (
                   <Button
                     key={key}
                     variant="outline"
@@ -127,7 +132,7 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
                     onClick={onClick}
                   >
                     <Icon className="w-4 h-4" />
-                    <span>{label}</span>
+                    <span>{t(labelKey, label)}</span>
                   </Button>
                 ))}
               </div>

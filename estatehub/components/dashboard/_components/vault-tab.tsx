@@ -9,12 +9,14 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CommandState } from "./use-command-state"
+import { useI18n } from "@/lib/i18n"
 
 interface VaultTabProps {
   state: CommandState
 }
 
 export function VaultTab({ state }: VaultTabProps) {
+  const { t } = useI18n()
   const { documents, triggerToast } = state
 
   return (
@@ -38,7 +40,7 @@ export function VaultTab({ state }: VaultTabProps) {
             className="flex h-10 items-center gap-2 self-start rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground hover:bg-primary/90 sm:self-auto"
           >
             <IconUpload size={16} />
-            <span>Upload Document</span>
+            <span>{t("dash.uploadDoc", "Upload Document")}</span>
           </Button>
         </div>
 
@@ -81,7 +83,7 @@ export function VaultTab({ state }: VaultTabProps) {
                   className="flex h-8 items-center gap-1.5 rounded-lg border-outline-variant/40 px-3 text-xs font-bold hover:bg-surface-container-high/40"
                 >
                   <IconDownload size={14} />
-                  <span>Download</span>
+                  <span>{t("dash.download", "Download")}</span>
                 </Button>
               </div>
             </div>

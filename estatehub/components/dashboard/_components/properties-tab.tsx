@@ -6,6 +6,7 @@ import { IconPlus, IconMapPin, IconEye, IconTrash } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CommandState } from "./use-command-state"
+import { useI18n } from "@/lib/i18n"
 
 interface PropertiesTabProps {
   state: CommandState
@@ -33,6 +34,7 @@ const PROPERTY_COLUMNS = [
 ]
 
 export function PropertiesTab({ state }: PropertiesTabProps) {
+  const { t } = useI18n()
   const {
     filteredProperties,
     propertyFilterStatus,
@@ -63,7 +65,7 @@ export function PropertiesTab({ state }: PropertiesTabProps) {
             className="flex h-10 items-center gap-2 self-start rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground hover:bg-primary/90 sm:self-auto"
           >
             <IconPlus size={16} />
-            <span>Add New Listing</span>
+            <span>{t("dash.addListing", "Add Property Listing")}</span>
           </Button>
         </div>
 

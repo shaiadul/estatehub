@@ -18,6 +18,7 @@ import { PropertyData } from "@/lib/properties-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useI18n } from "@/lib/i18n"
 import { TourType } from "./types"
 
 interface BookingSidebarProps {
@@ -44,9 +45,9 @@ interface BookingSidebarProps {
   onBrokerMsgSubmit: (e: React.FormEvent) => void
 }
 
-const TOUR_TYPE_OPTIONS: { id: TourType; label: string }[] = [
-  { id: "inperson", label: "In-Person Tour" },
-  { id: "video", label: "Live Walkthrough" },
+const TOUR_TYPE_OPTIONS: { id: TourType; labelKey: string; label: string }[] = [
+  { id: "inperson", labelKey: "booking.inPerson", label: "In-Person Tour" },
+  { id: "video", labelKey: "booking.walkthrough", label: "Live Walkthrough" },
 ]
 
 const TOUR_DATES = ["Today", "Tomorrow", "Fri, Nov 14", "Sat, Nov 15"]
@@ -76,24 +77,26 @@ export function BookingSidebar({
   onBrokerMsgChange,
   onBrokerMsgSubmit,
 }: BookingSidebarProps) {
+  const { t } = useI18n()
+
   const contactFields = [
     {
       key: "fullName",
-      placeholder: "Full Legal Name",
+      placeholder: t("booking.fullName", "Full Legal Name"),
       type: undefined as string | undefined,
       value: fullName,
       onChange: onFullNameChange,
     },
     {
       key: "phone",
-      placeholder: "Mobile Phone (+1)",
+      placeholder: t("booking.phone", "Mobile Phone (+1)"),
       type: "tel",
       value: phone,
       onChange: onPhoneChange,
     },
     {
       key: "email",
-      placeholder: "Private Email Address",
+      placeholder: t("booking.email", "Private Email Address"),
       type: "email",
       value: email,
       onChange: onEmailChange,
@@ -147,17 +150,17 @@ export function BookingSidebar({
               className="p-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-semibold flex items-center justify-center gap-1.5 border border-outline-variant/30"
             >
               <IconMail className="w-4 h-4 text-secondary" />
-              <span>Email Broker</span>
+              <span>{t("spotlight.emailBroker", "Email Broker")}</span>
             </a>
           </div>
 
           <div className="flex flex-col gap-3 pt-1">
             <span className="text-xs font-bold text-on-surface uppercase tracking-wider">
-              Schedule Private Viewing
+              {t("booking.scheduleViewing", "Schedule Private Viewing")}
             </span>
 
             <div className="grid grid-cols-2 p-1 bg-surface-container rounded-xl text-center text-xs font-semibold">
-              {TOUR_TYPE_OPTIONS.map(({ id, label }) => (
+              {TOUR_TYPE_OPTIONS.map(({ id, labelKey, label }) => (
                 <button
                   key={id}
                   type="button"
@@ -168,14 +171,14 @@ export function BookingSidebar({
                       : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
-                  {label}
+                  {t(labelKey, label)}
                 </button>
               ))}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] text-on-surface-variant font-semibold">
-                Select Viewing Date
+                {t("booking.selectDate", "Select Viewing Date")}
               </label>
               <div className="grid grid-cols-4 gap-1 text-center text-xs font-semibold">
                 {TOUR_DATES.map((d) => (
@@ -197,7 +200,7 @@ export function BookingSidebar({
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] text-on-surface-variant font-semibold">
-                Preferred Time
+                {t("booking.preferredTime", "Preferred Time")}
               </label>
               <div className="grid grid-cols-4 gap-1 text-center text-xs">
                 {TOUR_TIMES.map((t) => (
@@ -241,7 +244,7 @@ export function BookingSidebar({
                   htmlFor="investor-accredited"
                   className="text-[11px] text-on-surface-variant leading-tight cursor-pointer"
                 >
-                  I am a pre-approved buyer or represent an institutional family office
+                  {t("booking.accreditedLabel", "I am a pre-approved buyer or represent an institutional family office")}
                 </label>
               </div>
 
@@ -255,12 +258,12 @@ export function BookingSidebar({
                 {bookingSubmitting ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    <span>Confirming Access...</span>
+                    <span>{t("booking.confirming", "Confirming Access...")}</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-1.5">
                     <IconCalendarEvent className="w-4 h-4" />
-                    <span>Request Private Tour</span>
+                    <span>{t("booking.requestTour", "Request Private Tour")}</span>
                   </span>
                 )}
               </Button>
@@ -269,12 +272,12 @@ export function BookingSidebar({
 
           <div className="flex flex-col gap-2 pt-2 border-t border-outline-variant/20">
             <span className="text-xs font-semibold text-on-surface">
-              Have a Question for {property.agent.name.split(" ")[0]}?
+              {t("booking.questionFor", "Have a Question for")} {property.agent.name.split(" ")[0]}?
             </span>
             <form onSubmit={onBrokerMsgSubmit} className="flex items-center gap-1.5 bg-surface-container-low p-1.5 rounded-xl border border-outline-variant/30">
               <input
                 type="text"
-                placeholder="Inquire about escrow terms, deed..."
+                placeholder={t("booking.inquirePlaceholder", "Inquire about escrow terms, deed...")}
                 value={brokerMsg}
                 onChange={(e) => onBrokerMsgChange(e.target.value)}
                 className="w-full bg-transparent px-2 text-xs text-on-surface placeholder:text-outline focus:outline-none"
@@ -289,7 +292,7 @@ export function BookingSidebar({
             </form>
             {brokerMsgSent && (
               <span className="text-[11px] text-on-tertiary-container font-semibold flex items-center gap-1">
-                <IconCheck className="w-3.5 h-3.5" /> Direct inquiry routed to broker.
+                <IconCheck className="w-3.5 h-3.5" /> {t("booking.inquirySent", "Direct inquiry routed to broker.")}
               </span>
             )}
           </div>
@@ -301,7 +304,7 @@ export function BookingSidebar({
           >
             <div className="flex items-center gap-2">
               <IconFileText className="w-4 h-4 text-secondary" />
-              <span>Official Property Disclosures &amp; Inspection</span>
+              <span>{t("booking.disclosuresBtn", "Official Property Disclosures & Inspection")}</span>
             </div>
             <IconDownload className="w-4 h-4" />
           </button>

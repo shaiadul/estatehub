@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { IconExternalLink } from "@tabler/icons-react"
+import { useI18n } from "@/lib/i18n"
 import type { CommandState } from "./use-command-state"
 
 interface CommandSidebarProps {
@@ -9,11 +10,12 @@ interface CommandSidebarProps {
 }
 
 const SIDEBAR_LINKS = [
-  { href: "/closing", label: "Open Escrow Desk" },
-  { href: "/vdr", label: "Virtual Data Room (VDR)" },
+  { href: "/closing", key: "dash.openEscrow", label: "Open Escrow Desk" },
+  { href: "/vdr", key: "dash.vdrLink", label: "Virtual Data Room (VDR)" },
 ]
 
 export function CommandSidebar({ state }: CommandSidebarProps) {
+  const { t } = useI18n()
   const { activeNav, setActiveNav, activeRole, user, securityArmed, NAV_ITEMS } =
     state
 
@@ -21,7 +23,7 @@ export function CommandSidebar({ state }: CommandSidebarProps) {
     <aside className="flex flex-col gap-4 lg:col-span-3 xl:col-span-2">
       <div className="flex flex-col gap-1.5 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-3 shadow-xs">
         <div className="px-3 py-2 text-[11px] font-bold tracking-wider text-on-surface-variant/80 uppercase">
-          Management
+          {t("dash.management", "Management")}
         </div>
 
         {NAV_ITEMS.map((item) => {
@@ -40,7 +42,7 @@ export function CommandSidebar({ state }: CommandSidebarProps) {
             >
               <div className="flex items-center gap-2.5">
                 <Icon size={17} />
-                <span>{item.label}</span>
+                <span>{t(`dash.nav.${item.id}`, item.label)}</span>
               </div>
               {item.dot && (
                 <span
@@ -58,7 +60,7 @@ export function CommandSidebar({ state }: CommandSidebarProps) {
 
       <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs">
         <div className="text-[11px] font-bold tracking-wider text-on-surface-variant/80 uppercase">
-          Active Operator
+          {t("dash.activeOperator", "Active Operator")}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-secondary/30 bg-secondary/15 text-sm font-bold text-secondary">
@@ -82,7 +84,7 @@ export function CommandSidebar({ state }: CommandSidebarProps) {
               className="flex h-9 w-full items-center gap-2 rounded-xl px-3 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high/40 hover:text-primary"
             >
               <IconExternalLink size={14} />
-              <span>{link.label}</span>
+              <span>{t(link.key, link.label)}</span>
             </Link>
           ))}
         </div>

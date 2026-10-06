@@ -5,6 +5,7 @@ import { IconArrowRight } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CommandState } from "./use-command-state"
+import { useI18n } from "@/lib/i18n"
 
 interface OffersTabProps {
   state: CommandState
@@ -29,6 +30,7 @@ const OFFER_COLUMNS = [
 ]
 
 export function OffersTab({ state }: OffersTabProps) {
+  const { t } = useI18n()
   const {
     filteredOffers,
     offerFilterStatus,
@@ -147,7 +149,7 @@ export function OffersTab({ state }: OffersTabProps) {
                           onClick={() => handleAcceptOffer(offer.id)}
                           className="h-8 rounded-lg bg-tertiary px-2.5 text-xs font-bold text-primary-foreground hover:bg-tertiary"
                         >
-                          Accept
+                          {t("dash.accept", "Accept")}
                         </Button>
 
                         <Button
@@ -160,7 +162,7 @@ export function OffersTab({ state }: OffersTabProps) {
                           }}
                           className="h-8 rounded-lg border-outline-variant/40 px-2.5 text-xs font-bold"
                         >
-                          Counter
+                          {t("dash.counter", "Counter")}
                         </Button>
 
                         <Button
@@ -168,7 +170,7 @@ export function OffersTab({ state }: OffersTabProps) {
                           onClick={() => handleDeclineOffer(offer.id)}
                           className="h-8 rounded-lg px-2 text-xs text-destructive hover:bg-destructive/10"
                         >
-                          Decline
+                          {t("dash.decline", "Decline")}
                         </Button>
                       </div>
                     ) : (
@@ -237,7 +239,7 @@ export function OffersTab({ state }: OffersTabProps) {
                   onClick={() => handleAdvanceDealStage(deal.id)}
                   className="h-8 rounded-lg bg-primary px-2.5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
                 >
-                  Advance Stage
+                  {t("dash.advanceStage", "Advance Stage")}
                 </Button>
               </div>
             </div>

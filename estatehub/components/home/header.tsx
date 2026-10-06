@@ -22,12 +22,15 @@ import {
   IconMoon,
 } from "@tabler/icons-react"
 import { useTheme } from "next-themes"
+import { useI18n } from "@/lib/i18n"
+import { CurrencyLanguageDropdown } from "@/components/i18n"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useAuth } from "@/lib/auth-context"
 
 export function Header() {
   const router = useRouter()
+  const { t, locale, currency, setLocaleAndCurrency, currentLanguage, currentCurrency } = useI18n()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -70,11 +73,11 @@ export function Header() {
   }, [mobileMenuOpen])
 
   const navLinks = [
-    { name: "Properties", href: "/properties", icon: IconBuildingEstate },
-    { name: "Data Room", href: "/vdr", icon: IconLock },
-    { name: "Closing Desk", href: "/closing", icon: IconReceipt2 },
-    { name: "Sell", href: "/sell", icon: IconPlus },
-    { name: "Brokers", href: "/agents", icon: IconUsers },
+    { name: t("nav.properties", "Properties"), href: "/properties", icon: IconBuildingEstate },
+    { name: t("nav.dataRoom", "Data Room"), href: "/vdr", icon: IconLock },
+    { name: t("nav.closingDesk", "Closing Desk"), href: "/closing", icon: IconReceipt2 },
+    { name: t("nav.sell", "Sell"), href: "/sell", icon: IconPlus },
+    { name: t("nav.brokers", "Brokers"), href: "/agents", icon: IconUsers },
   ]
 
   const isActive = (href: string) => {
@@ -144,7 +147,7 @@ export function Header() {
                   {link.name}
                   <span
                     aria-hidden
-                    className={`absolute inset-x-3 bottom-[5px] h-0.5 origin-center rounded-full bg-secondary transition-all duration-300 ${
+                    className={`absolute inset-x-3 bottom-1.25 h-0.5 origin-center rounded-full bg-secondary transition-all duration-300 ${
                       active
                         ? "scale-x-100 opacity-100"
                         : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
@@ -157,14 +160,8 @@ export function Header() {
 
           {/* Action Controls */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
-            {/* Currency / Locale (2xl only) */}
-            <Button
-              variant="outline"
-              className="hidden h-9 items-center gap-1.5 rounded-xl border-outline-variant/40 px-3 text-xs font-semibold text-on-surface-variant hover:text-on-surface xl:text-sm 2xl:inline-flex"
-            >
-              <IconWorld size={14} />
-              <span>USD / EN</span>
-            </Button>
+            {/* Currency & Language Selector Dropdown */}
+            <CurrencyLanguageDropdown className="hidden sm:inline-flex" />
 
             {/* List Property CTA Button */}
             <Button
@@ -178,8 +175,8 @@ export function Header() {
               }}
               className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-xs xl:text-sm"
             >
-              <IconPlus className="h-3.5 w-3.5 stroke-[3]" />
-              <span>List Property</span>
+              <IconPlus className="h-3.5 w-3.5 stroke-3" />
+              <span>{t("nav.listProperty", "List Property")}</span>
             </Button>
 
             {/* User Profile / Auth State Dropdown (Only when logged in) */}
@@ -203,7 +200,7 @@ export function Header() {
                     <span className="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-tertiary ring-2 ring-surface" />
                   </div>
                   <div className="hidden flex-col pr-1 text-left md:flex">
-                    <span className="max-w-[100px] truncate text-xs leading-tight font-bold text-on-surface xl:max-w-[120px]">
+                    <span className="max-w-25 truncate text-xs leading-tight font-bold text-on-surface xl:max-w-30">
                       {user.name.split(" ")[0]}
                     </span>
                     <span className="text-[10px] leading-tight font-semibold text-on-secondary-container capitalize">
@@ -242,9 +239,9 @@ export function Header() {
                       </span>
                       <div className="grid grid-cols-3 gap-1">
                         {[
-                          { role: "broker" as const, label: "Broker" },
-                          { role: "buyer" as const, label: "Buyer" },
-                          { role: "seller" as const, label: "Seller" },
+                          { role: "broker" as const, key: "nav.roleBroker", label: "Broker" },
+                          { role: "buyer" as const, key: "nav.roleBuyer", label: "Buyer" },
+                          { role: "seller" as const, key: "nav.roleSeller", label: "Seller" },
                         ].map((item) => (
                           <button
                             key={item.role}
@@ -258,7 +255,7 @@ export function Header() {
                                 : "bg-surface-container text-on-surface hover:bg-surface-container-high"
                             }`}
                           >
-                            {item.label}
+                            {t(item.key, item.label)}
                           </button>
                         ))}
                       </div>
@@ -268,10 +265,10 @@ export function Header() {
                     <div className="mb-2 border-t border-surface-container px-3 pt-2">
                       <div className="mb-1.5 flex items-center justify-between">
                         <span className="text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
-                          Theme Mode
+                          {t("nav.themeMode", "Theme Mode")}
                         </span>
                         <span className="font-mono text-[10px] text-on-secondary-container font-semibold capitalize">
-                          {isDark ? "Dark" : "Light"}
+                          {isDark ? t("nav.dark", "Dark") : t("nav.light", "Light")}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-container p-1">
@@ -285,7 +282,7 @@ export function Header() {
                           }`}
                         >
                           <IconSun className="h-3.5 w-3.5 text-secondary" />
-                          <span>Light</span>
+                          <span>{t("nav.light", "Light")}</span>
                         </button>
                         <button
                           type="button"
@@ -297,8 +294,45 @@ export function Header() {
                           }`}
                         >
                           <IconMoon className="h-3.5 w-3.5 text-secondary" />
-                          <span>Dark</span>
+                          <span>{t("nav.dark", "Dark")}</span>
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Currency & Language in Dropdown */}
+                    <div className="mb-2 border-t border-surface-container pt-2 px-3">
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
+                          {t("nav.currencyAndLanguage", "Region & Currency")}
+                        </span>
+                        <span className="font-mono text-[10px] text-on-secondary-container font-semibold">
+                          {currentLanguage.flag} {currentCurrency.code}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1 rounded-xl bg-surface-container p-1">
+                        {[
+                          { loc: "en" as const, cur: "USD" as const, flag: "🇺🇸", code: "USD" },
+                          { loc: "bn" as const, cur: "BDT" as const, flag: "🇧🇩", code: "BDT" },
+                          { loc: "ar" as const, cur: "SAR" as const, flag: "🇸🇦", code: "SAR" },
+                          { loc: "it" as const, cur: "EUR" as const, flag: "🇮🇹", code: "EUR" },
+                        ].map((item) => {
+                          const isActive = locale === item.loc && currency === item.cur
+                          return (
+                            <button
+                              key={item.code}
+                              type="button"
+                              onClick={() => setLocaleAndCurrency(item.loc, item.cur)}
+                              className={`flex flex-col items-center justify-center rounded-lg py-1 text-[10px] font-semibold transition-all ${
+                                isActive
+                                  ? "bg-surface-container-lowest text-on-surface shadow-2xs font-bold ring-1 ring-secondary/50"
+                                  : "text-on-surface-variant hover:text-on-surface"
+                              }`}
+                            >
+                              <span className="text-xs leading-none">{item.flag}</span>
+                              <span className="mt-0.5 leading-none">{item.code}</span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
 
@@ -310,7 +344,7 @@ export function Header() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
                         <IconUser className="h-4 w-4 text-on-surface-variant" />
-                        <span>Dashboard</span>
+                        <span>{t("nav.dashboard", "Dashboard")}</span>
                       </Link>
                       <Link
                         href="/vdr"
@@ -318,7 +352,7 @@ export function Header() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
                         <IconLock className="h-4 w-4 text-on-secondary-container" />
-                        <span>Virtual Data Room</span>
+                        <span>{t("nav.virtualDataRoom", "Virtual Data Room")}</span>
                       </Link>
                       <Link
                         href="/closing"
@@ -326,7 +360,7 @@ export function Header() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
                         <IconReceipt2 className="h-4 w-4 text-on-tertiary-container" />
-                        <span>Digital Closing Desk</span>
+                        <span>{t("nav.digitalClosingDesk", "Digital Closing Desk")}</span>
                       </Link>
                       <Link
                         href="/sell"
@@ -334,7 +368,7 @@ export function Header() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
                       >
                         <IconBuildingBank className="h-4 w-4 text-on-surface-variant" />
-                        <span>Sell &amp; Syndicate</span>
+                        <span>{t("nav.sellSyndicate", "Sell & Syndicate")}</span>
                       </Link>
                     </div>
 
@@ -345,7 +379,7 @@ export function Header() {
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
                       >
                         <IconLogout className="h-4 w-4" />
-                        <span>Sign Out from Enclave</span>
+                        <span>{t("nav.signOut", "Sign Out from Enclave")}</span>
                       </button>
                     </div>
                   </div>
@@ -359,7 +393,7 @@ export function Header() {
                 className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl border border-outline-variant/40 px-3.5 text-xs font-bold text-on-surface hover:bg-surface-container transition-colors"
               >
                 <IconUser className="h-3.5 w-3.5 text-on-surface-variant" />
-                <span>Sign In</span>
+                <span>{t("nav.signIn", "Sign In")}</span>
               </Link>
             )}
 
@@ -390,7 +424,7 @@ export function Header() {
             {/* Navigation links */}
             <div className="flex flex-col gap-1">
               <span className="mb-1 text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
-                Navigation Enclave
+                {t("nav.navigationEnclave", "Navigation Enclave")}
               </span>
               {navLinks.map((link) => {
                 const Icon = link.icon
@@ -439,6 +473,14 @@ export function Header() {
               })}
             </div>
 
+            {/* Currency & Region Selector in Mobile Drawer */}
+            <div className="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+              <span className="text-xs font-semibold text-on-surface-variant">
+                {t("nav.currencyAndLanguage", "Region & Currency")}
+              </span>
+              <CurrencyLanguageDropdown align="right" />
+            </div>
+
             {/* Mobile Actions & Auth */}
             <div className="flex flex-col gap-3 border-t border-outline-variant/30 pt-3">
               <Button
@@ -453,8 +495,8 @@ export function Header() {
                 }}
                 className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-xs"
               >
-                <IconPlus className="h-4 w-4 stroke-[3]" />
-                <span>List Property for Syndication</span>
+                <IconPlus className="h-4 w-4 stroke-3" />
+                <span>{t("nav.listProperty", "List Property")}</span>
               </Button>
 
               {isLoggedIn && user && (
@@ -479,9 +521,9 @@ export function Header() {
 
                   <div className="grid grid-cols-3 gap-1 border-t border-surface-container pt-1">
                     {[
-                      { role: "broker" as const, label: "Broker" },
-                      { role: "buyer" as const, label: "Buyer" },
-                      { role: "seller" as const, label: "Seller" },
+                      { role: "broker" as const, key: "nav.roleBroker", label: "Broker" },
+                      { role: "buyer" as const, key: "nav.roleBuyer", label: "Buyer" },
+                      { role: "seller" as const, key: "nav.roleSeller", label: "Seller" },
                     ].map((item) => (
                       <button
                         key={item.role}
@@ -492,7 +534,7 @@ export function Header() {
                             : "bg-surface-container text-on-surface"
                         }`}
                       >
-                        {item.label}
+                        {t(item.key, item.label)}
                       </button>
                     ))}
                   </div>
@@ -501,10 +543,10 @@ export function Header() {
                   <div className="mt-1 border-t border-surface-container pt-2">
                     <div className="mb-1.5 flex items-center justify-between">
                       <span className="text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
-                        Theme Mode
+                        {t("nav.themeMode", "Theme Mode")}
                       </span>
                       <span className="font-mono text-[10px] text-on-secondary-container font-semibold capitalize">
-                        {isDark ? "Dark" : "Light"}
+                        {isDark ? t("nav.dark", "Dark") : t("nav.light", "Light")}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-container p-1">
@@ -518,7 +560,7 @@ export function Header() {
                         }`}
                       >
                         <IconSun className="h-3.5 w-3.5 text-secondary" />
-                        <span>Light</span>
+                        <span>{t("nav.light", "Light")}</span>
                       </button>
                       <button
                         type="button"
@@ -530,7 +572,7 @@ export function Header() {
                         }`}
                       >
                         <IconMoon className="h-3.5 w-3.5 text-secondary" />
-                        <span>Dark</span>
+                        <span>{t("nav.dark", "Dark")}</span>
                       </button>
                     </div>
                   </div>
@@ -539,7 +581,7 @@ export function Header() {
                     onClick={handleLogout}
                     className="mt-1 flex h-9 w-full items-center justify-center rounded-xl text-center text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
                   >
-                    Sign Out
+                    {t("nav.signOutShort", "Sign Out")}
                   </button>
                 </div>
               )}
