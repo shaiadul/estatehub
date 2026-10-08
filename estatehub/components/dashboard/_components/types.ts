@@ -77,6 +77,58 @@ export interface DocumentItem {
   securityTier: "Tier 1 - Sovereign" | "Tier 2 - Institutional"
 }
 
+export interface SavedPropertyItem {
+  id: string
+  propertyId: string
+  title: string
+  location: string
+  price: number
+  originalPrice: number
+  image: string
+  category: "Villa" | "Penthouse" | "Island" | "Manor" | "Architectural"
+  beds: number
+  baths: number
+  sqft: number
+  notes: string
+  tourRequested: boolean
+  savedAt: string
+}
+
+export interface TourBookingItem {
+  id: string
+  propertyId: string
+  propertyTitle: string
+  clientName: string
+  clientRole: "buyer" | "organizer"
+  date: string
+  timeSlot: string
+  transportType: "Chauffeured Maybach" | "Private Helicopter" | "Discreet Chauffeur" | "Virtual LiDAR 3D"
+  assignedAgent: string
+  status: "Confirmed" | "Pending Concierge" | "Completed"
+  specialRequests: string
+}
+
+export interface NavItem {
+  id: ActiveNav
+  label: string
+  icon: React.ComponentType<{ size?: number; className?: string }>
+  badge?: string
+  count?: number
+  dot?: boolean
+}
+
+export interface UrgentItem {
+  tag: string
+  tagColor: string
+  meta: string
+  title: string
+  sub: string
+  action: string
+  btnClass: string
+  onClick?: () => void
+  href?: string
+}
+
 export type ActiveRole = "seller" | "buyer" | "organizer"
 
 export type ActiveNav =
@@ -87,6 +139,8 @@ export type ActiveNav =
   | "financials"
   | "vault"
   | "sentry"
+  | "saved"
+  | "tours"
 
 export const INITIAL_PROPERTIES: PropertyItem[] = [
   {
@@ -368,5 +422,101 @@ export const INITIAL_DOCS: DocumentItem[] = [
     uploadedDate: "Oct 04, 2026",
     status: "Verified & Encrypted",
     securityTier: "Tier 1 - Sovereign",
+  },
+]
+
+export const INITIAL_SAVED_PROPERTIES: SavedPropertyItem[] = [
+  {
+    id: "SAV-01",
+    propertyId: "EST-001",
+    title: "The Glass Horizon Villa",
+    location: "Bel Air, Los Angeles, CA",
+    price: 8750000,
+    originalPrice: 9200000,
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+    category: "Architectural",
+    beds: 6,
+    baths: 8,
+    sqft: 9400,
+    notes: "Primary target for family office relocation. Private heliport diligence pending.",
+    tourRequested: true,
+    savedAt: "Oct 02, 2026",
+  },
+  {
+    id: "SAV-02",
+    propertyId: "EST-002",
+    title: "One Greenwich Penthouse",
+    location: "Tribeca, New York, NY",
+    price: 18900000,
+    originalPrice: 18900000,
+    image:
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop",
+    category: "Penthouse",
+    beds: 4,
+    baths: 5,
+    sqft: 6800,
+    notes: "Under offer by third party, monitoring for contingency fallout.",
+    tourRequested: false,
+    savedAt: "Sep 28, 2026",
+  },
+  {
+    id: "SAV-03",
+    propertyId: "EST-004",
+    title: "Aspen Alpine Sanctuary",
+    location: "Red Mountain, Aspen, CO",
+    price: 12500000,
+    originalPrice: 13200000,
+    image:
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800&auto=format&fit=crop",
+    category: "Manor",
+    beds: 5,
+    baths: 6,
+    sqft: 8100,
+    notes: "Winter retreat candidate with heated driveway and direct ski trail access.",
+    tourRequested: false,
+    savedAt: "Oct 04, 2026",
+  },
+]
+
+export const INITIAL_TOURS: TourBookingItem[] = [
+  {
+    id: "TR-501",
+    propertyId: "EST-001",
+    propertyTitle: "The Glass Horizon Villa",
+    clientName: "Julian Rossi",
+    clientRole: "buyer",
+    date: "Tomorrow, 14:00 PST",
+    timeSlot: "14:00 - 16:30",
+    transportType: "Chauffeured Maybach",
+    assignedAgent: "Sarah Jenkins",
+    status: "Confirmed",
+    specialRequests: "NDAs signed for 4 personal security escorts; LiDAR presentation requested.",
+  },
+  {
+    id: "TR-502",
+    propertyId: "EST-003",
+    propertyTitle: "Biscayne Bay Deepwater Palazzo",
+    clientName: "Claire Moreau",
+    clientRole: "organizer",
+    date: "Oct 12, 2026, 10:00 EST",
+    timeSlot: "10:00 - 12:00",
+    transportType: "Private Helicopter",
+    assignedAgent: "David Vance",
+    status: "Confirmed",
+    specialRequests: "Helipad landing clearance coordinated with Miami Port Authority.",
+  },
+  {
+    id: "TR-503",
+    propertyId: "EST-004",
+    propertyTitle: "Aspen Alpine Sanctuary",
+    clientName: "Daisuke Tanaka",
+    clientRole: "organizer",
+    date: "Oct 15, 2026, 11:30 MST",
+    timeSlot: "11:30 - 13:30",
+    transportType: "Discreet Chauffeur",
+    assignedAgent: "Elena Rostova",
+    status: "Pending Concierge",
+    specialRequests: "Japanese translator required for legal pro-forma review.",
   },
 ]

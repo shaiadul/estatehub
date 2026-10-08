@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { PropertiesView } from "./_components"
 
@@ -8,5 +9,15 @@ export const metadata: Metadata = {
 }
 
 export default function PropertiesPage() {
-  return <PropertiesView />
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-surface">
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      }
+    >
+      <PropertiesView />
+    </Suspense>
+  )
 }

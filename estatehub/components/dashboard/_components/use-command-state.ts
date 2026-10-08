@@ -12,7 +12,12 @@ import {
   IconBriefcase,
   IconCurrencyDollar,
   IconCash,
+  IconBookmark,
+  IconCalendarEvent,
+  IconEye,
+  IconReceipt2,
 } from "@tabler/icons-react"
+import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import {
   INITIAL_DEALS,
@@ -20,6 +25,8 @@ import {
   INITIAL_LEADS,
   INITIAL_OFFERS,
   INITIAL_PROPERTIES,
+  INITIAL_SAVED_PROPERTIES,
+  INITIAL_TOURS,
   type ActiveNav,
   type ActiveRole,
   type ClientLead,
@@ -27,26 +34,45 @@ import {
   type DocumentItem,
   type OfferItem,
   type PropertyItem,
+  type SavedPropertyItem,
+  type TourBookingItem,
+  type NavItem,
+  type UrgentItem,
 } from "./types"
 
 export function useCommandState() {
   const { user, switchDemoUser } = useAuth()
+  const searchParams = useSearchParams()
+  const roleQuery = searchParams.get("role") as ActiveRole | null
+  const tabQuery = searchParams.get("tab") as ActiveNav | null
+  const actionQuery = searchParams.get("action")
+  const propertyQuery = searchParams.get("property")
 
   const [activeRole, setActiveRole] = React.useState<ActiveRole>(
-    user?.role === "buyer"
-      ? "buyer"
-      : user?.role === "seller"
-        ? "seller"
-        : "organizer"
+    roleQuery && (roleQuery === "buyer" || roleQuery === "seller" || roleQuery === "organizer")
+      ? roleQuery
+      : user?.role === "buyer"
+        ? "buyer"
+        : user?.role === "seller"
+          ? "seller"
+          : "organizer"
   )
 
   React.useEffect(() => {
-    if (user?.role === "buyer") setActiveRole("buyer")
+    if (roleQuery && (roleQuery === "buyer" || roleQuery === "seller" || roleQuery === "organizer")) {
+      setActiveRole(roleQuery)
+    } else if (user?.role === "buyer") setActiveRole("buyer")
     else if (user?.role === "seller") setActiveRole("seller")
-    else if (user?.role === "broker") setActiveRole("organizer")
-  }, [user?.role])
+    else if (user?.role === "broker" || user?.role === "organizer") setActiveRole("organizer")
+  }, [user?.role, roleQuery])
 
-  const [activeNav, setActiveNav] = React.useState<ActiveNav>("overview")
+  const [activeNav, setActiveNav] = React.useState<ActiveNav>(tabQuery || "overview")
+
+  React.useEffect(() => {
+    if (tabQuery) {
+      setActiveNav(tabQuery)
+    }
+  }, [tabQuery])
 
   const [searchQuery, setSearchQuery] = React.useState("")
   const [propertyFilterStatus, setPropertyFilterStatus] = React.useState("All")
@@ -64,6 +90,16 @@ export function useCommandState() {
     setActiveRole(role)
     const targetAuth = role === "organizer" ? "broker" : role
     switchDemoUser(targetAuth)
+    
+    // Automatically switch active tab if not relevant to new role
+    if (role === "buyer" && (activeNav === "properties" || activeNav === "crm" || activeNav === "sentry")) {
+      setActiveNav("overview")
+    } else if (role === "seller" && (activeNav === "saved" || activeNav === "crm")) {
+      setActiveNav("overview")
+    } else if (role === "organizer" && (activeNav === "saved" || activeNav === "sentry")) {
+      setActiveNav("overview")
+    }
+    
     triggerToast(`Switched to ${role.toUpperCase()} Management Portal`)
   }
 
@@ -73,11 +109,15 @@ export function useCommandState() {
   const [leads, setLeads] = React.useState<ClientLead[]>(INITIAL_LEADS)
   const [deals, setDeals] = React.useState<DealItem[]>(INITIAL_DEALS)
   const [documents] = React.useState<DocumentItem[]>(INITIAL_DOCS)
+  const [savedProperties, setSavedProperties] =
+    React.useState<SavedPropertyItem[]>(INITIAL_SAVED_PROPERTIES)
+  const [tours, setTours] = React.useState<TourBookingItem[]>(INITIAL_TOURS)
 
   const [securityArmed, setSecurityArmed] = React.useState(true)
   const [gateUnlocked, setGateUnlocked] = React.useState(false)
   const [salonTemp, setSalonTemp] = React.useState(70)
 
+  // Add Property Modal State
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] =
     React.useState(false)
   const [newPropertyTitle, setNewPropertyTitle] = React.useState("")
@@ -89,10 +129,12 @@ export function useCommandState() {
   const [newPropertyBaths, setNewPropertyBaths] = React.useState("6")
   const [newPropertySqft, setNewPropertySqft] = React.useState("7500")
 
+  // Counter Offer Modal State
   const [counterModalOffer, setCounterModalOffer] =
     React.useState<OfferItem | null>(null)
   const [counterPriceInput, setCounterPriceInput] = React.useState("")
 
+  // Add Client Modal State
   const [isAddClientModalOpen, setIsAddClientModalOpen] = React.useState(false)
   const [newClientName, setNewClientName] = React.useState("")
   const [newClientEntity, setNewClientEntity] = React.useState("")
@@ -100,6 +142,37 @@ export function useCommandState() {
   const [newClientPhone, setNewClientPhone] = React.useState("")
   const [newClientBudget, setNewClientBudget] = React.useState("")
   const [newClientEnclave, setNewClientEnclave] = React.useState("")
+
+  // Submit LOI Modal State (Buyer feature)
+  const [isSubmitLoiModalOpen, setIsSubmitLoiModalOpen] = React.useState(false)
+  const [loiTargetProperty, setLoiTargetProperty] = React.useState("EST-001")
+  const [loiOfferPrice, setLoiOfferPrice] = React.useState("8750000")
+  const [loiEarnestDeposit, setLoiEarnestDeposit] = React.useState("875000")
+  const [loiFinancing, setLoiFinancing] = React.useState("Institutional All-Cash Wire")
+  const [loiContingencyDays, setLoiContingencyDays] = React.useState("14")
+
+  // Book Tour Modal State (Buyer & Organizer feature)
+  const [isBookTourModalOpen, setIsBookTourModalOpen] = React.useState(false)
+  const [tourPropertyId, setTourPropertyId] = React.useState("EST-001")
+  const [tourDate, setTourDate] = React.useState("Tomorrow, 14:00 PST")
+  const [tourTimeSlot, setTourTimeSlot] = React.useState("14:00 - 16:30")
+  const [tourTransportType, setTourTransportType] =
+    React.useState<TourBookingItem["transportType"]>("Chauffeured Maybach")
+  const [tourSpecialRequests, setTourSpecialRequests] = React.useState("")
+
+  React.useEffect(() => {
+    if (actionQuery === "loi") {
+      setIsSubmitLoiModalOpen(true)
+      if (propertyQuery) {
+        setLoiTargetProperty(propertyQuery)
+      }
+    } else if (actionQuery === "tour") {
+      setIsBookTourModalOpen(true)
+      if (propertyQuery) {
+        setTourPropertyId(propertyQuery)
+      }
+    }
+  }, [actionQuery, propertyQuery])
 
   const handleCreateProperty = (e: React.FormEvent) => {
     e.preventDefault()
@@ -157,6 +230,63 @@ export function useCommandState() {
     setNewClientBudget("")
     setNewClientEnclave("")
     triggerToast(`New client "${newLead.name}" enrolled into CRM`)
+  }
+
+  const handleSubmitLoi = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!loiOfferPrice) return
+
+    const prop = properties.find((p) => p.id === loiTargetProperty) || properties[0]
+    const newOffer: OfferItem = {
+      id: `OFF-${offers.length + 905}`,
+      propertyId: prop.id,
+      propertyTitle: prop.title,
+      buyerName: user?.name || "Julian Rossi",
+      buyerEntity: "Rossi Family Office & Trust",
+      offerPrice: Number(loiOfferPrice),
+      earnestDeposit: Number(loiEarnestDeposit) || Number(loiOfferPrice) * 0.1,
+      financing: loiFinancing,
+      status: "Pending Review",
+      submittedDate: "Just now",
+      expiryDate: "48 Hours",
+      proofOfFundsVerified: true,
+    }
+
+    setOffers([newOffer, ...offers])
+    setIsSubmitLoiModalOpen(false)
+    triggerToast(`Bilateral LOI for $${(newOffer.offerPrice / 1000000).toFixed(2)}M transmitted to Seller Trust`)
+  }
+
+  const handleBookTour = (e: React.FormEvent) => {
+    e.preventDefault()
+    const prop = properties.find((p) => p.id === tourPropertyId) || properties[0]
+    const newTour: TourBookingItem = {
+      id: `TR-${tours.length + 504}`,
+      propertyId: prop.id,
+      propertyTitle: prop.title,
+      clientName: user?.name || "Julian Rossi",
+      clientRole: activeRole === "organizer" ? "organizer" : "buyer",
+      date: tourDate || "Scheduled Date",
+      timeSlot: tourTimeSlot || "14:00 - 16:00",
+      transportType: tourTransportType,
+      assignedAgent: "Sarah Jenkins",
+      status: "Confirmed",
+      specialRequests: tourSpecialRequests || "Diplomatic VIP protocol requested.",
+    }
+    setTours([newTour, ...tours])
+    setIsBookTourModalOpen(false)
+    setTourSpecialRequests("")
+    triggerToast(`Private showing confirmed for "${prop.title}"`)
+  }
+
+  const handleCancelTour = (id: string) => {
+    setTours((prev) => prev.filter((t) => t.id !== id))
+    triggerToast("Tour booking cancelled")
+  }
+
+  const handleRemoveSavedProperty = (id: string) => {
+    setSavedProperties((prev) => prev.filter((p) => p.id !== id))
+    triggerToast("Property removed from watchlist")
   }
 
   const handleAcceptOffer = (id: string) => {
@@ -284,44 +414,171 @@ export function useCommandState() {
     { id: "organizer" as const, label: "Organizer (Broker)", icon: IconUsers },
   ]
 
-  const NAV_ITEMS = [
+  // Role-specific Navigation Items
+  const buyerNavItems: NavItem[] = [
     {
       id: "overview" as const,
-      label: "Overview",
+      label: "Buyer Overview",
+      icon: IconLayoutDashboard,
+      badge: "Live",
+    },
+    {
+      id: "saved" as const,
+      label: "Saved Estates",
+      icon: IconBookmark,
+      count: savedProperties.length,
+    },
+    {
+      id: "offers" as const,
+      label: "My Purchase LOIs",
+      icon: IconFileSpreadsheet,
+      badge: `${offers.filter((o) => o.buyerName.toLowerCase().includes("julian") || o.buyerName.toLowerCase().includes("rossi")).length} bids`,
+    },
+    {
+      id: "tours" as const,
+      label: "Private Tours",
+      icon: IconCalendarEvent,
+      count: tours.filter((t) => t.clientRole === "buyer" || t.clientName.toLowerCase().includes("julian")).length,
+    },
+    {
+      id: "financials" as const,
+      label: "Liquidity & POF",
+      icon: IconChartBar,
+    },
+    {
+      id: "vault" as const,
+      label: "Diligence VDR",
+      icon: IconFolderCheck,
+      count: documents.length,
+    },
+  ]
+
+  const sellerNavItems: NavItem[] = [
+    {
+      id: "overview" as const,
+      label: "Seller Command",
       icon: IconLayoutDashboard,
       badge: "Live",
     },
     {
       id: "properties" as const,
-      label: "Properties",
+      label: "My Properties",
       icon: IconBuildingEstate,
       count: properties.length,
     },
     {
       id: "offers" as const,
-      label: "Offers",
+      label: "Inbound Offers",
       icon: IconFileSpreadsheet,
       badge: newOffersCount > 0 ? `${newOffersCount} new` : undefined,
     },
-    { id: "crm" as const, label: "CRM", icon: IconUsers, count: leads.length },
-    { id: "financials" as const, label: "Financials", icon: IconChartBar },
+    {
+      id: "financials" as const,
+      label: "Escrow & Proceeds",
+      icon: IconChartBar,
+    },
     {
       id: "vault" as const,
-      label: "Vault",
+      label: "Title & Disclosures",
       icon: IconFolderCheck,
       count: documents.length,
     },
-    { id: "sentry" as const, label: "Sentry", icon: IconShieldLock, dot: true },
+    {
+      id: "sentry" as const,
+      label: "Estate Sentry",
+      icon: IconShieldLock,
+      dot: true,
+    },
   ]
 
-  const STATS_DATA = [
+  const organizerNavItems: NavItem[] = [
     {
-      label:
-        activeRole === "seller"
-          ? "Active Portfolio Valuation"
-          : activeRole === "buyer"
-            ? "Capital Allocated / Committed"
-            : "Platform Managed Gross Volume",
+      id: "overview" as const,
+      label: "Broker Command",
+      icon: IconLayoutDashboard,
+      badge: "Live",
+    },
+    {
+      id: "crm" as const,
+      label: "Client CRM",
+      icon: IconUsers,
+      count: leads.length,
+    },
+    {
+      id: "properties" as const,
+      label: "Syndicate Inventory",
+      icon: IconBuildingEstate,
+      count: properties.length,
+    },
+    {
+      id: "offers" as const,
+      label: "Offer Mediation",
+      icon: IconFileSpreadsheet,
+      badge: newOffersCount > 0 ? `${newOffersCount} active` : undefined,
+    },
+    {
+      id: "tours" as const,
+      label: "Tour Dispatch",
+      icon: IconCalendarEvent,
+      count: tours.length,
+    },
+    {
+      id: "financials" as const,
+      label: "Commission Desk",
+      icon: IconChartBar,
+    },
+    {
+      id: "vault" as const,
+      label: "Compliance Vault",
+      icon: IconFolderCheck,
+      count: documents.length,
+    },
+  ]
+
+  const NAV_ITEMS =
+    activeRole === "buyer"
+      ? buyerNavItems
+      : activeRole === "seller"
+        ? sellerNavItems
+        : organizerNavItems
+
+  // Role-tailored Stats
+  const buyerStats = [
+    {
+      label: "Allocated Acquisition Reserve",
+      value: "$25.0M",
+      trend: "+$5.0M Institutional POF Verified",
+      trendPositive: true,
+      icon: IconCurrencyDollar,
+      color: "text-primary bg-primary/10",
+    },
+    {
+      label: "Active Submitted LOIs",
+      value: `${offers.filter((o) => o.buyerName.toLowerCase().includes("julian") || o.buyerName.toLowerCase().includes("rossi")).length} Bids`,
+      trend: "Under Bilateral Diligence",
+      icon: IconFileSpreadsheet,
+      color: "text-secondary bg-secondary/15",
+    },
+    {
+      label: "Saved Trophy Watchlist",
+      value: `${savedProperties.length} Estates`,
+      trend: "Real-time Comps & Repricing",
+      icon: IconBookmark,
+      color: "text-amber-500 bg-amber-500/10",
+    },
+    {
+      label: "Scheduled Private Tours",
+      value: `${tours.filter((t) => t.clientRole === "buyer" || t.clientName.toLowerCase().includes("julian")).length} Showings`,
+      trend: "Chauffeured Maybach Escort",
+      trendPositive: true,
+      icon: IconCalendarEvent,
+      color: "text-emerald-500 bg-emerald-500/10",
+    },
+  ]
+
+  const sellerStats = [
+    {
+      label: "Active Portfolio Valuation",
       value: `$${(totalPortfolioValue / 1000000).toFixed(1)}M`,
       trend: "+14.2% MoM Expansion",
       trendPositive: true,
@@ -343,7 +600,40 @@ export function useCommandState() {
       color: "text-amber-500 bg-amber-500/10",
     },
     {
-      label: "Projected Commission Desk",
+      label: "Total Unique Inquiries",
+      value: "98 Inquiries",
+      trend: "Ultra-HNW Verified Buyers Only",
+      trendPositive: true,
+      icon: IconEye,
+      color: "text-emerald-500 bg-emerald-500/10",
+    },
+  ]
+
+  const organizerStats = [
+    {
+      label: "Platform Managed Gross Volume",
+      value: "$89.5M",
+      trend: "+22.4% Syndicate Pipeline",
+      trendPositive: true,
+      icon: IconCurrencyDollar,
+      color: "text-primary bg-primary/10",
+    },
+    {
+      label: "Active Investor Mandates",
+      value: `${leads.length} Leads`,
+      trend: "Average $17.4M Liquid Budget",
+      icon: IconUsers,
+      color: "text-secondary bg-secondary/15",
+    },
+    {
+      label: "VIP Showings Dispatched",
+      value: `${tours.length} Tours`,
+      trend: "Maybach & Helicopter Fleet",
+      icon: IconCalendarEvent,
+      color: "text-amber-500 bg-amber-500/10",
+    },
+    {
+      label: "Projected Broker Commission",
       value: `$${(totalCommissionPipeline / 1000).toFixed(0)}k`,
       trend: "Protected via Escrow Trust",
       trendPositive: true,
@@ -352,13 +642,55 @@ export function useCommandState() {
     },
   ]
 
-  const URGENT_ITEMS = [
+  const STATS_DATA =
+    activeRole === "buyer"
+      ? buyerStats
+      : activeRole === "seller"
+        ? sellerStats
+        : organizerStats
+
+  // Role-tailored Urgent Items
+  const buyerUrgentItems: UrgentItem[] = [
+    {
+      tag: "COUNTER RECEIVED",
+      tagColor: "bg-secondary/15 text-secondary",
+      meta: "18h remaining",
+      title: "The Glass Horizon Villa",
+      sub: "Seller countered at $8.70M with 14-day diligence",
+      action: "Review Counter",
+      btnClass: "bg-primary text-white hover:bg-primary/90",
+      onClick: () => setActiveNav("offers"),
+    },
+    {
+      tag: "PRIVATE SHOWING",
+      tagColor: "bg-primary/15 text-primary",
+      meta: "Tomorrow 14:00",
+      title: "The Glass Horizon Villa",
+      sub: "Chauffeured Maybach transfer confirmed from Beverly Hills",
+      action: "View Itinerary",
+      btnClass:
+        "bg-surface-container-high text-on-surface hover:bg-surface-container-highest",
+      onClick: () => setActiveNav("tours"),
+    },
+    {
+      tag: "VDR UNLOCKED",
+      tagColor: "bg-emerald-500/15 text-emerald-400",
+      meta: "Full Diligence Access",
+      title: "Biscayne Bay Deepwater",
+      sub: "Title deeds & 5-year pro-forma unlocked for inspection",
+      action: "Open VDR Room",
+      btnClass: "bg-secondary text-primary hover:bg-secondary/90",
+      href: "/vdr",
+    },
+  ]
+
+  const sellerUrgentItems: UrgentItem[] = [
     {
       tag: "LOI REVIEW",
       tagColor: "bg-secondary/15 text-secondary",
       meta: "24h remaining",
       title: "Julian Rossi • $8.65M",
-      sub: "The Glass Horizon Villa",
+      sub: "The Glass Horizon Villa - All cash wire verified",
       action: "Review & Negotiate",
       btnClass: "bg-primary text-white hover:bg-primary/90",
       onClick: () => setActiveNav("offers"),
@@ -368,7 +700,7 @@ export function useCommandState() {
       tagColor: "bg-primary/15 text-primary",
       meta: "Tribeca NY",
       title: "One Greenwich Penthouse",
-      sub: "Seismic & Structural verification",
+      sub: "Seismic & structural engineering verification required",
       action: "Inspect Vault",
       btnClass:
         "bg-surface-container-high text-on-surface hover:bg-surface-container-highest",
@@ -379,12 +711,53 @@ export function useCommandState() {
       tagColor: "bg-emerald-500/15 text-emerald-400",
       meta: "Earnest Locked",
       title: "Biscayne Bay Deepwater",
-      sub: "$1.4M earnest deposited in trust",
+      sub: "$1.4M earnest deposit locked in trust",
       action: "Open Closing Desk",
       btnClass: "bg-secondary text-primary hover:bg-secondary/90",
       href: "/closing",
     },
   ]
+
+  const organizerUrgentItems: UrgentItem[] = [
+    {
+      tag: "TOUR DISPATCH",
+      tagColor: "bg-secondary/15 text-secondary",
+      meta: "Today 16:00",
+      title: "Lord Alistair Sterling",
+      sub: "Confirm Maybach escort for Bel Air property viewing",
+      action: "Dispatch Fleet",
+      btnClass: "bg-primary text-white hover:bg-primary/90",
+      onClick: () => setActiveNav("tours"),
+    },
+    {
+      tag: "CRM FOLLOW-UP",
+      tagColor: "bg-primary/15 text-primary",
+      meta: "Monaco Office",
+      title: "Claire Moreau • $20.0M",
+      sub: "Review SoHo & Tribeca penthouse short-list package",
+      action: "Open CRM Lead",
+      btnClass:
+        "bg-surface-container-high text-on-surface hover:bg-surface-container-highest",
+      onClick: () => setActiveNav("crm"),
+    },
+    {
+      tag: "COMMISSION RELEASE",
+      tagColor: "bg-emerald-500/15 text-emerald-400",
+      meta: "Closing in 7 Days",
+      title: "$426k Commission Trust",
+      sub: "Biscayne Bay escrow milestone nearing final wire",
+      action: "Commission Desk",
+      btnClass: "bg-secondary text-primary hover:bg-secondary/90",
+      onClick: () => setActiveNav("financials"),
+    },
+  ]
+
+  const URGENT_ITEMS =
+    activeRole === "buyer"
+      ? buyerUrgentItems
+      : activeRole === "seller"
+        ? sellerUrgentItems
+        : organizerUrgentItems
 
   const ASSET_BREAKDOWN = [
     {
@@ -434,6 +807,8 @@ export function useCommandState() {
     leads,
     deals,
     documents,
+    savedProperties,
+    tours,
     securityArmed,
     setSecurityArmed,
     gateUnlocked,
@@ -474,8 +849,36 @@ export function useCommandState() {
     setNewClientBudget,
     newClientEnclave,
     setNewClientEnclave,
+    isSubmitLoiModalOpen,
+    setIsSubmitLoiModalOpen,
+    loiTargetProperty,
+    setLoiTargetProperty,
+    loiOfferPrice,
+    setLoiOfferPrice,
+    loiEarnestDeposit,
+    setLoiEarnestDeposit,
+    loiFinancing,
+    setLoiFinancing,
+    loiContingencyDays,
+    setLoiContingencyDays,
+    isBookTourModalOpen,
+    setIsBookTourModalOpen,
+    tourPropertyId,
+    setTourPropertyId,
+    tourDate,
+    setTourDate,
+    tourTimeSlot,
+    setTourTimeSlot,
+    tourTransportType,
+    setTourTransportType,
+    tourSpecialRequests,
+    setTourSpecialRequests,
     handleCreateProperty,
     handleCreateClient,
+    handleSubmitLoi,
+    handleBookTour,
+    handleCancelTour,
+    handleRemoveSavedProperty,
     handleAcceptOffer,
     handleDeclineOffer,
     handleApplyCounterOffer,

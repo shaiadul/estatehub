@@ -87,15 +87,16 @@ export function LoginView() {
     }, 600)
   }
 
-  const handleDemoSelect = (role: "broker" | "buyer" | "seller") => {
+  const handleDemoSelect = (role: "broker" | "buyer" | "seller" | "admin") => {
     switchDemoUser(role)
-    router.push(redirectParam)
+    router.push(role === "admin" ? "/admin" : redirectParam)
   }
 
-  const demoRoles: { id: "broker" | "buyer" | "seller"; label: string; name: string }[] = [
+  const demoRoles: { id: "broker" | "buyer" | "seller" | "admin"; label: string; name: string }[] = [
     { id: "broker", label: t("nav.roleBroker", "Broker"), name: "(Sarah)" },
     { id: "buyer", label: t("nav.roleBuyer", "Buyer"), name: "(Julian)" },
     { id: "seller", label: t("nav.roleSeller", "Seller"), name: "(Marcus)" },
+    { id: "admin", label: t("nav.roleAdmin", "Admin"), name: "(Alexander)" },
   ]
 
   const pillars = [

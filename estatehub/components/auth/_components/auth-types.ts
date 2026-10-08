@@ -5,7 +5,7 @@ import {
   IconBuildingCommunity,
 } from "@tabler/icons-react"
 
-export type AuthRole = "buyer" | "seller" | "broker"
+export type AuthRole = "buyer" | "seller" | "broker" | "organizer" | "admin"
 
 export interface EntityClassItem {
   id: string

@@ -600,6 +600,15 @@ export function SellPropertyWizard() {
                   <Button
                     variant="gold"
                     size="lg"
+                    render={<Link href="/dashboard?role=seller" />}
+                    className="gap-2 font-bold shadow-md"
+                  >
+                    <IconBuildingEstate size={18} />
+                    <span>Manage in Seller Dashboard</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
                     render={<Link href="/properties" />}
                     className="gap-2"
                   >
@@ -607,7 +616,7 @@ export function SellPropertyWizard() {
                     <IconArrowRight size={18} />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="subtle"
                     size="lg"
                     onClick={() => {
                       setIsPublished(false)

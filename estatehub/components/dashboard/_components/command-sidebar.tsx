@@ -10,6 +10,7 @@ interface CommandSidebarProps {
 }
 
 const SIDEBAR_LINKS = [
+  { href: "/admin", key: "dash.adminConsole", label: "Admin Governance Console" },
   { href: "/closing", key: "dash.openEscrow", label: "Open Escrow Desk" },
   { href: "/vdr", key: "dash.vdrLink", label: "Virtual Data Room (VDR)" },
 ]

@@ -85,31 +85,31 @@ export function Footer() {
               {t("footer.portfolio", "Portfolio")}
             </span>
             <Link
-              href="#properties"
+              href="/properties"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Buy Prime Properties
             </Link>
             <Link
-              href="#properties"
+              href="/properties?type=rent"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Luxury Rentals &amp; Penthouses
             </Link>
             <Link
-              href="#properties"
+              href="/properties?propertyType=compound"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Commercial Holdings
             </Link>
             <Link
-              href="#properties"
+              href="/properties"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Luxury Estates
             </Link>
             <Link
-              href="#agents"
+              href="/agents"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Certified Broker Directory
@@ -122,34 +122,34 @@ export function Footer() {
               {t("footer.intelligence", "Intelligence")}
             </span>
             <Link
-              href="#calculator"
+              href="/vdr"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Mortgage &amp; Loan Calculator
+              Virtual Diligence Room (VDR)
             </Link>
             <Link
-              href="#insights"
+              href="/closing"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Global Market Insights
+              Bilateral Closing Desk
             </Link>
             <Link
-              href="#valuation"
+              href="/sell"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Asset Valuation Service
+              Asset Valuation &amp; Sell
             </Link>
             <Link
-              href="#dashboard"
+              href="/dashboard"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Private Investor Portal
+              Private Client Command
             </Link>
             <Link
-              href="#faq"
+              href="/admin"
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Escrow &amp; Advisory FAQ
+              Platform Governance Console
             </Link>
           </div>
 

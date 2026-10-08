@@ -22,6 +22,9 @@ import {
   type VdrToast,
 } from "./_components"
 
+import { useSearchParams } from "next/navigation"
+import { getPropertyByIdOrSlug } from "@/lib/properties-data"
+
 interface VirtualDataRoomViewProps {
   property?: VdrProperty
 }
@@ -32,6 +35,39 @@ interface VirtualDataRoomViewProps {
  * rendering lives in `_components/*`.
  */
 export function VirtualDataRoomView({ property = DEFAULT_PROPERTY }: VirtualDataRoomViewProps) {
+  const searchParams = useSearchParams()
+  const propertyParam = searchParams.get("id") || searchParams.get("property")
+
+  const activeProperty: VdrProperty = React.useMemo(() => {
+    if (propertyParam) {
+      const p = getPropertyByIdOrSlug(propertyParam)
+      if (p) {
+        return {
+          id: p.id,
+          name: p.title,
+          enclave: p.badge || "Verified Portfolio",
+          location: `${p.city}, ${p.state}`,
+          description: p.description,
+          price: p.price,
+          heroImage: p.heroImage,
+          specs: [
+            { label: "Interior Living", value: `${p.sqftFormatted} sq ft`, mono: true },
+            { label: "Private Lot", value: p.lotSize, mono: true },
+            { label: "Bedrooms / Baths", value: `${p.beds} Beds • ${p.baths} Baths` },
+            { label: "Year Built", value: `${p.yearBuilt} Built` },
+            { label: "Automotive Gallery", value: `${p.garage} Vehicles` },
+            { label: "MLS Record", value: p.mlsId },
+          ],
+          cagr: 0.058,
+          taxRate: 0.0125,
+          annualOperatingCost: 48500,
+          holdYears: 5,
+        }
+      }
+    }
+    return property
+  }, [propertyParam, property])
+
   const [toasts, setToasts] = React.useState<VdrToast[]>([])
 
   const notify = React.useCallback((toast: Omit<VdrToast, "id">) => {
@@ -42,14 +78,14 @@ export function VirtualDataRoomView({ property = DEFAULT_PROPERTY }: VirtualData
     }, 3200)
   }, [])
 
-  const vdr = useVdrState({ initialPrice: property.price, onNotify: notify })
+  const vdr = useVdrState({ initialPrice: activeProperty.price, onNotify: notify })
   const totalVaultMb = React.useMemo(() => vaultSizeMb(DOCUMENTS), [])
 
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
       <SectionWrapper fullWidth innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8">
         <HeroBanner
-          property={property}
+          property={activeProperty}
           vdrHash={vdr.vdrHash}
           vaultSizeMb={totalVaultMb}
           vaultDownloading={vdr.vaultDownloading}

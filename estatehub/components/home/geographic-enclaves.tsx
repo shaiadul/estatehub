@@ -28,7 +28,7 @@ export function GeographicEnclaves() {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <Link
-            href="#properties"
+            href="/properties?location=Bel%20Air%2C%20Los%20Angeles%2C%20CA"
             className="md:col-span-7 relative h-80 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
           >
             <div
@@ -60,7 +60,7 @@ export function GeographicEnclaves() {
           </Link>
 
           <Link
-            href="#properties"
+            href="/properties?location=Tribeca%2C%20New%20York%2C%20NY"
             className="md:col-span-5 relative h-80 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
           >
             <div
@@ -91,7 +91,7 @@ export function GeographicEnclaves() {
           </Link>
 
           <Link
-            href="#properties"
+            href="/properties?location=Miami%2C%20FL"
             className="md:col-span-5 relative h-72 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
           >
             <div
@@ -122,7 +122,7 @@ export function GeographicEnclaves() {
           </Link>
 
           <Link
-            href="#properties"
+            href="/properties?location=Aspen%2C%20CO"
             className="md:col-span-7 relative h-72 rounded-2xl overflow-hidden shadow-md group block border border-outline-variant/30"
           >
             <div

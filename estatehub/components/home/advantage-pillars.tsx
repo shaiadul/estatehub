@@ -24,6 +24,7 @@ export function AdvantagePillars() {
       ),
       cta: t("pillars.escrowCta", "Learn Protocol"),
       icon: IconBuildingBank,
+      href: "/closing",
     },
     {
       title: t("pillars.conciergeTitle", "Elite Broker Concierge"),
@@ -33,6 +34,7 @@ export function AdvantagePillars() {
       ),
       cta: t("pillars.conciergeCta", "Advisory Scope"),
       icon: IconHeadset,
+      href: "/agents",
     },
     {
       title: t("pillars.valuationTitle", "Algorithmic Valuation"),
@@ -42,6 +44,7 @@ export function AdvantagePillars() {
       ),
       cta: t("pillars.valuationCta", "Model Analytics"),
       icon: IconChartBar,
+      href: "/sell",
     },
     {
       title: t("pillars.markupTitle", "Zero Hidden Markups"),
@@ -51,6 +54,7 @@ export function AdvantagePillars() {
       ),
       cta: t("pillars.markupCta", "Fee Transparency"),
       icon: IconReceiptTax,
+      href: "/vdr",
     },
   ]
 
@@ -94,7 +98,7 @@ export function AdvantagePillars() {
                   </p>
                 </div>
                 <Link
-                  href="#contact"
+                  href={pillar.href}
                   className="pt-5 mt-5 flex items-center gap-1 text-secondary-fixed text-xs font-semibold hover:text-primary-foreground transition-colors"
                 >
                   <span>{pillar.cta}</span>
