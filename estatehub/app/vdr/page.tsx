@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { Metadata } from "next"
 import { VdrPageView } from "./_components"
 
@@ -7,5 +8,15 @@ export const metadata: Metadata = {
 }
 
 export default function VDRPage() {
-  return <VdrPageView />
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-surface">
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      }
+    >
+      <VdrPageView />
+    </Suspense>
+  )
 }

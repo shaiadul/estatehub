@@ -255,14 +255,17 @@ export function HeroSection() {
               variant="luxury"
               size="hero"
               onClick={() => {
-                if (activeMode === "rent") {
-                  if (!isLoggedIn) {
-                    router.push("/login?role=buyer&redirect=/properties?type=rent")
-                  } else {
-                    router.push("/properties?type=rent")
-                  }
+                const queryParts: string[] = []
+                queryParts.push(`type=${activeMode === "rent" ? "rent" : "buy"}`)
+                if (location.trim()) queryParts.push(`location=${encodeURIComponent(location.trim())}`)
+                if (propertyType && propertyType !== "all") queryParts.push(`propertyType=${encodeURIComponent(propertyType)}`)
+                if (bedrooms && bedrooms !== "any") queryParts.push(`beds=${encodeURIComponent(bedrooms)}`)
+                const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : ""
+
+                if (activeMode === "rent" && !isLoggedIn) {
+                  router.push(`/login?role=buyer&redirect=/properties${queryString}`)
                 } else {
-                  router.push("/properties")
+                  router.push(`/properties${queryString}`)
                 }
               }}
               className="gap-2 group shadow-md"

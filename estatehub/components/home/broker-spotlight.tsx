@@ -69,7 +69,7 @@ export function BrokerSpotlight() {
         </div>
 
         <Link
-          href="#agents"
+          href="/agents"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-secondary hover:text-on-secondary-fixed transition-colors"
         >
           <span>{t("spotlight.browseAll", "Browse All 84 Advisors")}</span>
@@ -134,6 +134,7 @@ export function BrokerSpotlight() {
                   type="button"
                   variant="luxury"
                   size="sm"
+                  render={<Link href="/agents" />}
                   className="flex-1 rounded-xl gap-1.5 shadow-sm"
                 >
                   <IconPhone size={15} />
@@ -143,6 +144,7 @@ export function BrokerSpotlight() {
                   type="button"
                   variant="subtle"
                   size="sm"
+                  render={<Link href="/agents" />}
                   className="flex-1 rounded-xl gap-1.5"
                 >
                   <IconMail size={15} />

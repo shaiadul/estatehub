@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import Image from "next/image"
 import {
   IconCalendarEvent,
@@ -13,6 +14,8 @@ import {
   IconShieldCheck,
   IconShieldLock,
   IconStarFilled,
+  IconReceipt2,
+  IconLock,
 } from "@tabler/icons-react"
 import { PropertyData } from "@/lib/properties-data"
 import { Button } from "@/components/ui/button"
@@ -297,9 +300,46 @@ export function BookingSidebar({
             )}
           </div>
 
+          <div className="flex flex-col gap-2 pt-1 border-t border-outline-variant/20">
+            <Link
+              href={`/vdr?id=${property.id}`}
+              className="w-full py-2.5 px-3 rounded-xl bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center justify-between text-xs font-bold shadow-sm"
+            >
+              <div className="flex items-center gap-2">
+                <IconLock className="w-4 h-4 text-secondary" />
+                <span>Open Virtual Data Room (VDR)</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-primary font-mono font-bold">
+                Diligence Vault
+              </span>
+            </Link>
+
+            <Link
+              href={`/dashboard?role=buyer&action=loi&property=${property.id}`}
+              className="w-full py-2 px-3 rounded-xl bg-secondary/15 hover:bg-secondary/25 text-on-secondary-container transition-colors flex items-center justify-between text-xs font-bold border border-secondary/30"
+            >
+              <div className="flex items-center gap-2">
+                <IconReceipt2 className="w-4 h-4 text-secondary" />
+                <span>Submit Institutional LOI</span>
+              </div>
+              <span className="text-[10px] text-on-surface-variant font-mono">
+                Binding Fast-Track
+              </span>
+            </Link>
+          </div>
+
           <button
             type="button"
-            onClick={() => alert("Access granted: Downloading official MLS disclosures & geotechnical report.")}
+            onClick={() => {
+              const link = document.createElement("a")
+              link.href = "#"
+              link.setAttribute("download", `${property.slug}-disclosures.pdf`)
+              const toast = document.createElement("div")
+              toast.textContent = "MLS Disclosures & Geotechnical Report Package (#EH-PDF-884) downloaded."
+              toast.className = "fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl bg-surface-container-highest border border-outline-variant/30 text-xs font-semibold shadow-xl text-on-surface animate-fade-in"
+              document.body.appendChild(toast)
+              setTimeout(() => toast.remove(), 4000)
+            }}
             className="w-full py-2.5 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-between text-on-surface text-xs font-semibold border border-outline-variant/30"
           >
             <div className="flex items-center gap-2">

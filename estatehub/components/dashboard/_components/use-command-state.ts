@@ -17,6 +17,7 @@ import {
   IconEye,
   IconReceipt2,
 } from "@tabler/icons-react"
+import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import {
   INITIAL_DEALS,
@@ -41,22 +42,37 @@ import {
 
 export function useCommandState() {
   const { user, switchDemoUser } = useAuth()
+  const searchParams = useSearchParams()
+  const roleQuery = searchParams.get("role") as ActiveRole | null
+  const tabQuery = searchParams.get("tab") as ActiveNav | null
+  const actionQuery = searchParams.get("action")
+  const propertyQuery = searchParams.get("property")
 
   const [activeRole, setActiveRole] = React.useState<ActiveRole>(
-    user?.role === "buyer"
-      ? "buyer"
-      : user?.role === "seller"
-        ? "seller"
-        : "organizer"
+    roleQuery && (roleQuery === "buyer" || roleQuery === "seller" || roleQuery === "organizer")
+      ? roleQuery
+      : user?.role === "buyer"
+        ? "buyer"
+        : user?.role === "seller"
+          ? "seller"
+          : "organizer"
   )
 
   React.useEffect(() => {
-    if (user?.role === "buyer") setActiveRole("buyer")
+    if (roleQuery && (roleQuery === "buyer" || roleQuery === "seller" || roleQuery === "organizer")) {
+      setActiveRole(roleQuery)
+    } else if (user?.role === "buyer") setActiveRole("buyer")
     else if (user?.role === "seller") setActiveRole("seller")
     else if (user?.role === "broker" || user?.role === "organizer") setActiveRole("organizer")
-  }, [user?.role])
+  }, [user?.role, roleQuery])
 
-  const [activeNav, setActiveNav] = React.useState<ActiveNav>("overview")
+  const [activeNav, setActiveNav] = React.useState<ActiveNav>(tabQuery || "overview")
+
+  React.useEffect(() => {
+    if (tabQuery) {
+      setActiveNav(tabQuery)
+    }
+  }, [tabQuery])
 
   const [searchQuery, setSearchQuery] = React.useState("")
   const [propertyFilterStatus, setPropertyFilterStatus] = React.useState("All")
@@ -143,6 +159,20 @@ export function useCommandState() {
   const [tourTransportType, setTourTransportType] =
     React.useState<TourBookingItem["transportType"]>("Chauffeured Maybach")
   const [tourSpecialRequests, setTourSpecialRequests] = React.useState("")
+
+  React.useEffect(() => {
+    if (actionQuery === "loi") {
+      setIsSubmitLoiModalOpen(true)
+      if (propertyQuery) {
+        setLoiTargetProperty(propertyQuery)
+      }
+    } else if (actionQuery === "tour") {
+      setIsBookTourModalOpen(true)
+      if (propertyQuery) {
+        setTourPropertyId(propertyQuery)
+      }
+    }
+  }, [actionQuery, propertyQuery])
 
   const handleCreateProperty = (e: React.FormEvent) => {
     e.preventDefault()

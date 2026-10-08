@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { IconShieldLock, IconCalendarEvent, IconFileText } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -36,6 +37,7 @@ export function ConsultationBanner() {
             type="button"
             variant="gold"
             size="xl"
+            render={<Link href="/agents" />}
             className="gap-2 shadow-md"
           >
             <IconCalendarEvent size={18} />
@@ -45,6 +47,7 @@ export function ConsultationBanner() {
             type="button"
             variant="outline"
             size="xl"
+            render={<Link href="/sell" />}
             className="gap-2 bg-surface-container-lowest hover:bg-surface shadow-sm"
           >
             <IconFileText size={18} />

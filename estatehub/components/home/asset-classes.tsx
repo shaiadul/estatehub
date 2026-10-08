@@ -20,26 +20,31 @@ export function AssetClasses() {
       title: t("assets.villas", "Luxury Villas"),
       count: `420 ${t("assets.activeCount", "Active Portfolios")}`,
       icon: IconHome,
+      propertyType: "villa",
     },
     {
       title: t("assets.penthouses", "Sky Penthouses"),
       count: `185 ${t("assets.activeCount", "Active Portfolios")}`,
       icon: IconBuildingSkyscraper,
+      propertyType: "penthouse",
     },
     {
       title: t("assets.manors", "Historic Manors"),
       count: `74 ${t("assets.activeCount", "Active Portfolios")}`,
       icon: IconBuildingMonument,
+      propertyType: "chalet",
     },
     {
       title: t("assets.waterfront", "Modern Waterfront"),
       count: `310 ${t("assets.activeCount", "Active Portfolios")}`,
       icon: IconPool,
+      propertyType: "waterfront",
     },
     {
       title: t("assets.compounds", "Private Compounds"),
       count: `92 ${t("assets.activeCount", "Active Portfolios")}`,
       icon: IconFence,
+      propertyType: "compound",
     },
   ]
 
@@ -64,7 +69,7 @@ export function AssetClasses() {
           return (
             <Link
               key={item.title}
-              href="#properties"
+              href={`/properties?propertyType=${item.propertyType}`}
               className={`group p-6 rounded-2xl bg-surface-container-lowest hover:bg-surface-container text-center flex flex-col items-center gap-3 shadow-sm hover:shadow-md transition-all border border-outline-variant/30 ${
                 isSpan ? "col-span-2 md:col-span-1" : ""
               }`}
