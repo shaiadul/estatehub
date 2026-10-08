@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { fetcherWithAuth } from "./fetcher"
+import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse, TourBooking } from "./types"
 
 export interface BookTourPayload {
@@ -36,11 +36,17 @@ export async function bookTourAction(
   return res
 }
 
-/**
- * Get all tours for the authenticated user.
- */
-export async function getMyToursAction(): Promise<ApiResponse<TourBooking[]>> {
-  return fetcherWithAuth<TourBooking[]>("/tours", {
+export interface TourFilterParams {
+  status?: "pending" | "confirmed" | "completed" | "cancelled" | string
+  tour_type?: "in_person" | "virtual" | string
+  date?: string
+  property_id?: string
+}
+
+export async function getMyToursAction(
+  params?: TourFilterParams
+): Promise<ApiResponse<TourBooking[]>> {
+  return fetcherWithAuth<TourBooking[]>(`/tours${getQueryString(params)}`, {
     cache: "no-store",
   })
 }

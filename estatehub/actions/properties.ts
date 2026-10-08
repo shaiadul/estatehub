@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath, revalidateTag } from "next/cache"
-import { fetcher, fetcherWithAuth } from "./fetcher"
+import { fetcher, fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse, Property, PropertyFilter } from "./types"
 
 /**
@@ -62,23 +62,7 @@ function mapMockProperty(p: any): Property {
 export async function getPropertiesAction(
   filter: PropertyFilter = {}
 ): Promise<ApiResponse<Property[]>> {
-  const params: Record<string, string | number | boolean | undefined> = {
-    q: filter.q,
-    city: filter.city,
-    state: filter.state,
-    property_type: filter.property_type,
-    transaction_type: filter.transaction_type,
-    min_beds: filter.min_beds,
-    min_price: filter.min_price,
-    max_price: filter.max_price,
-    sort_by: filter.sort_by,
-    featured_only: filter.featured_only,
-    page: filter.page,
-    limit: filter.limit || 20,
-  }
-
-  const res = await fetcher<Property[]>("/properties", {
-    params,
+  const res = await fetcher<Property[]>(`/properties${getQueryString(filter)}`, {
     revalidate: 60,
     tags: ["properties"],
   })
@@ -88,11 +72,26 @@ export async function getPropertiesAction(
   }
 
   // Graceful fallback to static portfolio data if backend is offline/empty
-  const fallback = PROPERTIES.map(mapMockProperty)
+  const page = filter.page || 1
+  const limit = filter.limit || 20
+  const total = PROPERTIES.length
+  const totalPages = Math.ceil(total / limit) || 1
+  const start = (page - 1) * limit
+  const end = start + limit
+  const pagedProperties = PROPERTIES.slice(start, end).map(mapMockProperty)
+
   return {
     success: true,
-    data: fallback,
-    meta: { total: fallback.length, cached: true },
+    data: pagedProperties,
+    meta: {
+      page,
+      limit,
+      total,
+      total_pages: totalPages,
+      has_next: page < totalPages,
+      has_prev: page > 1,
+      cached: true,
+    },
   }
 }
 

@@ -1,13 +1,19 @@
-// EstateHub API & SSR TypeScript Definitions
+export interface PaginationMeta {
+  page: number
+  limit: number
+  total: number
+  total_pages: number
+  has_next: boolean
+  has_prev: boolean
+  cached?: boolean
+  [key: string]: any
+}
 
 export interface ApiResponse<T = any> {
   success: boolean
   data?: T
   error?: string
-  meta?: {
-    total?: number
-    page?: number
-    limit?: number
+  meta?: Partial<PaginationMeta> & {
     cached?: boolean
     [key: string]: any
   }

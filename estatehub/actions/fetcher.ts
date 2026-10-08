@@ -1,12 +1,17 @@
-// EstateHub SSR & Client Fast Fetcher Engine
-// Supports Server Actions, Server Components, Route Handlers, and Client Components
-
 import type { ApiResponse } from "./types"
 
 const DEFAULT_API_URL = "http://127.0.0.1:8080/api/v1"
 
+export type QueryParamValue =
+  | string
+  | number
+  | boolean
+  | (string | number | boolean)[]
+  | undefined
+  | null
+
 export interface FetchOptions extends RequestInit {
-  params?: Record<string, string | number | boolean | undefined | null>
+  params?: Record<string, QueryParamValue>
   revalidate?: number | false
   tags?: string[]
 }
@@ -78,22 +83,54 @@ export function deleteAuthCookie(): void {
 }
 
 /**
- * Build URL with query parameters.
+ * Transforms an object or URLSearchParams into a clean URL query string (prefixed with '?').
+ * Automatically filters out null, undefined, and empty string values.
+ * Flattens array values into repeated query keys (e.g. category=legal&category=tax).
+ */
+export function getQueryString(
+  params?: Record<string, any> | URLSearchParams | null
+): string {
+  if (!params) return ""
+  if (params instanceof URLSearchParams) {
+    const str = params.toString()
+    return str ? `?${str}` : ""
+  }
+
+  const searchParams = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return
+
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        if (v !== undefined && v !== null && v !== "") {
+          searchParams.append(key, String(v))
+        }
+      })
+    } else {
+      searchParams.append(key, String(value))
+    }
+  })
+
+  const qs = searchParams.toString()
+  return qs ? `?${qs}` : ""
+}
+
+/**
+ * Direct alias for getQueryString.
+ */
+export const getqurysting = getQueryString
+
+/**
+ * Build URL with clean query parameters serialization.
  */
 function buildUrl(endpoint: string, params?: FetchOptions["params"]): string {
   const base = getApiBaseUrl().replace(/\/$/, "")
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`
-  const url = new URL(`${base}${path}`)
+  const qs = getQueryString(params)
 
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value))
-      }
-    })
-  }
-
-  return url.toString()
+  const separator = path.includes("?") ? (qs ? `&${qs.slice(1)}` : "") : qs
+  return `${base}${path}${separator}`
 }
 
 /**

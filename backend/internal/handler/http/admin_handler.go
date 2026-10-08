@@ -63,11 +63,7 @@ func (h *AdminHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSONWithMeta(w, http.StatusOK, users, map[string]interface{}{
-		"total": total,
-		"page":  page,
-		"limit": limit,
-	})
+	JSONPaginated(w, http.StatusOK, users, page, limit, total)
 }
 
 type UpdateKYCRequest struct {
@@ -128,11 +124,16 @@ func (h *AdminHandler) AuditLogs(w http.ResponseWriter, r *http.Request) {
 		filter.Action = &action
 	}
 
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page <= 0 {
+		page = 1
+	}
 	limit, _ := strconv.Atoi(q.Get("limit"))
 	if limit <= 0 {
 		limit = 50
 	}
 	filter.Limit = limit
+	filter.Offset = (page - 1) * limit
 
 	logs, total, err := h.adminService.ListAuditLogs(r.Context(), filter)
 	if err != nil {
@@ -140,5 +141,5 @@ func (h *AdminHandler) AuditLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSONWithMeta(w, http.StatusOK, logs, map[string]interface{}{"total": total})
+	JSONPaginated(w, http.StatusOK, logs, page, limit, total)
 }

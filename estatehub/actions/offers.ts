@@ -1,7 +1,5 @@
-"use server"
-
 import { revalidatePath } from "next/cache"
-import { fetcherWithAuth } from "./fetcher"
+import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse, Offer } from "./types"
 
 export interface SubmitOfferPayload {
@@ -34,11 +32,21 @@ export async function submitOfferAction(
   return res
 }
 
+export interface OfferFilterParams {
+  status?: "submitted" | "under_review" | "countered" | "accepted" | "rejected" | "closing" | string
+  property_id?: string
+  financing_type?: string
+  min_amount?: number
+  max_amount?: number
+}
+
 /**
- * List all offers for the current user (sent or received).
+ * List all offers for the current user with optional query filters.
  */
-export async function getMyOffersAction(): Promise<ApiResponse<Offer[]>> {
-  return fetcherWithAuth<Offer[]>("/offers", {
+export async function getMyOffersAction(
+  params?: OfferFilterParams
+): Promise<ApiResponse<Offer[]>> {
+  return fetcherWithAuth<Offer[]>(`/offers${getQueryString(params)}`, {
     cache: "no-store",
   })
 }

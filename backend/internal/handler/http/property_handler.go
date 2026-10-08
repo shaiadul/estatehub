@@ -74,11 +74,15 @@ func (h *PropertyHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pagMeta := NewPaginationMeta(page, limit, resp.Total)
 	meta := map[string]interface{}{
-		"total":  resp.Total,
-		"page":   page,
-		"limit":  limit,
-		"cached": resp.Cached,
+		"total":       pagMeta.Total,
+		"page":        pagMeta.Page,
+		"limit":       pagMeta.Limit,
+		"total_pages": pagMeta.TotalPages,
+		"has_next":    pagMeta.HasNext,
+		"has_prev":    pagMeta.HasPrev,
+		"cached":      resp.Cached,
 	}
 
 	JSONWithMeta(w, http.StatusOK, resp.Properties, meta)

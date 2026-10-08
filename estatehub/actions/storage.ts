@@ -1,6 +1,4 @@
-"use server"
-
-import { fetcherWithAuth } from "./fetcher"
+import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse } from "./types"
 
 export interface PresignedUploadResponse {
@@ -34,14 +32,25 @@ export async function getPresignedUploadUrlAction(
   })
 }
 
+export interface PresignedDownloadOptions {
+  expiresIn?: number
+  inline?: boolean
+}
+
 /**
- * Generate presigned GET download URL for any stored S3 object key.
+ * Generate presigned GET download URL for any stored S3 object key with optional query parameters.
  */
 export async function getPresignedDownloadUrlAction(
-  fileKey: string
+  fileKey: string,
+  options?: PresignedDownloadOptions
 ): Promise<ApiResponse<PresignedDownloadResponse>> {
-  return fetcherWithAuth<PresignedDownloadResponse>("/storage/download-url", {
-    params: { key: fileKey },
-    cache: "no-store",
-  })
+  const query = {
+    key: fileKey,
+    expires_in: options?.expiresIn,
+    inline: options?.inline,
+  }
+  return fetcherWithAuth<PresignedDownloadResponse>(
+    `/storage/download-url${getQueryString(query)}`,
+    { cache: "no-store" }
+  )
 }

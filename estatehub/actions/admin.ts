@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { fetcherWithAuth } from "./fetcher"
+import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { AdminOverview, ApiResponse, AuditLog, KYCStatus, User } from "./types"
 
 /**
@@ -60,14 +60,44 @@ export async function moderatePropertyAction(
   return res
 }
 
+export interface UserFilterParams {
+  page?: number
+  limit?: number
+  role?: string
+  kyc_status?: string
+  search?: string
+}
+
 /**
- * Fetch immutable cryptographic audit log stream.
+ * Fetch paginated list of users for administration governance.
+ */
+export async function getUsersAction(
+  params?: UserFilterParams
+): Promise<ApiResponse<User[]>> {
+  return fetcherWithAuth<User[]>(`/admin/users${getQueryString(params)}`, {
+    cache: "no-store",
+  })
+}
+
+export interface AuditLogFilterParams {
+  page?: number
+  limit?: number
+  offset?: number
+  actor_role?: string
+  resource_type?: string
+  action?: string
+  search?: string
+  user_email?: string
+}
+
+/**
+ * Fetch immutable cryptographic audit log stream with pagination and query filters.
  */
 export async function getAuditLogsAction(
-  limit = 50
+  params?: AuditLogFilterParams | number
 ): Promise<ApiResponse<AuditLog[]>> {
-  return fetcherWithAuth<AuditLog[]>("/admin/audit-logs", {
-    params: { limit },
+  const queryObj = typeof params === "number" ? { limit: params, page: 1 } : params
+  return fetcherWithAuth<AuditLog[]>(`/admin/audit-logs${getQueryString(queryObj)}`, {
     cache: "no-store",
   })
 }
