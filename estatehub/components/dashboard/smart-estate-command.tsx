@@ -15,6 +15,8 @@ import { CrmTab } from "./_components/crm-tab"
 import { FinancialsTab } from "./_components/financials-tab"
 import { VaultTab } from "./_components/vault-tab"
 import { SentryTab } from "./_components/sentry-tab"
+import { SavedTab } from "./_components/saved-tab"
+import { ToursTab } from "./_components/tours-tab"
 import { CommandModals } from "./_components/command-modals"
 
 const TABS = [
@@ -25,6 +27,8 @@ const TABS = [
   { id: "financials", Component: FinancialsTab },
   { id: "vault", Component: VaultTab },
   { id: "sentry", Component: SentryTab },
+  { id: "saved", Component: SavedTab },
+  { id: "tours", Component: ToursTab },
 ] as const
 
 export function SmartEstateCommandView() {

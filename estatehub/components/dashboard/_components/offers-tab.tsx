@@ -36,6 +36,8 @@ export function OffersTab({ state }: OffersTabProps) {
     offerFilterStatus,
     setOfferFilterStatus,
     deals,
+    activeRole,
+    setIsSubmitLoiModalOpen,
     handleAcceptOffer,
     handleDeclineOffer,
     handleAdvanceDealStage,
@@ -43,35 +45,67 @@ export function OffersTab({ state }: OffersTabProps) {
     setCounterPriceInput,
   } = state
 
+  const isBuyer = activeRole === "buyer"
+  const isSeller = activeRole === "seller"
+  const isOrganizer = activeRole === "organizer"
+
+  const displayOffers = isBuyer
+    ? filteredOffers.filter(
+        (o) =>
+          o.buyerName.toLowerCase().includes("julian") ||
+          o.buyerName.toLowerCase().includes("rossi") ||
+          o.buyerName.toLowerCase().includes("swiss") ||
+          filteredOffers.indexOf(o) < 3
+      )
+    : filteredOffers
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-black text-on-surface">
-              Purchase Offers &amp; LOI Ledger
+              {isBuyer
+                ? "My Purchase Proposals & LOI Ledger"
+                : isSeller
+                  ? "Inbound Purchase Offers & LOI Ledger"
+                  : "Bilateral Deal Mediation & LOI Desk"}
             </h2>
             <p className="text-xs text-on-surface-variant">
-              Inbound sovereign offers, earnest deposits, and legal negotiation
-              controls
+              {isBuyer
+                ? "Track active acquisition bids, review seller counter-proposals, and lock escrow earnest deposits"
+                : isSeller
+                  ? "Inbound sovereign offers, earnest deposits, and legal negotiation controls"
+                  : "Supervise bilateral legal negotiations, deposit escrow verifications, and closing milestones"}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {OFFER_STATUS_FILTERS.map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setOfferFilterStatus(st)}
-                className={`h-8 rounded-lg px-3 text-xs font-bold transition-all ${
-                  offerFilterStatus === st
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
-                }`}
+          <div className="flex flex-wrap items-center gap-2">
+            {isBuyer && (
+              <Button
+                onClick={() => setIsSubmitLoiModalOpen(true)}
+                className="h-8 rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground hover:bg-primary/90"
               >
-                {st}
-              </button>
-            ))}
+                + New Purchase LOI
+              </Button>
+            )}
+
+            <div className="flex items-center gap-1.5">
+              {OFFER_STATUS_FILTERS.map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setOfferFilterStatus(st)}
+                  className={`h-8 rounded-lg px-2.5 text-xs font-bold transition-all ${
+                    offerFilterStatus === st
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -90,7 +124,7 @@ export function OffersTab({ state }: OffersTabProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/20">
-              {filteredOffers.map((offer) => (
+              {displayOffers.map((offer) => (
                 <tr
                   key={offer.id}
                   className="transition-colors hover:bg-surface-container-high/30"
@@ -142,8 +176,46 @@ export function OffersTab({ state }: OffersTabProps) {
                     </Badge>
                   </td>
                   <td className="py-4 text-right">
-                    {offer.status !== "Escrow Opened" &&
-                    offer.status !== "Declined" ? (
+                    {offer.status === "Escrow Opened" ? (
+                      <Link
+                        href="/closing"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-secondary px-3 text-xs font-bold text-primary transition-colors hover:bg-secondary/90"
+                      >
+                        <span>Closing Desk</span>
+                        <IconArrowRight size={13} />
+                      </Link>
+                    ) : isBuyer ? (
+                      <div className="flex items-center justify-end gap-1.5">
+                        {offer.status === "Under Negotiation" && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleAcceptOffer(offer.id)}
+                            className="h-8 rounded-lg bg-primary px-2.5 text-xs font-bold text-primary-foreground hover:bg-primary/90"
+                          >
+                            Accept Counter
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setCounterModalOffer(offer)
+                            setCounterPriceInput(String(offer.offerPrice - 100000))
+                          }}
+                          className="h-8 rounded-lg border-outline-variant/40 px-2 text-xs font-semibold"
+                        >
+                          Modify
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeclineOffer(offer.id)}
+                          className="h-8 rounded-lg px-2 text-xs text-destructive hover:bg-destructive/10"
+                        >
+                          Withdraw
+                        </Button>
+                      </div>
+                    ) : offer.status !== "Declined" ? (
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
                           onClick={() => handleAcceptOffer(offer.id)}
@@ -174,13 +246,7 @@ export function OffersTab({ state }: OffersTabProps) {
                         </Button>
                       </div>
                     ) : (
-                      <Link
-                        href="/closing"
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-secondary px-3 text-xs font-bold text-primary transition-colors hover:bg-secondary/90"
-                      >
-                        <span>Closing Desk</span>
-                        <IconArrowRight size={13} />
-                      </Link>
+                      <span className="text-xs text-on-surface-variant font-medium">Archived</span>
                     )}
                   </td>
                 </tr>
