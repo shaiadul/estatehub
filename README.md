@@ -100,6 +100,6 @@ npm run dev        # → http://localhost:3000
 
 <div align="center">
 
-*Crafted for the Bel Air enclave — encrypted, unredacted, and bilateral.* 🗝️
+*Crafted for the Bel Air enclave -— encrypted, unredacted, and bilateral.* 🗝️
 
 </div>
