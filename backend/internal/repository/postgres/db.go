@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/estatehub/backend/config"
@@ -23,15 +25,28 @@ func NewDB(cfg config.DatabaseConfig, env string) (*gorm.DB, error) {
 		logLevel = gormlogger.Info
 	}
 
+	customLogger := gormlogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		gormlogger.Config{
+			SlowThreshold:             2 * time.Second, // WAN latency threshold
+			LogLevel:                  logLevel,
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  true,
+		},
+	)
+
 	gormCfg := &gorm.Config{
-		Logger: gormlogger.Default.LogMode(logLevel),
+		Logger: customLogger,
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
-		PrepareStmt: true, // Prepared statements for ultra-fast query execution
+		PrepareStmt: false, // Must be false for PgBouncer / Supabase transaction pooler
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DSN()), gormCfg)
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  cfg.DSN(),
+		PreferSimpleProtocol: true, // Disables prepared statements in pgx for PgBouncer pooler
+	}), gormCfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Supabase PostgreSQL: %w", err)
 	}

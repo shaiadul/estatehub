@@ -37,15 +37,22 @@ func main() {
 	)
 
 	// Database Connection (Supabase PostgreSQL)
+	slog.Info("connecting to PostgreSQL and running migrations...")
 	db, err := postgres.NewDB(cfg.Database, cfg.Environment)
 	if err != nil {
 		slog.Error("failed to connect to postgres database", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("connected to Supabase PostgreSQL with prepared statements enabled")
+	slog.Info("✓ database connected & schemas migrated successfully")
 
 	// Redis Cache
+	slog.Info("connecting to Redis cache...")
 	cache := redis.NewCacheService(cfg.Redis)
+	if cache.IsEnabled() {
+		slog.Info("✓ Redis cache connected and active")
+	} else {
+		slog.Warn("⚠ Redis cache running in bypass mode")
+	}
 
 	// Security & JWT Manager
 	tokenManager := jwt.NewTokenManager(
@@ -127,7 +134,11 @@ func main() {
 
 	// Server runner
 	go func() {
-		slog.Info("EstateHub API server listening", "addr", server.Addr)
+		slog.Info("🚀 EstateHub API server is ready",
+			"addr", fmt.Sprintf("http://localhost:%d", cfg.Port),
+			"healthz", fmt.Sprintf("http://localhost:%d/healthz", cfg.Port),
+			"readyz", fmt.Sprintf("http://localhost:%d/readyz", cfg.Port),
+		)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			slog.Error("server listen error", "error", err)
 			os.Exit(1)
