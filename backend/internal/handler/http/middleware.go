@@ -2,11 +2,14 @@ package http
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/estatehub/backend/internal/domain"
 	"github.com/estatehub/backend/pkg/jwt"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 type contextKey string
@@ -16,6 +19,42 @@ const (
 	UserIDKey     contextKey = "user_id"
 	UserRoleKey   contextKey = "user_role"
 )
+
+// RequestLogger logs structured details of incoming HTTP requests
+func RequestLogger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		ww := chimiddleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
+		defer func() {
+			duration := time.Since(start)
+			reqID := chimiddleware.GetReqID(r.Context())
+			status := ww.Status()
+			if status == 0 {
+				status = http.StatusOK
+			}
+
+			level := slog.LevelInfo
+			if status >= 500 {
+				level = slog.LevelError
+			} else if status >= 400 {
+				level = slog.LevelWarn
+			}
+
+			slog.Log(r.Context(), level, "http request",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"status", status,
+				"bytes", ww.BytesWritten(),
+				"duration_ms", duration.Milliseconds(),
+				"ip", r.RemoteAddr,
+				"request_id", reqID,
+			)
+		}()
+
+		next.ServeHTTP(ww, r)
+	})
+}
 
 func AuthMiddleware(tokenManager *jwt.TokenManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

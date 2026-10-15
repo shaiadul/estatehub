@@ -32,7 +32,7 @@ func NewRouter(p RouterParams) *chi.Mux {
 	// Global Middleware
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.RealIP)
-	r.Use(chimiddleware.Logger)
+	r.Use(apphttp.RequestLogger)
 	r.Use(chimiddleware.Recoverer)
 
 	// CORS Setup

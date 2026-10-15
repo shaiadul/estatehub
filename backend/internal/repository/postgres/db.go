@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/estatehub/backend/config"
@@ -23,12 +25,22 @@ func NewDB(cfg config.DatabaseConfig, env string) (*gorm.DB, error) {
 		logLevel = gormlogger.Info
 	}
 
+	customLogger := gormlogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		gormlogger.Config{
+			SlowThreshold:             2 * time.Second, // WAN latency threshold
+			LogLevel:                  logLevel,
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  true,
+		},
+	)
+
 	gormCfg := &gorm.Config{
-		Logger: gormlogger.Default.LogMode(logLevel),
+		Logger: customLogger,
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
-		PrepareStmt: true, // Prepared statements for ultra-fast query execution
+		PrepareStmt: true,
 	}
 
 	db, err := gorm.Open(postgres.Open(cfg.DSN()), gormCfg)
