@@ -3,7 +3,7 @@
 # Protects secrets, API keys, credentials, binaries, and build artifacts
 # ==============================================================================
 
-# Environment Secrets (DO NOT COMMIT)
+# Environment Secrets (DO NOT COMMIT) 
 .env
 .env.*
 *.env
