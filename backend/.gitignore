@@ -1,0 +1,20 @@
+# Backend Environment & Secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Compiled Binaries & Coverage
+bin/
+*.exe
+*.test
+*.out
+cover.out
+
+# Logs
+*.log
+
+# OS & IDE
+.DS_Store
+.idea/
+.vscode/

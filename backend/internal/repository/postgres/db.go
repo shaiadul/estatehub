@@ -40,10 +40,13 @@ func NewDB(cfg config.DatabaseConfig, env string) (*gorm.DB, error) {
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
-		PrepareStmt: true,
+		PrepareStmt: false, // Must be false for PgBouncer / Supabase transaction pooler
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DSN()), gormCfg)
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  cfg.DSN(),
+		PreferSimpleProtocol: true, // Disables prepared statements in pgx for PgBouncer pooler
+	}), gormCfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Supabase PostgreSQL: %w", err)
 	}

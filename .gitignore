@@ -1,0 +1,67 @@
+# ==============================================================================
+# EstateHub Global Git Ignore
+# Protects secrets, API keys, credentials, binaries, and build artifacts
+# ==============================================================================
+
+# Environment Secrets (DO NOT COMMIT)
+.env
+.env.*
+*.env
+*.env.*
+**/.env
+**/.env.*
+!**/.env.example
+!.env.example
+
+# Certificates & Private Keys
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.pub
+credentials.json
+client_secrets*.json
+
+# Backend Go Artifacts
+backend/bin/
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Frontend Dependencies & Build Caches
+node_modules/
+**/node_modules/
+estatehub/.next/
+estatehub/out/
+estatehub/build/
+*.tsbuildinfo
+
+# Logs & Diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
