@@ -60,8 +60,11 @@ func NewDB(cfg config.DatabaseConfig, env string) (*gorm.DB, error) {
 	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 
-	// Run Schema Migrations
-	err = db.AutoMigrate(
+	// Run Schema Migrations quietly (silence catalog inspection queries during startup)
+	migrationDB := db.Session(&gorm.Session{
+		Logger: customLogger.LogMode(gormlogger.Silent),
+	})
+	err = migrationDB.AutoMigrate(
 		&domain.User{},
 		&domain.Property{},
 		&domain.TourBooking{},

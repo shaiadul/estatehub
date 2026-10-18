@@ -39,12 +39,16 @@ func NewCacheService(cfg config.RedisConfig) *CacheService {
 		}
 	}
 
+	if opt != nil && opt.DialTimeout == 0 {
+		opt.DialTimeout = 5 * time.Second
+	}
+
 	client := redis.NewClient(opt)
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := client.Ping(ctx).Err(); err != nil {
-		slog.Warn("redis ping failed, cache will run in bypass mode", "error", err)
+		slog.Warn("⚠ Redis ping failed, cache will run in bypass mode", "error", err)
 		return &CacheService{
 			client:     client,
 			enabled:    false,
@@ -52,7 +56,6 @@ func NewCacheService(cfg config.RedisConfig) *CacheService {
 		}
 	}
 
-	slog.Info("connected to redis cache successfully", "addr", opt.Addr)
 	return &CacheService{
 		client:     client,
 		enabled:    true,
