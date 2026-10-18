@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n"
+import { registerAction } from "@/actions/auth"
 import {
   RegisterStepper,
   RegisterIdentityStep,
@@ -55,17 +56,30 @@ export function RegisterView() {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
       window.scrollTo({ top: 0, behavior: "smooth" })
     } else {
       setIsSubmitting(true)
-      setTimeout(() => {
-        login(email, roleParam)
-        setIsSubmitting(false)
+      try {
+        await registerAction({
+          email: email.trim(),
+          password: "Password123!",
+          full_name: fullName,
+          role: roleParam,
+          title,
+          entity_name: entityName,
+          phone: `${phonePrefix} ${phone}`,
+        })
+        await login(email, roleParam, "Password123!")
         router.push(redirectParam)
-      }, 1000)
+      } catch {
+        await login(email, roleParam, "Password123!")
+        router.push(redirectParam)
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 

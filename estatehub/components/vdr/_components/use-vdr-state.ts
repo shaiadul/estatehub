@@ -4,12 +4,40 @@ import * as React from "react"
 import type {
   ClosingOption,
   ContingencyOption,
+  DiligenceCategory,
   DiligenceDoc,
   EarnestOption,
   VdrTabId,
 } from "./types"
 import { DEFAULT_LOI_PRINCIPAL, DOCUMENTS, LOI_BOUNDS } from "./vdr-data"
 import { filterDocs, generateLoiNumber, generateVdrHash, validateLoiPrice } from "./vdr-utils"
+import { getVdrDocumentsAction } from "@/actions/vdr"
+import { submitOfferAction } from "@/actions/offers"
+
+function mapBackendVdrDoc(d: any): DiligenceDoc {
+  const bytesMb = Math.round(((d.file_size_bytes || 5242880) / (1024 * 1024)) * 10) / 10
+  const cat = (d.category || "legal").toLowerCase()
+  const category: DiligenceCategory =
+    cat.includes("eng") || cat.includes("geotech") || cat.includes("survey") ? "engineering" :
+    cat.includes("fin") || cat.includes("tax") || cat.includes("appraisal") ? "financial" :
+    cat.includes("permit") || cat.includes("code") ? "permits" : "legal"
+
+  const shortSha = d.sha256_checksum
+    ? `SHA: ${d.sha256_checksum.slice(0, 6)}...${d.sha256_checksum.slice(-4)}`
+    : "SHA: 8e4b7...d31f"
+
+  return {
+    id: d.id,
+    title: d.title,
+    badge: d.classification === "confidential" ? "Tier 1 Confidential" : "Encrypted Audit",
+    source: d.uploaded_by || "First American Title & Escrow",
+    date: d.created_at ? new Date(d.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+    size: `${bytesMb} MB`,
+    sha: shortSha,
+    category,
+    bytesMb,
+  }
+}
 
 export interface VdrToast {
   id: number
@@ -23,6 +51,7 @@ interface UseVdrStateOptions {
 }
 
 export function useVdrState(options: UseVdrStateOptions = {}) {
+  const [docList, setDocList] = React.useState<DiligenceDoc[]>(DOCUMENTS)
   const [activeTab, setActiveTab] = React.useState<VdrTabId>("all")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [vdrHash, setVdrHash] = React.useState("AC-8841-ZH-VDR")
@@ -38,14 +67,26 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
   const [loiNumber, setLoiNumber] = React.useState<string | null>(null)
   const [loiError, setLoiError] = React.useState<string | null>(null)
 
+  React.useEffect(() => {
+    let isMounted = true
+    getVdrDocumentsAction("one-greenwich-penthouse").then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        setDocList(res.data.map(mapBackendVdrDoc))
+      }
+    }).catch(() => {})
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const notify = React.useCallback(
     (toast: Omit<VdrToast, "id">) => options.onNotify?.(toast),
     [options],
   )
 
   const filteredDocs = React.useMemo(
-    () => filterDocs(DOCUMENTS, activeTab, searchQuery),
-    [activeTab, searchQuery],
+    () => filterDocs(docList, activeTab, searchQuery),
+    [docList, activeTab, searchQuery],
   )
 
   const refreshHash = React.useCallback(() => setVdrHash(generateVdrHash()), [])
@@ -53,7 +94,7 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
   const downloadDoc = React.useCallback(
     (id: string) => {
       if (downloadingId) return
-      const doc = DOCUMENTS.find((d) => d.id === id)
+      const doc = docList.find((d) => d.id === id) || DOCUMENTS.find((d) => d.id === id)
       setDownloadingId(id)
       window.setTimeout(() => {
         setDownloadingId(null)
@@ -64,7 +105,7 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
         })
       }, 800)
     },
-    [downloadingId, notify],
+    [downloadingId, docList, notify],
   )
 
   const downloadVault = React.useCallback(() => {
@@ -90,6 +131,17 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
       if (loiSubmitting) return
       setLoiError(null)
       setLoiSubmitting(true)
+
+      submitOfferAction({
+        property_id: "one-greenwich-penthouse",
+        offer_amount: loiPrice,
+        earnest_deposit: Math.round(loiPrice * (earnest === "10%" ? 0.1 : earnest === "3%" ? 0.03 : 0.05)),
+        financing_type: "sovereign_wire",
+        contingency_period_days: contingency === "waived" ? 0 : 14,
+        closing_timeline_days: Number(closingDays) || 21,
+        note: `Bilateral LOI via Virtual Data Room with earnest ${earnest} and closing in ${closingDays} days.`,
+      }).catch(() => {})
+
       window.setTimeout(() => {
         setLoiSubmitting(false)
         setLoiNumber(generateLoiNumber())
@@ -99,7 +151,7 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
         })
       }, 900)
     },
-    [loiPrice, loiSubmitting, notify],
+    [loiPrice, loiSubmitting, earnest, contingency, closingDays, notify],
   )
 
   const resetLoi = React.useCallback(() => {

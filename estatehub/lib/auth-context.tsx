@@ -16,13 +16,6 @@ export interface UserProfile {
   portfolioCount: number
 }
 
-interface AuthContextType {
-  user: UserProfile | null
-  isLoggedIn: boolean
-  login: (email: string, role?: UserRole) => void
-  logout: () => void
-  switchDemoUser: (role: UserRole) => void
-}
 
 const DEMO_USERS: Record<string, UserProfile> = {
   admin: {
@@ -86,36 +79,128 @@ const DEMO_USERS: Record<string, UserProfile> = {
   },
 }
 
+import { loginAction, logoutAction, getMeAction } from "@/actions/auth"
+
+interface AuthContextType {
+  user: UserProfile | null
+  isLoggedIn: boolean
+  isLoading: boolean
+  login: (email: string, role?: UserRole, password?: string) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<void>
+  switchDemoUser: (role: UserRole) => Promise<{ success: boolean; error?: string }>
+}
+
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<UserProfile | null>(DEMO_USERS.broker)
+  const [user, setUser] = React.useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
 
-  const login = (email: string, role: UserRole = "buyer") => {
-    const matched = Object.values(DEMO_USERS).find((u) => u.email.toLowerCase() === email.toLowerCase())
-    if (matched) {
-      setUser(matched)
-    } else {
-      setUser({
-        id: "custom-" + Date.now(),
-        name: email.split("@")[0].replace(/[\._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        email,
-        role,
-        roleTitle: role === "admin" ? "Platform Administrator" : role === "broker" || role === "organizer" ? "Licensed Broker" : role === "seller" ? "Estate Seller" : "Private Client",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
-        verified: true,
-        portfolioCount: 1,
-      })
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("estatehub_user")
+      if (stored) {
+        setUser(JSON.parse(stored))
+      } else {
+        const hasToken = typeof document !== "undefined" && document.cookie.includes("estatehub_token")
+        if (hasToken) {
+          getMeAction().then((res) => {
+            if (res.success && res.data) {
+              const u = res.data
+              const profile: UserProfile = {
+                id: u.id,
+                name: u.full_name,
+                email: u.email,
+                role: u.role as UserRole,
+                roleTitle: u.title || (u.role === "admin" ? "Platform Administrator" : "Licensed Broker"),
+                license: u.jurisdiction ? `#${u.jurisdiction}` : undefined,
+                avatar: u.avatar_url || DEMO_USERS.broker.avatar,
+                verified: u.accredited || u.kyc_status === "verified",
+                portfolioCount: 8,
+              }
+              setUser(profile)
+              localStorage.setItem("estatehub_user", JSON.stringify(profile))
+            }
+          }).catch(() => {})
+        }
+      }
+    } catch {
+      // ignore
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const login = async (
+    email: string,
+    role: UserRole = "buyer",
+    password?: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    const pw = password || "Password123!"
+    const res = await loginAction({ email, password: pw })
+    if (res.success && res.data) {
+      const u = res.data.user
+      const matchedDemo = Object.values(DEMO_USERS).find(
+        (d) => d.email.toLowerCase() === email.toLowerCase()
+      )
+      const profile: UserProfile = {
+        id: u?.id || matchedDemo?.id || "usr-" + Date.now(),
+        name:
+          u?.full_name ||
+          matchedDemo?.name ||
+          email.split("@")[0].replace(/[\._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        email: u?.email || email,
+        role: (u?.role as UserRole) || matchedDemo?.role || role,
+        roleTitle:
+          u?.title ||
+          matchedDemo?.roleTitle ||
+          (role === "admin"
+            ? "Platform Administrator"
+            : role === "broker" || role === "organizer"
+              ? "Licensed Broker"
+              : role === "seller"
+                ? "Estate Seller"
+                : "Private Client"),
+        license: u?.jurisdiction ? `#${u.jurisdiction}` : matchedDemo?.license,
+        avatar:
+          u?.avatar_url ||
+          matchedDemo?.avatar ||
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+        verified: u ? u.accredited || u.kyc_status === "verified" : true,
+        portfolioCount: matchedDemo?.portfolioCount || 1,
+      }
+      setUser(profile)
+      try {
+        localStorage.setItem("estatehub_user", JSON.stringify(profile))
+      } catch {}
+      return { success: true }
+    }
+
+    return {
+      success: false,
+      error: res.error || "Authentication failed. Please verify your email and password.",
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null)
+    try {
+      localStorage.removeItem("estatehub_user")
+    } catch {}
+    await logoutAction()
+    if (typeof window !== "undefined") {
+      window.location.href = "/login"
+    }
   }
 
-  const switchDemoUser = (role: UserRole) => {
-    const target = DEMO_USERS[role] || (role === "organizer" ? DEMO_USERS.broker : DEMO_USERS.broker)
+  const switchDemoUser = async (role: UserRole): Promise<{ success: boolean; error?: string }> => {
+    const target = DEMO_USERS[role] || DEMO_USERS.broker
+    const res = await loginAction({ email: target.email, password: "Password123!" })
     setUser(target)
+    try {
+      localStorage.setItem("estatehub_user", JSON.stringify(target))
+    } catch {}
+    return { success: res.success, error: res.error }
   }
 
   return (
@@ -123,6 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoggedIn: user !== null,
+        isLoading,
         login,
         logout,
         switchDemoUser,

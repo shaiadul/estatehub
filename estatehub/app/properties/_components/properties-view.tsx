@@ -18,23 +18,30 @@ interface PropertiesViewProps {
   initialProperties?: PropertyData[]
 }
 
-export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) {
+export function PropertiesView({
+  initialProperties,
+}: PropertiesViewProps = {}) {
   const searchParams = useSearchParams()
   const urlType = searchParams.get("type") as "buy" | "rent" | "lease" | null
   const urlLocation = searchParams.get("location")
   const urlPropertyType = searchParams.get("propertyType")
   const urlBeds = searchParams.get("beds")
 
-  const sourceProperties = initialProperties && initialProperties.length > 0 ? initialProperties : PROPERTIES
+  const sourceProperties =
+    initialProperties && initialProperties.length > 0
+      ? initialProperties
+      : PROPERTIES
 
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [showMap, setShowMap] = React.useState(true)
   const [filterPanelOpen, setFilterPanelOpen] = React.useState(true)
   const [searchLocation, setSearchLocation] = React.useState(urlLocation || "")
-  const [transactionType, setTransactionType] = React.useState<"buy" | "rent" | "lease">(
-    urlType === "rent" || urlType === "lease" ? urlType : "buy"
+  const [transactionType, setTransactionType] = React.useState<
+    "buy" | "rent" | "lease"
+  >(urlType === "rent" || urlType === "lease" ? urlType : "buy")
+  const [selectedPropertyType, setSelectedPropertyType] = React.useState(
+    urlPropertyType || "all"
   )
-  const [selectedPropertyType, setSelectedPropertyType] = React.useState(urlPropertyType || "all")
   const [minBeds, setMinBeds] = React.useState<number | null>(
     urlBeds ? (Number(urlBeds) ? Number(urlBeds) : null) : null
   )
@@ -43,11 +50,16 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
   const [favorites, setFavorites] = React.useState<Record<string, boolean>>({
     "1": true,
   })
-  const [activePin, setActivePin] = React.useState<PropertyData | null>(sourceProperties[0] || PROPERTIES[0])
+  const [activePin, setActivePin] = React.useState<PropertyData | null>(
+    sourceProperties[0] || PROPERTIES[0]
+  )
 
   // Sync if query parameters change
   React.useEffect(() => {
-    if (urlType && (urlType === "buy" || urlType === "rent" || urlType === "lease")) {
+    if (
+      urlType &&
+      (urlType === "buy" || urlType === "rent" || urlType === "lease")
+    ) {
       setTransactionType(urlType)
     }
     if (urlLocation !== null && urlLocation !== undefined) {
@@ -74,7 +86,9 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>
-      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
+      prev.includes(amenity)
+        ? prev.filter((a) => a !== amenity)
+        : [...prev, amenity]
     )
   }
 
@@ -130,7 +144,9 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
         ].map((a) => a.toLowerCase())
         return selectedAmenities.some((sa) => {
           const lowerSa = sa.toLowerCase()
-          return allAmenities.some((am) => am.includes(lowerSa) || lowerSa.includes(am))
+          return allAmenities.some(
+            (am) => am.includes(lowerSa) || lowerSa.includes(am)
+          )
         })
       })
     }
@@ -145,7 +161,14 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
     }
 
     return list
-  }, [transactionType, selectedPropertyType, minBeds, searchLocation, selectedAmenities, priceSort])
+  }, [
+    transactionType,
+    selectedPropertyType,
+    minBeds,
+    searchLocation,
+    selectedAmenities,
+    priceSort,
+  ])
 
   const activeFilterCount =
     selectedAmenities.length +
@@ -159,7 +182,11 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
       <Header />
 
       <main className="flex-1 pt-20">
-        <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-6">
+        <SectionWrapper
+          fullWidth
+          className="border-b border-outline-variant/30 bg-surface-container-lowest shadow-xs"
+          innerClassName="py-6"
+        >
           <PropertiesHeader
             filteredCount={filteredProperties.length}
             priceSort={priceSort}
@@ -182,9 +209,10 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
         </SectionWrapper>
 
         <SectionWrapper className="py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            <div className={`${showMap ? "lg:col-span-7 xl:col-span-7" : "lg:col-span-12"} flex flex-col gap-6 w-full`}>
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            <div
+              className={`${showMap ? "lg:col-span-7 xl:col-span-7" : "lg:col-span-12"} flex w-full flex-col gap-6`}
+            >
               <FilterPanel
                 filterPanelOpen={filterPanelOpen}
                 onTogglePanel={() => setFilterPanelOpen(!filterPanelOpen)}
@@ -208,7 +236,6 @@ export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) 
               />
             </div>
 
-            
             {showMap && (
               <PropertiesMapPanel
                 properties={filteredProperties}

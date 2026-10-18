@@ -15,13 +15,36 @@ import { Badge } from "@/components/ui/badge"
 import { Fido2Modal } from "@/components/auth/fido2-modal"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useI18n } from "@/lib/i18n"
-import { disburseWireAction } from "@/actions/closing"
+import { disburseWireAction, listClosingRoomsAction } from "@/actions/closing"
 
 export function ClosingDeskView() {
   const { t } = useI18n()
   const [wireDisbursed, setWireDisbursed] = React.useState(false)
   const [isFidoModalOpen, setIsFidoModalOpen] = React.useState(false)
   const [isSigning, setIsSigning] = React.useState(false)
+  const [closingRoomId, setClosingRoomId] = React.useState("closing-room-01")
+  const [contractPrice, setContractPrice] = React.useState(9850000)
+  const [earnestWire, setEarnestWire] = React.useState(492500)
+  const [balanceToClose, setBalanceToClose] = React.useState(9357500)
+
+  React.useEffect(() => {
+    let isMounted = true
+    listClosingRoomsAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        const room = res.data[0]
+        setClosingRoomId(room.id)
+        if (room.total_price) setContractPrice(room.total_price)
+        if (room.escrow_deposit) setEarnestWire(room.escrow_deposit)
+        if (room.remaining_balance) setBalanceToClose(room.remaining_balance)
+        if (room.stage === "settled" || room.fido_wire_authorized) {
+          setWireDisbursed(true)
+        }
+      }
+    }).catch(() => {})
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleDisburseWire = () => {
     setIsFidoModalOpen(true)
@@ -31,7 +54,7 @@ export function ClosingDeskView() {
     setIsFidoModalOpen(false)
     setIsSigning(true)
     try {
-      await disburseWireAction("closing-room-01", "FIDO2-HARDWARE-TOKEN")
+      await disburseWireAction(closingRoomId, "FIDO2-HARDWARE-TOKEN")
     } catch {
       // offline/demo resilience
     }
@@ -170,7 +193,7 @@ export function ClosingDeskView() {
                 {t("closing.contractPrice", "Contract Price")}
               </span>
               <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-on-surface font-mono">
-                $9,850,000
+                ${contractPrice.toLocaleString()}
               </span>
             </div>
             <div>
@@ -178,7 +201,7 @@ export function ClosingDeskView() {
                 {t("closing.earnestWire", "Earnest Wire (5%)")}
               </span>
               <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-on-tertiary-container font-mono">
-                $492,500 <IconCheck className="w-3.5 h-3.5 inline stroke-3" />
+                ${earnestWire.toLocaleString()} <IconCheck className="w-3.5 h-3.5 inline stroke-3" />
               </span>
             </div>
             <div className="col-span-2 sm:col-span-1">
@@ -186,7 +209,7 @@ export function ClosingDeskView() {
                 {t("closing.balanceToClose", "Balance to Close")}
               </span>
               <span className="font-headline-sm text-lg sm:text-xl font-extrabold text-on-secondary-container font-mono">
-                $9,357,500
+                ${balanceToClose.toLocaleString()}
               </span>
             </div>
           </div>

@@ -19,9 +19,20 @@ import {
 } from "@tabler/icons-react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { acceptOfferAction, counterOfferAction, rejectOfferAction } from "@/actions/offers"
-import { bookTourAction, updateTourStatusAction } from "@/actions/tours"
-import { toggleBookmarkAction } from "@/actions/properties"
+import {
+  acceptOfferAction,
+  counterOfferAction,
+  rejectOfferAction,
+  getMyOffersAction,
+  submitOfferAction,
+} from "@/actions/offers"
+import { bookTourAction, updateTourStatusAction, getMyToursAction } from "@/actions/tours"
+import {
+  toggleBookmarkAction,
+  getPropertiesAction,
+  createPropertyAction,
+  getBookmarkedPropertiesAction,
+} from "@/actions/properties"
 import {
   INITIAL_DEALS,
   INITIAL_DOCS,
@@ -42,6 +53,80 @@ import {
   type NavItem,
   type UrgentItem,
 } from "./types"
+
+function mapBackendToDashboardProperty(p: any): PropertyItem {
+  const cat = (p.property_type || "Villa").toLowerCase()
+  const category: PropertyItem["category"] =
+    cat.includes("penthouse") ? "Penthouse" :
+    cat.includes("island") || cat.includes("water") ? "Island" :
+    cat.includes("manor") || cat.includes("chalet") ? "Manor" :
+    cat.includes("arch") ? "Architectural" : "Villa"
+
+  const status: PropertyItem["status"] =
+    p.status === "pending" || !p.approved ? "Draft" :
+    p.status === "in_escrow" ? "In Escrow" :
+    p.status === "under_offer" ? "Under Offer" :
+    p.status === "sold" ? "Sold" : "Active"
+
+  return {
+    id: p.slug || p.id,
+    title: p.title,
+    location: `${p.city || ""}, ${p.state || ""}`.trim() || p.address || "California, USA",
+    price: Number(p.price) || 0,
+    category,
+    status,
+    beds: Number(p.beds) || 4,
+    baths: Number(p.baths) || 4,
+    sqft: Number(p.sqft) || 5000,
+    inquiries: 12,
+    viewsCount: Number(p.views_count) || 120,
+    image: p.hero_image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+    featured: Boolean(p.featured),
+  }
+}
+
+function mapBackendToDashboardOffer(o: any): OfferItem {
+  const statusMap: Record<string, OfferItem["status"]> = {
+    submitted: "Pending Review",
+    under_review: "Pending Review",
+    countered: "Under Negotiation",
+    accepted: "Escrow Opened",
+    rejected: "Declined",
+    closing: "Escrow Opened",
+  }
+  return {
+    id: o.id,
+    propertyId: o.property_id,
+    propertyTitle: o.property_title || o.property?.title || "Luxury Estate",
+    buyerName: o.buyer?.full_name || "Julian Rossi",
+    buyerEntity: o.buyer?.entity_name || "Rossi Family Office & Trust",
+    offerPrice: Number(o.offer_amount) || 0,
+    earnestDeposit: Number(o.earnest_deposit) || Math.round((Number(o.offer_amount) || 0) * 0.1),
+    financing: o.financing_type === "cash" ? "Institutional All-Cash Wire" :
+               o.financing_type === "crypto" ? "Cryptographic Multi-Sig Wire" :
+               o.financing_type === "sovereign_wire" ? "Sovereign Wire" : "Institutional Financing",
+    status: statusMap[o.status] || "Pending Review",
+    submittedDate: o.created_at ? new Date(o.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Today",
+    expiryDate: "48 Hours",
+    proofOfFundsVerified: true,
+  }
+}
+
+function mapBackendToDashboardTour(t: any): TourBookingItem {
+  return {
+    id: t.id,
+    propertyId: t.property_id,
+    propertyTitle: t.property?.title || "Luxury Estate",
+    clientName: t.visitor_name || "Julian Rossi",
+    clientRole: "buyer",
+    date: t.date || "Scheduled Date",
+    timeSlot: t.time_slot || "14:00 - 16:00",
+    transportType: t.tour_type === "virtual" ? "Virtual LiDAR 3D" : "Chauffeured Maybach",
+    assignedAgent: "Sarah Jenkins",
+    status: t.status === "completed" ? "Completed" : t.status === "pending" ? "Pending Concierge" : "Confirmed",
+    specialRequests: t.notes || "Diplomatic VIP protocol requested.",
+  }
+}
 
 export function useCommandState() {
   const { user, switchDemoUser } = useAuth()
@@ -77,6 +162,8 @@ export function useCommandState() {
     }
   }, [tabQuery])
 
+  const errorQuery = searchParams.get("error")
+
   const [searchQuery, setSearchQuery] = React.useState("")
   const [propertyFilterStatus, setPropertyFilterStatus] = React.useState("All")
   const [propertyFilterCategory, setPropertyFilterCategory] =
@@ -88,6 +175,12 @@ export function useCommandState() {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3500)
   }
+
+  React.useEffect(() => {
+    if (errorQuery === "unauthorized_admin") {
+      triggerToast("Access Denied: Administrator role required for Enclave Governance")
+    }
+  }, [errorQuery])
 
   const handleRoleChange = (role: ActiveRole) => {
     setActiveRole(role)
@@ -115,6 +208,59 @@ export function useCommandState() {
   const [savedProperties, setSavedProperties] =
     React.useState<SavedPropertyItem[]>(INITIAL_SAVED_PROPERTIES)
   const [tours, setTours] = React.useState<TourBookingItem[]>(INITIAL_TOURS)
+
+  // Fetch real data from backend Go API
+  React.useEffect(() => {
+    let isMounted = true
+
+    // 1. Properties
+    getPropertiesAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        setProperties(res.data.map(mapBackendToDashboardProperty))
+      }
+    }).catch(() => {})
+
+    // 2. Offers
+    getMyOffersAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        setOffers(res.data.map(mapBackendToDashboardOffer))
+      }
+    }).catch(() => {})
+
+    // 3. Tours
+    getMyToursAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        setTours(res.data.map(mapBackendToDashboardTour))
+      }
+    }).catch(() => {})
+
+    // 4. Saved Bookmarks
+    getBookmarkedPropertiesAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        const mappedSaved: SavedPropertyItem[] = res.data.map((p) => ({
+          id: `SAV-${p.id.slice(0, 8)}`,
+          propertyId: p.slug || p.id,
+          title: p.title,
+          location: `${p.city || ""}, ${p.state || ""}`.trim() || p.address || "California, USA",
+          price: Number(p.price) || 0,
+          originalPrice: (Number(p.price) || 0) * 1.05,
+          image: p.hero_image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+          category: (p.property_type?.includes("penthouse") ? "Penthouse" : "Villa") as any,
+          beds: p.beds || 4,
+          baths: p.baths || 4,
+          sqft: p.sqft || 5000,
+          notes: "Monitored via backend watchlist.",
+          tourRequested: false,
+          savedAt: "Recently Added",
+        }))
+        setSavedProperties(mappedSaved)
+      }
+    }).catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [user?.role])
 
   const [securityArmed, setSecurityArmed] = React.useState(true)
   const [gateUnlocked, setGateUnlocked] = React.useState(false)
@@ -199,6 +345,23 @@ export function useCommandState() {
     }
 
     setProperties([newProp, ...properties])
+    createPropertyAction({
+      title: newProp.title,
+      address: newProp.location,
+      city: newProp.location.split(",")[0]?.trim() || "Beverly Hills",
+      state: "CA",
+      price: newProp.price,
+      beds: newProp.beds,
+      baths: newProp.baths,
+      sqft: newProp.sqft,
+      property_type: newProp.category.toLowerCase(),
+      transaction_type: "buy",
+      hero_image: newProp.image,
+      description: `Exclusive ${newProp.category} residence located in ${newProp.location}.`,
+      approved: true,
+      featured: false,
+    }).catch(() => {})
+
     setIsAddPropertyModalOpen(false)
     setNewPropertyTitle("")
     setNewPropertyLocation("")
@@ -256,6 +419,16 @@ export function useCommandState() {
     }
 
     setOffers([newOffer, ...offers])
+    submitOfferAction({
+      property_id: prop.id,
+      offer_amount: newOffer.offerPrice,
+      earnest_deposit: newOffer.earnestDeposit,
+      financing_type: "sovereign_wire",
+      contingency_period_days: Number(loiContingencyDays) || 14,
+      closing_timeline_days: 30,
+      note: `Bilateral LOI transmitted with ${newOffer.financing}`,
+    }).catch(() => {})
+
     setIsSubmitLoiModalOpen(false)
     triggerToast(`Bilateral LOI for $${(newOffer.offerPrice / 1000000).toFixed(2)}M transmitted to Seller Trust`)
   }

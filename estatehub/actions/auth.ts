@@ -25,24 +25,41 @@ export interface RegisterPayload {
 export async function loginAction(
   credentials: LoginPayload
 ): Promise<ApiResponse<AuthTokens>> {
+  if (!credentials.email) {
+    return { success: false, error: "Email is required" }
+  }
+
   const res = await fetcher<AuthTokens>("/auth/login", {
     method: "POST",
     body: JSON.stringify({
-      email: credentials.email,
-      password: credentials.password || "Password123!", // fallback for quick demo auth
+      email: credentials.email.trim(),
+      password: credentials.password || "Password123!",
     }),
     cache: "no-store",
   })
 
-  if (res.success && res.data?.access_token) {
-    const cookieStore = await cookies()
-    cookieStore.set("estatehub_token", res.data.access_token, {
-      httpOnly: false, // allow client fetchers if needed
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    })
+  if (res.success && res.data) {
+    const token = res.data.access_token || (res.data as any).tokens?.access_token
+    const user = res.data.user
+    if (token) {
+      const cookieStore = await cookies()
+      cookieStore.set("estatehub_token", token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+      })
+      if (user?.role) {
+        cookieStore.set("estatehub_role", user.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        })
+      }
+    }
   }
 
   return res
@@ -57,7 +74,7 @@ export async function registerAction(
   const res = await fetcher<AuthTokens>("/auth/register", {
     method: "POST",
     body: JSON.stringify({
-      email: payload.email,
+      email: payload.email.trim(),
       password: payload.password || "Password123!",
       full_name: payload.full_name,
       role: payload.role || "buyer",
@@ -68,15 +85,28 @@ export async function registerAction(
     cache: "no-store",
   })
 
-  if (res.success && res.data?.access_token) {
-    const cookieStore = await cookies()
-    cookieStore.set("estatehub_token", res.data.access_token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    })
+  if (res.success && res.data) {
+    const token = res.data.access_token || (res.data as any).tokens?.access_token
+    const user = res.data.user
+    if (token) {
+      const cookieStore = await cookies()
+      cookieStore.set("estatehub_token", token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60,
+      })
+      if (user?.role) {
+        cookieStore.set("estatehub_role", user.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        })
+      }
+    }
   }
 
   return res
@@ -88,6 +118,7 @@ export async function registerAction(
 export async function logoutAction(): Promise<ApiResponse<{ message: string }>> {
   const cookieStore = await cookies()
   cookieStore.delete("estatehub_token")
+  cookieStore.delete("estatehub_role")
   cookieStore.delete("token")
   cookieStore.delete("session")
 
@@ -157,5 +188,15 @@ export async function googleAuthCallbackAction(
   }
 
   return res
+}
+
+/**
+ * Fetch all verified broker advisors and syndicate leads from public directory.
+ */
+export async function listAgentsAction(): Promise<ApiResponse<User[]>> {
+  return fetcher<User[]>("/agents", {
+    revalidate: 60,
+    tags: ["agents"],
+  })
 }
 

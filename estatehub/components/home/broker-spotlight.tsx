@@ -13,45 +13,81 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useI18n } from "@/lib/i18n"
+import { listAgentsAction } from "@/actions/auth"
+
+interface BrokerItem {
+  name: string
+  title: string
+  rating: string
+  reviews: string
+  volume: string
+  avgClose: string
+  bio: string
+  image: string
+}
+
+const DEFAULT_BROKERS: BrokerItem[] = [
+  {
+    name: "Marcus Sterling",
+    title: "Senior Managing Partner • Beverly Hills",
+    rating: "4.98 / 5.0",
+    reviews: "112 Private Reviews",
+    volume: "$340M+",
+    avgClose: "24 Days",
+    bio: "Specializing in off-market estates and celebrity residential portfolios throughout Bel Air, Trousdale, and Brentwood.",
+    image:
+      "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    name: "Elena Vance-Chen",
+    title: "Principal Broker • Tribeca & SoHo",
+    rating: "5.0 / 5.0",
+    reviews: "94 Private Reviews",
+    volume: "$410M+",
+    avgClose: "18 Days",
+    bio: "Leading Manhattan penthouses, historic full-floor lofts, and confidential high-net-worth real estate syndications.",
+    image:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    name: "Julian Rossi",
+    title: "Waterfront Portfolio Director • Miami",
+    rating: "4.97 / 5.0",
+    reviews: "86 Private Reviews",
+    volume: "$275M+",
+    avgClose: "29 Days",
+    bio: "Deepwater yacht access consultant, specialist in Star Island, Venetian Islands, and Palm Beach oceanfront properties.",
+    image:
+      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
+  },
+]
 
 export function BrokerSpotlight() {
   const { t } = useI18n()
+  const [brokers, setBrokers] = React.useState<BrokerItem[]>(DEFAULT_BROKERS)
 
-  const brokers = [
-    {
-      name: "Marcus Sterling",
-      title: "Senior Managing Partner • Beverly Hills",
-      rating: "4.98 / 5.0",
-      reviews: "112 Private Reviews",
-      volume: "$340M+",
-      avgClose: "24 Days",
-      bio: "Specializing in off-market estates and celebrity residential portfolios throughout Bel Air, Trousdale, and Brentwood.",
-      image:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
-    },
-    {
-      name: "Elena Vance-Chen",
-      title: "Principal Broker • Tribeca & SoHo",
-      rating: "5.0 / 5.0",
-      reviews: "94 Private Reviews",
-      volume: "$410M+",
-      avgClose: "18 Days",
-      bio: "Leading Manhattan penthouses, historic full-floor lofts, and confidential high-net-worth real estate syndications.",
-      image:
-        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop",
-    },
-    {
-      name: "Julian Rossi",
-      title: "Waterfront Portfolio Director • Miami",
-      rating: "4.97 / 5.0",
-      reviews: "86 Private Reviews",
-      volume: "$275M+",
-      avgClose: "29 Days",
-      bio: "Deepwater yacht access consultant, specialist in Star Island, Venetian Islands, and Palm Beach oceanfront properties.",
-      image:
-        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
-    },
-  ]
+  React.useEffect(() => {
+    listAgentsAction()
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          const mapped: BrokerItem[] = res.data.map((a, i) => {
+            const fallback = DEFAULT_BROKERS[i % DEFAULT_BROKERS.length]
+            return {
+              name: a.full_name || fallback.name,
+              title: a.title || fallback.title,
+              rating: "4.98 / 5.0",
+              reviews: "90+ Private Reviews",
+              volume: a.net_worth_tier?.includes("$") ? a.net_worth_tier : fallback.volume,
+              avgClose: fallback.avgClose,
+              bio: a.entity_name ? `Licensed representative for ${a.entity_name} across ${a.jurisdiction || "prime enclaves"}.` : fallback.bio,
+              image: a.avatar_url || fallback.image,
+            }
+          })
+          setBrokers(mapped)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <SectionWrapper id="agents" className="py-16">

@@ -28,6 +28,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { useI18n } from "@/lib/i18n"
+import { listAgentsAction } from "@/actions/auth"
 
 interface AgentRecord {
   id: string
@@ -115,13 +116,45 @@ const AGENTS_LIST: AgentRecord[] = [
 
 export function AgentsDirectoryView() {
   const { t } = useI18n()
+  const [agentsList, setAgentsList] = React.useState<AgentRecord[]>(AGENTS_LIST)
   const [selectedRegion, setSelectedRegion] = React.useState<string>("all")
   const [searchQuery, setSearchQuery] = React.useState<string>("")
   const [consultModalAgent, setConsultModalAgent] = React.useState<AgentRecord | null>(null)
   const [consultBooked, setConsultBooked] = React.useState<boolean>(false)
 
+  React.useEffect(() => {
+    let isMounted = true
+    listAgentsAction().then((res) => {
+      if (isMounted && res.success && res.data && res.data.length > 0) {
+        const mapped = res.data.map((u, idx) => {
+          const fallback = AGENTS_LIST[idx % AGENTS_LIST.length]
+          return {
+            id: u.id,
+            name: u.full_name || fallback.name,
+            title: u.title || fallback.title,
+            license: u.jurisdiction ? `#${u.jurisdiction}` : fallback.license,
+            region: u.jurisdiction || fallback.region,
+            phone: u.phone || fallback.phone,
+            email: u.email || fallback.email,
+            rating: fallback.rating,
+            reviews: fallback.reviews,
+            volumeClosed: fallback.volumeClosed,
+            activeListingsCount: fallback.activeListingsCount,
+            specialties: fallback.specialties,
+            bio: fallback.bio,
+            image: u.avatar_url || fallback.image,
+          }
+        })
+        setAgentsList(mapped)
+      }
+    }).catch(() => {})
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const filteredAgents = React.useMemo(() => {
-    return AGENTS_LIST.filter((ag) => {
+    return agentsList.filter((ag) => {
       const matchRegion =
         selectedRegion === "all" ||
         (selectedRegion === "ca" && ag.region.includes("CA")) ||
@@ -136,10 +169,10 @@ export function AgentsDirectoryView() {
 
       return matchRegion && matchSearch
     })
-  }, [selectedRegion, searchQuery])
+  }, [agentsList, selectedRegion, searchQuery])
 
   const regionFilters = [
-    { key: "all", label: `${t("agents.allJurisdictions", "All Jurisdictions")} (${AGENTS_LIST.length})` },
+    { key: "all", label: `${t("agents.allJurisdictions", "All Jurisdictions")} (${agentsList.length})` },
     { key: "ca", label: "California (Bel Air & Beverly Hills)" },
     { key: "ny", label: "New York (Tribeca & Central Park)" },
     { key: "fl", label: "Florida (Miami & Palm Beach)" },

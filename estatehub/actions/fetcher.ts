@@ -171,9 +171,13 @@ export async function fetcher<T = any>(
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => null)
+      const errorMsg =
+        errBody?.error?.message ||
+        (typeof errBody?.error === "string" ? errBody.error : null) ||
+        `HTTP error ${res.status}: ${res.statusText}`
       return {
         success: false,
-        error: errBody?.error || `HTTP error ${res.status}: ${res.statusText}`,
+        error: errorMsg,
       }
     }
 

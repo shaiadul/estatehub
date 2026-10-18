@@ -17,6 +17,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useCurrency, useI18n } from "@/lib/i18n"
 
+import { getPropertiesAction, toggleBookmarkAction } from "@/actions/properties"
+
 interface Property {
   id: string
   slug: string
@@ -33,72 +35,99 @@ interface Property {
   estMortgage: string
 }
 
+const DEFAULT_PROPERTIES: Property[] = [
+  {
+    id: "1",
+    slug: "the-glass-horizon-villa",
+    title: "The Glass Horizon Villa",
+    location: "Bel Air, Los Angeles, CA 90077",
+    price: "$8,750,000",
+    priceNumeric: 8750000,
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
+    badge: "Verified Exclusive",
+    description:
+      "South-facing horizon panoramas with 60ft heated infinity pool edge, cantilevered glass walls, Gaggenau kitchen, and subterranean acoustic cinema.",
+    beds: 5,
+    baths: 6,
+    sqft: "8,400",
+    estMortgage: "~$38,420 / mo",
+  },
+  {
+    id: "2",
+    slug: "one-greenwich-penthouse",
+    title: "One Greenwich Penthouse",
+    location: "Tribeca, New York, NY",
+    price: "$14,200,000",
+    priceNumeric: 14200000,
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
+    badge: "Rare Trophy",
+    description:
+      "Commanding full 62nd-floor elevation with 360-degree skyline and Hudson River panoramas, 1,200 sq ft private wrap terrace, private keyed elevator, and concierge vault.",
+    beds: 4,
+    baths: 5,
+    sqft: "5,800",
+    estMortgage: "~$69,800 / mo",
+  },
+  {
+    id: "3",
+    slug: "the-biscayne-point-villa",
+    title: "The Biscayne Point Villa",
+    location: "Biscayne Bay, Miami, FL",
+    price: "$7,800,000",
+    priceNumeric: 7800000,
+    image:
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
+    badge: "Yacht Ready",
+    description:
+      "100 ft of protected deepwater frontage with mega-yacht mooring station. Seamless indoor-outdoor living with motorized glass pocket doors and rooftop lounge deck.",
+    beds: 6,
+    baths: 7.5,
+    sqft: "8,200",
+    estMortgage: "~$38,400 / mo",
+  },
+]
+
 export function FeaturedListings() {
   const { formatPrice } = useCurrency()
   const { t } = useI18n()
   const [favorites, setFavorites] = React.useState<Record<string, boolean>>({
     "1": true,
   })
+  const [properties, setProperties] = React.useState<Property[]>(DEFAULT_PROPERTIES)
 
-  const properties: Property[] = [
-    {
-      id: "1",
-      slug: "the-glass-horizon-villa",
-      title: "The Glass Horizon Villa",
-      location: "Bel Air, Los Angeles, CA 90077",
-      price: "$8,750,000",
-      priceNumeric: 8750000,
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
-      badge: "Verified Exclusive",
-      description:
-        "South-facing horizon panoramas with 60ft heated infinity pool edge, cantilevered glass walls, Gaggenau kitchen, and subterranean acoustic cinema.",
-      beds: 5,
-      baths: 6,
-      sqft: "8,400",
-      estMortgage: "~$38,420 / mo",
-    },
-    {
-      id: "2",
-      slug: "one-greenwich-penthouse",
-      title: "One Greenwich Penthouse",
-      location: "Tribeca, New York, NY",
-      price: "$14,200,000",
-      priceNumeric: 14200000,
-      image:
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
-      badge: "Rare Trophy",
-      description:
-        "Commanding full 62nd-floor elevation with 360-degree skyline and Hudson River panoramas, 1,200 sq ft private wrap terrace, private keyed elevator, and concierge vault.",
-      beds: 4,
-      baths: 5,
-      sqft: "5,800",
-      estMortgage: "~$69,800 / mo",
-    },
-    {
-      id: "3",
-      slug: "the-biscayne-point-villa",
-      title: "The Biscayne Point Villa",
-      location: "Biscayne Bay, Miami, FL",
-      price: "$7,800,000",
-      priceNumeric: 7800000,
-      image:
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
-      badge: "Yacht Ready",
-      description:
-        "100 ft of protected deepwater frontage with mega-yacht mooring station. Seamless indoor-outdoor living with motorized glass pocket doors and rooftop lounge deck.",
-      beds: 6,
-      baths: 7.5,
-      sqft: "8,200",
-      estMortgage: "~$38,400 / mo",
-    },
-  ]
+  React.useEffect(() => {
+    getPropertiesAction({ limit: 6, featured_only: true })
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          const mapped = res.data.map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            title: p.title,
+            location: `${p.city}, ${p.state}`,
+            price: p.price_formatted || `$${p.price.toLocaleString()}`,
+            priceNumeric: p.price,
+            image: p.hero_image,
+            badge: p.badge || "Verified Exclusive",
+            description: p.description || "",
+            beds: p.beds,
+            baths: p.baths,
+            sqft: p.sqft_formatted || p.sqft.toLocaleString(),
+            estMortgage: p.est_mortgage || `~$${Math.round(p.price * 0.0045).toLocaleString()} / mo`,
+          }))
+          setProperties(mapped)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => ({
       ...prev,
       [id]: !prev[id],
     }))
+    toggleBookmarkAction(id).catch(() => {})
   }
 
   return (
