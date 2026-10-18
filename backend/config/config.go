@@ -30,6 +30,9 @@ type Config struct {
 	// OAuth Providers
 	OAuth OAuthConfig
 
+	// Environment source
+	LoadedFromEnvFile bool
+
 	// CORS
 	AllowedOrigins []string
 }
@@ -82,10 +85,12 @@ type OAuthConfig struct {
 
 func Load() (*Config, error) {
 	// Attempt to load .env if present (ignore error if not present, e.g. in container)
-	_ = godotenv.Load()
+	err := godotenv.Load()
+	loadedFromEnvFile := err == nil
 
 	cfg := &Config{
-		Environment: getEnv("ENV", "development"),
+		LoadedFromEnvFile: loadedFromEnvFile,
+		Environment:       getEnv("ENV", "development"),
 		Port:        getEnvAsInt("PORT", 8080),
 		AppURL:      getEnv("APP_URL", "http://localhost:8080"),
 		Database: DatabaseConfig{

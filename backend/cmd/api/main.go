@@ -31,25 +31,38 @@ func main() {
 	}
 
 	logger.Init(cfg.Environment)
-	slog.Info("initializing EstateHub Sovereign Real Estate Engine",
-		"env", cfg.Environment,
-		"port", cfg.Port,
-	)
+	if cfg.LoadedFromEnvFile {
+		slog.Info("✓ environment loaded successfully (.env)",
+			"env", cfg.Environment,
+			"port", cfg.Port,
+		)
+	} else {
+		slog.Info("✓ environment loaded from system variables",
+			"env", cfg.Environment,
+			"port", cfg.Port,
+		)
+	}
 
 	// Database Connection (Supabase PostgreSQL)
-	slog.Info("connecting to PostgreSQL and running migrations...")
+	slog.Info("connecting to PostgreSQL database...",
+		"host", cfg.Database.Host,
+		"db", cfg.Database.DBName,
+	)
 	db, err := postgres.NewDB(cfg.Database, cfg.Environment)
 	if err != nil {
 		slog.Error("failed to connect to postgres database", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("✓ database connected & schemas migrated successfully")
+	slog.Info("✓ database connected & schemas migrated successfully",
+		"host", cfg.Database.Host,
+		"db", cfg.Database.DBName,
+	)
 
 	// Redis Cache
-	slog.Info("connecting to Redis cache...")
+	slog.Info("connecting to Redis cache...", "host", cfg.Redis.Host)
 	cache := redis.NewCacheService(cfg.Redis)
 	if cache.IsEnabled() {
-		slog.Info("✓ Redis cache connected and active")
+		slog.Info("✓ Redis cache connected successfully", "host", cfg.Redis.Host)
 	} else {
 		slog.Warn("⚠ Redis cache running in bypass mode")
 	}
