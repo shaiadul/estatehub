@@ -5,6 +5,17 @@ import { fetcherWithAuth } from "./fetcher"
 import type { ApiResponse, ClosingRoom } from "./types"
 
 /**
+ * Fetch all closing rooms for current user.
+ */
+export async function listClosingRoomsAction(): Promise<
+  ApiResponse<ClosingRoom[]>
+> {
+  return fetcherWithAuth<ClosingRoom[]>("/closing", {
+    cache: "no-store",
+  })
+}
+
+/**
  * Fetch closing room details and settlement status.
  */
 export async function getClosingRoomAction(
@@ -22,7 +33,7 @@ export async function disburseWireAction(
   id: string,
   fidoToken: string
 ): Promise<ApiResponse<ClosingRoom>> {
-  const res = await fetcherWithAuth<ClosingRoom>(`/closing/${id}/fido-disburse`, {
+  const res = await fetcherWithAuth<ClosingRoom>(`/closing/${id}/disburse`, {
     method: "POST",
     body: JSON.stringify({ fido_token: fidoToken }),
     cache: "no-store",

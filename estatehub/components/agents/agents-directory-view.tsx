@@ -19,6 +19,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { useI18n } from "@/lib/i18n"
 
 interface AgentRecord {
@@ -157,11 +165,21 @@ export function AgentsDirectoryView() {
       <main className="w-full pt-20 flex-1">
         <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-8">
           <div>
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium mb-3">
-              <Link href="/" className="hover:text-on-surface transition-colors">{t("properties.home", "Home")}</Link>
-              <IconChevronRight size={14} className="text-outline-variant" />
-              <span className="text-on-surface font-semibold">{t("agents.title", "Private Advisory & Brokerage")}</span>
-            </nav>
+            <Breadcrumb className="mb-3">
+              <BreadcrumbList className="text-xs text-on-surface-variant font-medium">
+                <BreadcrumbItem>
+                  <BreadcrumbLink render={<Link href="/" className="hover:text-on-surface transition-colors" />}>
+                    {t("properties.home", "Home")}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-on-surface font-semibold">
+                    {t("agents.title", "Private Advisory & Brokerage")}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div>

@@ -124,11 +124,12 @@ export async function getPropertyBySlugAction(
 export async function getPropertyByIdAction(
   id: string
 ): Promise<ApiResponse<Property>> {
-  return fetcher<Property>(`/properties/${id}`, {
+  return fetcher<Property>(`/properties/id/${id}`, {
     revalidate: 60,
     tags: [`property-id-${id}`],
   })
 }
+
 
 /**
  * Create a new property listing (Seller, Broker, Admin).
@@ -221,7 +222,7 @@ export async function toggleBookmarkAction(
 export async function getBookmarkedPropertiesAction(): Promise<
   ApiResponse<Property[]>
 > {
-  return fetcherWithAuth<Property[]>("/properties/bookmarked", {
+  return fetcherWithAuth<Property[]>("/properties/saved", {
     cache: "no-store",
   })
 }

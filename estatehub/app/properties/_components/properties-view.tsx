@@ -11,14 +11,21 @@ import { FilterPanel } from "./filter-panel"
 import { PropertiesList } from "./properties-list"
 import { PropertiesMapPanel } from "./properties-map-panel"
 
+import { toggleBookmarkAction } from "@/actions/properties"
 import { useSearchParams } from "next/navigation"
 
-export function PropertiesView() {
+interface PropertiesViewProps {
+  initialProperties?: PropertyData[]
+}
+
+export function PropertiesView({ initialProperties }: PropertiesViewProps = {}) {
   const searchParams = useSearchParams()
   const urlType = searchParams.get("type") as "buy" | "rent" | "lease" | null
   const urlLocation = searchParams.get("location")
   const urlPropertyType = searchParams.get("propertyType")
   const urlBeds = searchParams.get("beds")
+
+  const sourceProperties = initialProperties && initialProperties.length > 0 ? initialProperties : PROPERTIES
 
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [showMap, setShowMap] = React.useState(true)
@@ -36,7 +43,7 @@ export function PropertiesView() {
   const [favorites, setFavorites] = React.useState<Record<string, boolean>>({
     "1": true,
   })
-  const [activePin, setActivePin] = React.useState<PropertyData | null>(PROPERTIES[0])
+  const [activePin, setActivePin] = React.useState<PropertyData | null>(sourceProperties[0] || PROPERTIES[0])
 
   // Sync if query parameters change
   React.useEffect(() => {
@@ -60,6 +67,9 @@ export function PropertiesView() {
       ...prev,
       [id]: !prev[id],
     }))
+    toggleBookmarkAction(id).catch(() => {
+      // offline/demo resilience
+    })
   }
 
   const toggleAmenity = (amenity: string) => {
@@ -77,7 +87,7 @@ export function PropertiesView() {
   }
 
   const filteredProperties = React.useMemo(() => {
-    let list = [...PROPERTIES]
+    let list = [...sourceProperties]
 
     // Transaction type filtering
     if (transactionType === "rent") {

@@ -21,11 +21,11 @@ export async function getAdminOverviewAction(): Promise<
 export async function updateUserKycAction(
   userId: string,
   status: KYCStatus,
-  notes?: string
+  accredited = status === "verified"
 ): Promise<ApiResponse<User>> {
   const res = await fetcherWithAuth<User>(`/admin/users/${userId}/kyc`, {
     method: "PUT",
-    body: JSON.stringify({ status, notes }),
+    body: JSON.stringify({ kyc_status: status, accredited }),
     cache: "no-store",
   })
 
@@ -35,6 +35,7 @@ export async function updateUserKycAction(
 
   return res
 }
+
 
 /**
  * Approve or suspend a property listing from platform feed.
@@ -97,7 +98,7 @@ export async function getAuditLogsAction(
   params?: AuditLogFilterParams | number
 ): Promise<ApiResponse<AuditLog[]>> {
   const queryObj = typeof params === "number" ? { limit: params, page: 1 } : params
-  return fetcherWithAuth<AuditLog[]>(`/admin/audit-logs${getQueryString(queryObj)}`, {
+  return fetcherWithAuth<AuditLog[]>(`/admin/audit${getQueryString(queryObj)}`, {
     cache: "no-store",
   })
 }

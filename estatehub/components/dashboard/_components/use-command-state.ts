@@ -19,6 +19,9 @@ import {
 } from "@tabler/icons-react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { acceptOfferAction, counterOfferAction, rejectOfferAction } from "@/actions/offers"
+import { bookTourAction, updateTourStatusAction } from "@/actions/tours"
+import { toggleBookmarkAction } from "@/actions/properties"
 import {
   INITIAL_DEALS,
   INITIAL_DOCS,
@@ -274,6 +277,14 @@ export function useCommandState() {
       specialRequests: tourSpecialRequests || "Diplomatic VIP protocol requested.",
     }
     setTours([newTour, ...tours])
+    bookTourAction({
+      property_id: prop.id,
+      tour_type: "in_person",
+      date: newTour.date,
+      time_slot: newTour.timeSlot,
+      visitor_name: newTour.clientName,
+      visitor_email: user?.email || "investor@estatehub.com",
+    }).catch(() => {})
     setIsBookTourModalOpen(false)
     setTourSpecialRequests("")
     triggerToast(`Private showing confirmed for "${prop.title}"`)
@@ -281,11 +292,13 @@ export function useCommandState() {
 
   const handleCancelTour = (id: string) => {
     setTours((prev) => prev.filter((t) => t.id !== id))
+    updateTourStatusAction(id, "cancelled").catch(() => {})
     triggerToast("Tour booking cancelled")
   }
 
   const handleRemoveSavedProperty = (id: string) => {
     setSavedProperties((prev) => prev.filter((p) => p.id !== id))
+    toggleBookmarkAction(id).catch(() => {})
     triggerToast("Property removed from watchlist")
   }
 
@@ -293,6 +306,7 @@ export function useCommandState() {
     setOffers((prev) =>
       prev.map((o) => (o.id === id ? { ...o, status: "Escrow Opened" } : o))
     )
+    acceptOfferAction(id).catch(() => {})
     triggerToast("Offer accepted! Escrow desk initialized.")
   }
 
@@ -300,22 +314,26 @@ export function useCommandState() {
     setOffers((prev) =>
       prev.map((o) => (o.id === id ? { ...o, status: "Declined" } : o))
     )
+    rejectOfferAction(id).catch(() => {})
     triggerToast("Offer declined.")
   }
 
   const handleApplyCounterOffer = () => {
     if (!counterModalOffer || !counterPriceInput) return
+    const counterId = counterModalOffer.id
+    const counterAmount = Number(counterPriceInput)
     setOffers((prev) =>
       prev.map((o) =>
-        o.id === counterModalOffer.id
+        o.id === counterId
           ? {
               ...o,
-              offerPrice: Number(counterPriceInput),
+              offerPrice: counterAmount,
               status: "Under Negotiation",
             }
           : o
       )
     )
+    counterOfferAction(counterId, counterAmount).catch(() => {})
     setCounterModalOffer(null)
     setCounterPriceInput("")
     triggerToast("Counter-offer transmitted.")

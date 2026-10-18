@@ -77,10 +77,10 @@ export function RegisterView() {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
+    <div className="w-full min-h-[calc(100vh-14rem)] bg-surface">
       <SectionWrapper
         fullWidth
-        innerClassName="py-8 md:py-12 flex flex-col gap-6 md:gap-8"
+        innerClassName="py-6 md:py-10 flex flex-col gap-6 md:gap-8"
       >
         {/* Reusable Stepper Navigation */}
         <RegisterStepper

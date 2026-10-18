@@ -604,3 +604,52 @@ export function getPropertyByIdOrSlug(idOrSlug: string): PropertyData {
 export function getSimilarProperties(currentId: string, limit = 2): PropertyData[] {
   return PROPERTIES.filter((p) => p.id !== currentId).slice(0, limit)
 }
+
+export function mapBackendPropertyToPropertyData(p: any): PropertyData {
+  if (!p) return PROPERTIES[0]
+  if (p.priceFormatted || p.propertyType) return p as PropertyData
+  return {
+    id: p.id || "prop-" + Date.now(),
+    slug: p.slug || (p.title ? p.title.toLowerCase().replace(/\s+/g, "-") : "property"),
+    title: p.title || "Exclusive Estate",
+    address: p.address || "",
+    city: p.city || "Los Angeles",
+    state: p.state || "CA",
+    zip: p.zip || "90210",
+    price: p.price || 0,
+    priceFormatted: p.price_formatted || (p.price ? `$${Number(p.price).toLocaleString()}` : "$0"),
+    estMortgage: p.est_mortgage || "$0 / mo",
+    beds: p.beds || 4,
+    baths: p.baths || 4,
+    sqft: p.sqft || 5000,
+    sqftFormatted: p.sqft_formatted || (p.sqft ? `${Number(p.sqft).toLocaleString()}` : "5,000"),
+    lotSize: p.lot_size || "1.0 Acre",
+    yearBuilt: p.year_built || 2022,
+    garage: p.garage || 3,
+    propertyType: (p.property_type || "villa") as any,
+    transactionType: (p.transaction_type || "buy") as any,
+    badge: p.badge || "Verified",
+    status: p.status || "Active",
+    viewsCount: p.views_count || 120,
+    daysListed: p.days_listed || 14,
+    mlsId: p.mls_id || "#MLS-0001",
+    coordinates: {
+      lat: p.latitude || 34.0736,
+      lng: p.longitude || -118.4004,
+    },
+    heroImage: p.hero_image || (p.images && p.images[0]) || PROPERTIES[0].heroImage,
+    images: p.images && p.images.length ? p.images : PROPERTIES[0].images,
+    description: p.description || PROPERTIES[0].description,
+    interiorAmenities: p.interior_amenities || PROPERTIES[0].interiorAmenities,
+    exteriorAmenities: p.exterior_amenities || PROPERTIES[0].exteriorAmenities,
+    securityAmenities: p.security_amenities || PROPERTIES[0].securityAmenities,
+    financials: {
+      assessedValue: p.assessed_value || "$10,000,000",
+      annualTax: p.annual_tax || "$120,000",
+      estimatedCapRate: p.estimated_cap_rate || "4.5%",
+      hoaFee: p.hoa_fee || "$1,500 / mo",
+    },
+    agent: PROPERTIES[0].agent,
+  }
+}
+

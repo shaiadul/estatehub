@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
 import { DashboardPageView } from "./_components"
+import { Spinner } from "@/components/ui/spinner"
 
 export const metadata: Metadata = {
   title: "Smart Command & Facility Management | EstateHub Private Client",
@@ -13,7 +14,7 @@ export default function DashboardPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-surface">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Spinner className="size-8 text-primary" />
         </div>
       }
     >

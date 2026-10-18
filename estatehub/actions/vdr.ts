@@ -60,7 +60,7 @@ export async function getVdrDocumentsAction(
   params?: VdrFilterParams
 ): Promise<ApiResponse<VdrDocument[]>> {
   const res = await fetcherWithAuth<VdrDocument[]>(
-    `/vdr/${propertyId}${getQueryString(params)}`,
+    `/vdr/properties/${propertyId}/documents${getQueryString(params)}`,
     { cache: "no-store" }
   )
 
@@ -116,7 +116,10 @@ export async function getVdrDownloadUrlAction(
 ): Promise<ApiResponse<{ download_url: string; expires_in: number }>> {
   const res = await fetcherWithAuth<{ download_url: string; expires_in: number }>(
     `/vdr/documents/${documentId}/download${getQueryString(params)}`,
-    { cache: "no-store" }
+    {
+      method: "POST",
+      cache: "no-store",
+    }
   )
 
   if (res.success && res.data?.download_url) {

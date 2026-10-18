@@ -1,4 +1,10 @@
-import { getPropertyByIdOrSlug, getSimilarProperties, PROPERTIES } from "@/lib/properties-data"
+import { getPropertyBySlugAction } from "@/actions/properties"
+import {
+  getPropertyByIdOrSlug,
+  getSimilarProperties,
+  mapBackendPropertyToPropertyData,
+  PROPERTIES,
+} from "@/lib/properties-data"
 import { PropertyDetailPageView } from "./_components"
 import type { Metadata } from "next"
 
@@ -8,7 +14,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const property = getPropertyByIdOrSlug(id)
+  const res = await getPropertyBySlugAction(id)
+  const property = res.data ? mapBackendPropertyToPropertyData(res.data) : getPropertyByIdOrSlug(id)
   return {
     title: `${property.title} — EstateHub Luxury Real Estate`,
     description: property.description,
@@ -28,7 +35,8 @@ export function generateStaticParams() {
 
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { id } = await params
-  const property = getPropertyByIdOrSlug(id)
+  const res = await getPropertyBySlugAction(id)
+  const property = res.data ? mapBackendPropertyToPropertyData(res.data) : getPropertyByIdOrSlug(id)
   const similar = getSimilarProperties(property.id, 2)
 
   return <PropertyDetailPageView property={property} similarProperties={similar} />

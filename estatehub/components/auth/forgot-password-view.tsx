@@ -39,7 +39,7 @@ export function ForgotPasswordView() {
   return (
     <SectionWrapper
       fullWidth
-      className="relative bg-surface min-h-[calc(100vh-5rem)] flex items-center justify-center py-12"
+      className="relative bg-surface min-h-[calc(100vh-14rem)] flex items-center justify-center py-8 md:py-12"
       innerClassName="w-full max-w-lg mx-auto relative z-10"
     >
       <div className="w-full">

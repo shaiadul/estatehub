@@ -49,15 +49,21 @@ export function AdminHeader({ state }: AdminHeaderProps) {
               >
                 Sovereign Master Authority
               </Badge>
-              <div className="flex items-center gap-1.5 rounded-full bg-surface-container px-2.5 py-0.5 text-[11px] font-semibold text-on-surface-variant">
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1.5 rounded-full bg-surface-container px-2.5 py-0.5 text-[11px] font-semibold text-on-surface-variant border-outline-variant/30"
+              >
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Enclave HSM Active</span>
-              </div>
+              </Badge>
               {policy.emergencyFreeze && (
-                <span className="flex items-center gap-1 rounded-full bg-destructive/20 px-2 py-0.5 text-[10px] font-black text-destructive animate-bounce">
+                <Badge
+                  variant="destructive"
+                  className="flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-black animate-bounce"
+                >
                   <IconAlertTriangle size={12} />
                   <span>EMERGENCY FREEZE ENGAGED</span>
-                </span>
+                </Badge>
               )}
             </div>
             <h1 className="text-xl font-black tracking-tight text-on-surface sm:text-2xl">

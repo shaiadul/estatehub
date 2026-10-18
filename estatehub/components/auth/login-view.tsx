@@ -129,7 +129,7 @@ export function LoginView() {
       <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 -right-20 w-125 h-125 bg-secondary-container/10 rounded-full blur-3xl pointer-events-none" />
 
-      <SectionWrapper className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center py-8 md:py-16">
+      <SectionWrapper className="relative z-10 min-h-[calc(100vh-14rem)] flex items-center py-6 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           {/* Left Column: Brand & Visual Showcase */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-8 pr-0 lg:pr-6">

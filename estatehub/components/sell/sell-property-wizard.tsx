@@ -36,9 +36,18 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n"
+import { createPropertyAction } from "@/actions/properties"
 
 interface FormState {
   propertyType: "villa" | "penthouse" | "waterfront" | "chalet" | "compound"
@@ -371,10 +380,31 @@ export function SellPropertyWizard() {
     }))
   }
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     setIsPublished(true)
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    try {
+      await createPropertyAction({
+        title: form.title,
+        address: form.address,
+        city: form.city,
+        state: form.state,
+        zip: form.zip,
+        price: form.price,
+        beds: form.beds,
+        baths: form.baths,
+        sqft: form.sqft,
+        property_type: form.propertyType,
+        transaction_type: "buy",
+        hero_image: form.heroImage,
+        description: `Luxury trophy residence in ${form.city}. Fully syndicated on private exchange.`,
+        approved: true,
+        featured: true,
+      })
+    } catch {
+      // offline/demo resilience
     }
   }
 
@@ -385,11 +415,21 @@ export function SellPropertyWizard() {
       <main className="w-full pt-20 flex-1">
         <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-5">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-xs">
-              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant font-medium">
-                <Link href="/" className="hover:text-on-surface transition-colors">{t("properties.home", "Home")}</Link>
-                <IconChevronRight size={14} className="text-outline-variant" />
-                <span className="text-on-surface font-semibold">{t("sell.breadcrumb", "Sell & Syndicate Estate")}</span>
-              </nav>
+              <Breadcrumb>
+                <BreadcrumbList className="text-xs text-on-surface-variant font-medium">
+                  <BreadcrumbItem>
+                    <BreadcrumbLink render={<Link href="/" className="hover:text-on-surface transition-colors" />}>
+                      {t("properties.home", "Home")}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="text-on-surface font-semibold">
+                      {t("sell.breadcrumb", "Sell & Syndicate Estate")}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5 bg-surface-container-low px-3 py-1 rounded-full text-on-surface-variant font-medium text-xs">

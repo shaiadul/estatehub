@@ -1,3 +1,5 @@
+"use server"
+
 import { revalidatePath } from "next/cache"
 import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse, Offer } from "./types"
@@ -93,3 +95,22 @@ export async function acceptOfferAction(
 
   return res
 }
+
+/**
+ * Reject an offer and update its status.
+ */
+export async function rejectOfferAction(
+  id: string
+): Promise<ApiResponse<Offer>> {
+  const res = await fetcherWithAuth<Offer>(`/offers/${id}/reject`, {
+    method: "POST",
+    cache: "no-store",
+  })
+
+  if (res.success) {
+    revalidatePath("/dashboard")
+  }
+
+  return res
+}
+

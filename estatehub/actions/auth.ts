@@ -107,15 +107,14 @@ export async function getMeAction(): Promise<ApiResponse<User>> {
 }
 
 /**
- * Exchange Google OAuth code for tokens.
+ * Refresh access token using stored refresh token.
  */
-export async function googleAuthCallbackAction(
-  code: string,
-  state?: string
+export async function refreshTokenAction(
+  refreshToken: string
 ): Promise<ApiResponse<AuthTokens>> {
-  const res = await fetcher<AuthTokens>("/auth/google/callback", {
+  const res = await fetcher<AuthTokens>("/auth/refresh", {
     method: "POST",
-    body: JSON.stringify({ code, state }),
+    body: JSON.stringify({ refresh_token: refreshToken }),
     cache: "no-store",
   })
 
@@ -132,3 +131,31 @@ export async function googleAuthCallbackAction(
 
   return res
 }
+
+/**
+ * Exchange Google OAuth code for tokens.
+ */
+export async function googleAuthCallbackAction(
+  code: string,
+  defaultRole: UserRole = "buyer"
+): Promise<ApiResponse<AuthTokens>> {
+  const res = await fetcher<AuthTokens>("/auth/oauth/google", {
+    method: "POST",
+    body: JSON.stringify({ code, default_role: defaultRole }),
+    cache: "no-store",
+  })
+
+  if (res.success && res.data?.access_token) {
+    const cookieStore = await cookies()
+    cookieStore.set("estatehub_token", res.data.access_token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    })
+  }
+
+  return res
+}
+

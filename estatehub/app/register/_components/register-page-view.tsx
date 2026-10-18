@@ -2,13 +2,14 @@ import { Suspense } from "react"
 import { Header } from "@/components/home/header"
 import { Footer } from "@/components/home/footer"
 import { RegisterView } from "@/components/auth/register-view"
+import { Spinner } from "@/components/ui/spinner"
 
 export function RegisterPageView() {
   return (
     <div className="flex min-h-screen flex-col bg-surface text-on-surface">
       <Header />
       <main className="flex-1 pt-20">
-        <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+        <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><Spinner className="size-6 text-primary" /></div>}>
           <RegisterView />
         </Suspense>
       </main>

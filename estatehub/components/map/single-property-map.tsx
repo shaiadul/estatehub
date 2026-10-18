@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import dynamic from "next/dynamic"
+import { Spinner } from "@/components/ui/spinner"
 
 const SinglePropertyMapInner = dynamic(
   () => import("./single-property-map-inner"),
@@ -10,7 +11,7 @@ const SinglePropertyMapInner = dynamic(
     loading: () => (
       <div className="w-full h-80 rounded-2xl bg-surface-container-low flex flex-col items-center justify-center p-6 text-center animate-pulse border border-outline-variant/30">
         <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center mb-2">
-          <span className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <Spinner className="size-5 text-primary" />
         </div>
         <span className="text-xs font-bold text-on-surface">
           Resolving Satellite Coordinates...

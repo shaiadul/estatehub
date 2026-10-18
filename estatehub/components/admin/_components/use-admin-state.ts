@@ -13,6 +13,7 @@ import {
   type AdminUserItem,
   type PlatformPolicy,
 } from "./types"
+import { moderatePropertyAction, updateUserKycAction } from "@/actions/admin"
 
 export function useAdminState() {
   const [activeNav, setActiveNav] = React.useState<AdminNav>("overview")
@@ -79,6 +80,7 @@ export function useAdminState() {
         const nextStatus: AdminUserItem["kycStatus"] =
           u.kycStatus === "Verified" ? "Action Required" : "Verified"
         const nextVerified = nextStatus === "Verified"
+        updateUserKycAction(id, nextVerified ? "verified" : "pending").catch(() => {})
         return { ...u, kycStatus: nextStatus, verified: nextVerified }
       })
     )
@@ -136,6 +138,7 @@ export function useAdminState() {
     setProperties((prev) =>
       prev.map((p) => (p.id === id ? { ...p, status: "Active" } : p))
     )
+    moderatePropertyAction(id, true).catch(() => {})
     triggerToast("Listing approved and synchronized to public radar index")
   }
 
@@ -148,14 +151,12 @@ export function useAdminState() {
 
   const handleDelistProperty = (id: string) => {
     setProperties((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              status: p.status === "Delisted" ? "Active" : "Delisted",
-            }
-          : p
-      )
+      prev.map((p) => {
+        if (p.id !== id) return p
+        const nextStatus = p.status === "Delisted" ? "Active" : "Delisted"
+        moderatePropertyAction(id, nextStatus === "Active").catch(() => {})
+        return { ...p, status: nextStatus }
+      })
     )
     triggerToast("Listing publication status modified")
   }
