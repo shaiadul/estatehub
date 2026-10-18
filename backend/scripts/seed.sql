@@ -203,17 +203,19 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- 3. SEED VDR DOCUMENTS
 INSERT INTO vdr_documents (
-    id, property_id, title, category, file_key, file_size_bytes, file_type,
+    id, property_id, title, category, file_key, storage_key, file_size_bytes, size_mb, file_type,
     sha256_checksum, classification, watermark_text, uploaded_by
 )
 VALUES
 (
-    'v0000000-0000-0000-0000-000000000001',
+    'e0000000-0000-0000-0000-000000000001',
     '10000000-0000-0000-0000-000000000001',
     'Preliminary Title Report & Encumbrance Guarantee (First American)',
     'Legal & Title',
     'properties/glass-pavilion/title_report_2024.pdf',
+    'properties/glass-pavilion/title_report_2024.pdf',
     4892014,
+    4.67,
     'application/pdf',
     'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
     'restricted',
@@ -221,12 +223,14 @@ VALUES
     'b0000000-0000-0000-0000-000000000002'
 ),
 (
-    'v0000000-0000-0000-0000-000000000002',
+    'e0000000-0000-0000-0000-000000000002',
     '10000000-0000-0000-0000-000000000001',
     'Structural & Geological Soils Engineering Assessment',
     'Engineering & Inspection',
     'properties/glass-pavilion/geotech_engineering_2024.pdf',
+    'properties/glass-pavilion/geotech_engineering_2024.pdf',
     12491024,
+    11.91,
     'application/pdf',
     '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
     'confidential',

@@ -11,7 +11,6 @@ import {
   IconHeadset,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
@@ -45,7 +44,7 @@ export function ForgotPasswordView() {
       <div className="w-full">
         <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-outline-variant/30 relative overflow-hidden">
           {/* Top Metallic Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-primary via-secondary to-primary" />
 
           {submitted ? (
             <div className="flex flex-col items-center text-center space-y-4 py-4 animate-fade-in">

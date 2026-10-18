@@ -3,8 +3,10 @@ package postgres
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/estatehub/backend/internal/domain"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +18,36 @@ func NewOfferRepository(db *gorm.DB) *OfferRepository {
 	return &OfferRepository{db: db}
 }
 
+func populateOffer(o *domain.Offer) {
+	if o == nil {
+		return
+	}
+	if o.ContingencyDays == 0 && o.ContingencyPeriodDays > 0 {
+		o.ContingencyDays = o.ContingencyPeriodDays
+	}
+	if o.ContingencyPeriodDays == 0 && o.ContingencyDays > 0 {
+		o.ContingencyPeriodDays = o.ContingencyDays
+	}
+	if o.Notes == "" && o.Note != "" {
+		o.Notes = o.Note
+	}
+	if o.Note == "" && o.Notes != "" {
+		o.Note = o.Notes
+	}
+	if o.ID == "" {
+		o.ID = uuid.NewString()
+	}
+	if o.LoiNumber == "" {
+		if len(o.ID) >= 8 {
+			o.LoiNumber = "LOI-" + strings.ToUpper(o.ID[:8])
+		} else {
+			o.LoiNumber = "LOI-" + strings.ToUpper(uuid.NewString()[:8])
+		}
+	}
+}
+
 func (r *OfferRepository) Create(ctx context.Context, offer *domain.Offer) error {
+	populateOffer(offer)
 	return r.db.WithContext(ctx).Create(offer).Error
 }
 
@@ -29,6 +60,7 @@ func (r *OfferRepository) FindByID(ctx context.Context, id string) (*domain.Offe
 		}
 		return nil, err
 	}
+	populateOffer(&offer)
 	return &offer, nil
 }
 
@@ -41,10 +73,12 @@ func (r *OfferRepository) FindByLoiNumber(ctx context.Context, number string) (*
 		}
 		return nil, err
 	}
+	populateOffer(&offer)
 	return &offer, nil
 }
 
 func (r *OfferRepository) Update(ctx context.Context, offer *domain.Offer) error {
+	populateOffer(offer)
 	return r.db.WithContext(ctx).Save(offer).Error
 }
 
@@ -60,8 +94,18 @@ func (r *OfferRepository) List(ctx context.Context, filter domain.OfferFilter) (
 	if filter.PropertyID != nil {
 		q = q.Where("property_id = ?", *filter.PropertyID)
 	}
-	if filter.Status != nil {
-		q = q.Where("status = ?", *filter.Status)
+	if filter.Status != nil && *filter.Status != "" {
+		st := strings.ToLower(string(*filter.Status))
+		q = q.Where("LOWER(status) = ?", st)
+	}
+	if filter.FinancingType != nil && *filter.FinancingType != "" {
+		q = q.Where("LOWER(financing_type) = ?", strings.ToLower(*filter.FinancingType))
+	}
+	if filter.MinAmount != nil {
+		q = q.Where("offer_amount >= ?", *filter.MinAmount)
+	}
+	if filter.MaxAmount != nil {
+		q = q.Where("offer_amount <= ?", *filter.MaxAmount)
 	}
 
 	if err := q.Count(&total).Error; err != nil {
@@ -76,6 +120,10 @@ func (r *OfferRepository) List(ctx context.Context, filter domain.OfferFilter) (
 	err := q.Order("created_at DESC").Limit(limit).Offset(filter.Offset).Find(&offers).Error
 	if err != nil {
 		return nil, 0, err
+	}
+
+	for i := range offers {
+		populateOffer(&offers[i])
 	}
 
 	return offers, total, nil

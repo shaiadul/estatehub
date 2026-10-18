@@ -31,15 +31,35 @@ func (h *PropertyHandler) List(w http.ResponseWriter, r *http.Request) {
 		SortBy:          q.Get("sort"),
 	}
 
-	if location := q.Get("location"); location != "" {
+	if location := q.Get("location"); location != "" && filter.Query == "" {
 		filter.Query = location
 	}
-	if pType := q.Get("type"); pType != "" && filter.TransactionType == "" {
-		filter.TransactionType = pType
+
+	// Handle generic "type" parameter intelligently
+	if pType := q.Get("type"); pType != "" {
+		lowerType := strings.ToLower(pType)
+		if lowerType == "buy" || lowerType == "rent" || lowerType == "lease" {
+			if filter.TransactionType == "" {
+				filter.TransactionType = lowerType
+			}
+		} else {
+			if filter.PropertyType == "" {
+				filter.PropertyType = pType
+			}
+		}
+	}
+
+	if agentID := q.Get("agent_id"); agentID != "" {
+		filter.AgentID = &agentID
 	}
 
 	if bedsStr := q.Get("beds"); bedsStr != "" {
 		if beds, err := strconv.Atoi(bedsStr); err == nil {
+			filter.MinBeds = &beds
+		}
+	}
+	if minBedsStr := q.Get("min_beds"); minBedsStr != "" && filter.MinBeds == nil {
+		if beds, err := strconv.Atoi(minBedsStr); err == nil {
 			filter.MinBeds = &beds
 		}
 	}
@@ -55,6 +75,10 @@ func (h *PropertyHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	if amenities := q.Get("amenities"); amenities != "" {
 		filter.Amenities = strings.Split(amenities, ",")
+	}
+	if featured := q.Get("featured_only"); featured == "true" {
+		t := true
+		filter.FeaturedOnly = &t
 	}
 
 	page, _ := strconv.Atoi(q.Get("page"))
@@ -175,4 +199,17 @@ func (h *PropertyHandler) ListSaved(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSON(w, http.StatusOK, properties)
+}
+
+func (h *PropertyHandler) ListMyProperties(w http.ResponseWriter, r *http.Request) {
+	userID := GetUserID(r)
+	resp, err := h.propertyService.ListProperties(r.Context(), domain.PropertyFilter{
+		AgentID: &userID,
+		Limit:   100,
+	})
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "FETCH_FAILED", err.Error())
+		return
+	}
+	JSON(w, http.StatusOK, resp.Properties)
 }

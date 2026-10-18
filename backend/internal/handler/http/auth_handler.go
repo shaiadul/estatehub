@@ -102,3 +102,71 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	JSON(w, http.StatusOK, user)
 }
+
+func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	userID := GetUserID(r)
+	var req service.UpdateProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		Error(w, http.StatusBadRequest, "INVALID_BODY", err.Error())
+		return
+	}
+
+	user, err := h.authService.UpdateProfile(r.Context(), userID, req)
+	if err != nil {
+		Error(w, http.StatusBadRequest, "UPDATE_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, user)
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var req ForgotPasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
+		Error(w, http.StatusBadRequest, "INVALID_EMAIL", "Email is required")
+		return
+	}
+
+	resp, err := h.authService.ForgotPassword(r.Context(), req.Email)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "RECOVERY_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, resp)
+}
+
+type ResetPasswordRequest struct {
+	Email       string `json:"email"`
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var req ResetPasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" || req.NewPassword == "" {
+		Error(w, http.StatusBadRequest, "INVALID_REQUEST", "Email and new_password are required")
+		return
+	}
+
+	if err := h.authService.ResetPassword(r.Context(), req.Email, req.Token, req.NewPassword); err != nil {
+		Error(w, http.StatusBadRequest, "RESET_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, map[string]string{"message": "Password successfully reset"})
+}
+
+func (h *AuthHandler) ListAgents(w http.ResponseWriter, r *http.Request) {
+	agents, err := h.authService.ListAgents(r.Context())
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "FETCH_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, agents)
+}

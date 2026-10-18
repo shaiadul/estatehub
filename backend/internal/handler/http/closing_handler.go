@@ -68,8 +68,18 @@ func (h *ClosingHandler) DisburseWire(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JSON(w, http.StatusOK, map[string]interface{}{
-		"message":      "Wire disbursed and title deed recorded successfully",
-		"closing_room": room,
-	})
+	JSON(w, http.StatusOK, room)
+}
+
+func (h *ClosingHandler) RecordDeed(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	userID := GetUserID(r)
+
+	room, err := h.closingService.RecordDeed(r.Context(), id, userID)
+	if err != nil {
+		Error(w, http.StatusBadRequest, "RECORD_DEED_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, room)
 }
