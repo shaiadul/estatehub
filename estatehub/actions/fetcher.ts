@@ -160,6 +160,9 @@ export async function fetcher<T = any>(
   }
 
   try {
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[Next.js Action] ${restInit.method || "GET"} ${targetUrl}`)
+    }
     const res = await fetch(targetUrl, {
       ...restInit,
       headers: requestHeaders,

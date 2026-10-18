@@ -3,8 +3,9 @@ package domain
 import (
 	"context"
 	"database/sql/driver"
+	"encoding/hex"
 	"encoding/json"
-	"errors"
+	"strings"
 	"time"
 )
 
@@ -14,7 +15,11 @@ func (a StringArray) Value() (driver.Value, error) {
 	if a == nil {
 		return "[]", nil
 	}
-	return json.Marshal(a)
+	b, err := json.Marshal(a)
+	if err != nil {
+		return "[]", nil
+	}
+	return string(b), nil
 }
 
 func (a *StringArray) Scan(value interface{}) error {
@@ -22,15 +27,72 @@ func (a *StringArray) Scan(value interface{}) error {
 		*a = []string{}
 		return nil
 	}
-	bytes, ok := value.([]byte)
-	if !ok {
-		str, ok := value.(string)
-		if !ok {
-			return errors.New("failed to scan StringArray")
-		}
-		bytes = []byte(str)
+
+	var str string
+	switch v := value.(type) {
+	case []byte:
+		str = string(v)
+	case string:
+		str = v
+	default:
+		*a = []string{}
+		return nil
 	}
-	return json.Unmarshal(bytes, a)
+
+	str = strings.TrimSpace(str)
+	if str == "" || str == "null" || str == "{}" || str == "[]" {
+		*a = []string{}
+		return nil
+	}
+
+	// 0. Decode Postgres hex literal (\x... or \\x...)
+	cleanHex := str
+	for strings.HasPrefix(cleanHex, "\\") {
+		cleanHex = cleanHex[1:]
+	}
+	if strings.HasPrefix(cleanHex, "x") || strings.HasPrefix(cleanHex, "X") {
+		if decoded, err := hex.DecodeString(cleanHex[1:]); err == nil {
+			str = string(decoded)
+		}
+	}
+
+	// 1. Try standard JSON unmarshal
+	if err := json.Unmarshal([]byte(str), a); err == nil {
+		return nil
+	}
+
+	// 2. Handle unquoted or double-escaped JSON string
+	var unescaped string
+	if err := json.Unmarshal([]byte(str), &unescaped); err == nil {
+		if err := json.Unmarshal([]byte(unescaped), a); err == nil {
+			return nil
+		}
+	}
+
+	// 3. Handle PostgreSQL native array format: {"item1","item2"}
+	if strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}") {
+		inner := str[1 : len(str)-1]
+		if inner == "" {
+			*a = []string{}
+			return nil
+		}
+		parts := strings.Split(inner, ",")
+		res := make([]string, 0, len(parts))
+		for _, p := range parts {
+			clean := strings.Trim(strings.TrimSpace(p), "\"")
+			clean = strings.ReplaceAll(clean, "\\\"", "\"")
+			clean = strings.ReplaceAll(clean, "\\\\", "\\")
+			if clean != "" {
+				res = append(res, clean)
+			}
+		}
+		*a = res
+		return nil
+	}
+
+	// 4. Fallback: single item array
+	*a = []string{str}
+	return nil
 }
 
 type Property struct {

@@ -10,7 +10,7 @@ const PropertiesMapInner = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="relative w-full h-full min-h-[400px] bg-surface-container-low rounded-2xl flex flex-col items-center justify-center p-6 text-center animate-pulse border border-outline-variant/30">
+      <div className="relative w-full h-full min-h-100 bg-surface-container-low rounded-2xl flex flex-col items-center justify-center p-6 text-center animate-pulse border border-outline-variant/30">
         <div className="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center mb-3">
           <Spinner className="size-6 text-primary" />
         </div>
