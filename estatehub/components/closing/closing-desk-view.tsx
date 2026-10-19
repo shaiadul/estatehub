@@ -27,10 +27,10 @@ export function ClosingDeskView() {
   const [earnestWire, setEarnestWire] = React.useState(492500)
   const [balanceToClose, setBalanceToClose] = React.useState(9357500)
 
-  React.useEffect(() => {
-    let isMounted = true
-    listClosingRoomsAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchClosingRoom = React.useCallback(async () => {
+    try {
+      const res = await listClosingRoomsAction()
+      if (res.success && res.data && res.data.length > 0) {
         const room = res.data[0]
         setClosingRoomId(room.id)
         if (room.total_price) setContractPrice(room.total_price)
@@ -40,11 +40,14 @@ export function ClosingDeskView() {
           setWireDisbursed(true)
         }
       }
-    }).catch(() => {})
-    return () => {
-      isMounted = false
+    } catch (err) {
+      console.error("Error fetching closing room", err)
     }
   }, [])
+
+  React.useEffect(() => {
+    refetchClosingRoom()
+  }, [refetchClosingRoom])
 
   const handleDisburseWire = () => {
     setIsFidoModalOpen(true)
@@ -55,13 +58,13 @@ export function ClosingDeskView() {
     setIsSigning(true)
     try {
       await disburseWireAction(closingRoomId, "FIDO2-HARDWARE-TOKEN")
-    } catch {
-      // offline/demo resilience
-    }
-    setTimeout(() => {
-      setIsSigning(false)
+      await refetchClosingRoom()
       setWireDisbursed(true)
-    }, 1200)
+    } catch {
+      // offline resilience
+    } finally {
+      setIsSigning(false)
+    }
   }
 
   const completedPhases = [

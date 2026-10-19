@@ -1,10 +1,6 @@
-import { getPropertyBySlugAction } from "@/actions/properties"
-import {
-  getPropertyByIdOrSlug,
-  getSimilarProperties,
-  mapBackendPropertyToPropertyData,
-  PROPERTIES,
-} from "@/lib/properties-data"
+import { notFound } from "next/navigation"
+import { getPropertiesAction, getPropertyBySlugAction } from "@/actions/properties"
+import { mapBackendPropertyToPropertyData } from "@/lib/properties-data"
 import { PropertyDetailPageView } from "./_components"
 import type { Metadata } from "next"
 
@@ -15,7 +11,12 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
   const res = await getPropertyBySlugAction(id)
-  const property = res.data ? mapBackendPropertyToPropertyData(res.data) : getPropertyByIdOrSlug(id)
+  if (!res.success || !res.data) {
+    return {
+      title: "Property Not Found — EstateHub",
+    }
+  }
+  const property = mapBackendPropertyToPropertyData(res.data)
   return {
     title: `${property.title} — EstateHub Luxury Real Estate`,
     description: property.description,
@@ -27,17 +28,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export function generateStaticParams() {
-  return PROPERTIES.map((p) => ({
-    id: p.slug,
-  }))
-}
-
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { id } = await params
   const res = await getPropertyBySlugAction(id)
-  const property = res.data ? mapBackendPropertyToPropertyData(res.data) : getPropertyByIdOrSlug(id)
-  const similar = getSimilarProperties(property.id, 2)
+  if (!res.success || !res.data) {
+    notFound()
+  }
+
+  const property = mapBackendPropertyToPropertyData(res.data)
+
+  // Fetch real similar properties from database
+  const allRes = await getPropertiesAction({ limit: 4 })
+  const similar = (allRes.data || [])
+    .filter((p) => p.slug !== id && p.id !== property.id)
+    .slice(0, 2)
+    .map(mapBackendPropertyToPropertyData)
 
   return <PropertyDetailPageView property={property} similarProperties={similar} />
 }

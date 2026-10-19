@@ -99,6 +99,7 @@ func NewRouter(p RouterParams) *chi.Mux {
 				authPr.Get("/saved", p.PropertyHandler.ListSaved)
 				authPr.Post("/{id}/bookmark", p.PropertyHandler.ToggleBookmark)
 				authPr.Get("/mine", p.PropertyHandler.ListMyProperties)
+				authPr.Get("/my", p.PropertyHandler.ListMyProperties)
 
 				// Sellers, Brokers, and Admins can create/manage listings
 				authPr.Group(func(sellerPr chi.Router) {

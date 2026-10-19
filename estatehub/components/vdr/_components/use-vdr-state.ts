@@ -46,12 +46,14 @@ export interface VdrToast {
 }
 
 interface UseVdrStateOptions {
+  propertyId?: string
   initialPrice?: number
   onNotify?: (toast: Omit<VdrToast, "id">) => void
 }
 
 export function useVdrState(options: UseVdrStateOptions = {}) {
-  const [docList, setDocList] = React.useState<DiligenceDoc[]>(DOCUMENTS)
+  const [docList, setDocList] = React.useState<DiligenceDoc[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
   const [activeTab, setActiveTab] = React.useState<VdrTabId>("all")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [vdrHash, setVdrHash] = React.useState("AC-8841-ZH-VDR")
@@ -67,17 +69,25 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
   const [loiNumber, setLoiNumber] = React.useState<string | null>(null)
   const [loiError, setLoiError] = React.useState<string | null>(null)
 
-  React.useEffect(() => {
-    let isMounted = true
-    getVdrDocumentsAction("one-greenwich-penthouse").then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const propertyId = options.propertyId || "one-greenwich-penthouse"
+
+  const refetchDocs = React.useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await getVdrDocumentsAction(propertyId)
+      if (res.success && res.data) {
         setDocList(res.data.map(mapBackendVdrDoc))
       }
-    }).catch(() => {})
-    return () => {
-      isMounted = false
+    } catch (err) {
+      console.error("Error fetching VDR documents", err)
+    } finally {
+      setIsLoading(false)
     }
-  }, [])
+  }, [propertyId])
+
+  React.useEffect(() => {
+    refetchDocs()
+  }, [refetchDocs])
 
   const notify = React.useCallback(
     (toast: Omit<VdrToast, "id">) => options.onNotify?.(toast),
@@ -172,6 +182,9 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
     setPreviewDoc,
     downloadDoc,
     downloadVault,
+    docList,
+    isLoading,
+    refetchDocs,
     filteredDocs,
     loi: {
       price: loiPrice,

@@ -30,7 +30,10 @@ import { bookTourAction, updateTourStatusAction, getMyToursAction } from "@/acti
 import {
   toggleBookmarkAction,
   getPropertiesAction,
+  getMyPropertiesAction,
   createPropertyAction,
+  updatePropertyAction,
+  deletePropertyAction,
   getBookmarkedPropertiesAction,
 } from "@/actions/properties"
 import {
@@ -199,44 +202,58 @@ export function useCommandState() {
     triggerToast(`Switched to ${role.toUpperCase()} Management Portal`)
   }
 
-  const [properties, setProperties] =
-    React.useState<PropertyItem[]>(INITIAL_PROPERTIES)
-  const [offers, setOffers] = React.useState<OfferItem[]>(INITIAL_OFFERS)
+  const [properties, setProperties] = React.useState<PropertyItem[]>([])
+  const [offers, setOffers] = React.useState<OfferItem[]>([])
   const [leads, setLeads] = React.useState<ClientLead[]>(INITIAL_LEADS)
   const [deals, setDeals] = React.useState<DealItem[]>(INITIAL_DEALS)
   const [documents] = React.useState<DocumentItem[]>(INITIAL_DOCS)
-  const [savedProperties, setSavedProperties] =
-    React.useState<SavedPropertyItem[]>(INITIAL_SAVED_PROPERTIES)
-  const [tours, setTours] = React.useState<TourBookingItem[]>(INITIAL_TOURS)
+  const [savedProperties, setSavedProperties] = React.useState<SavedPropertyItem[]>([])
+  const [tours, setTours] = React.useState<TourBookingItem[]>([])
+  const [isLoadingData, setIsLoadingData] = React.useState(true)
 
-  // Fetch real data from backend Go API
-  React.useEffect(() => {
-    let isMounted = true
-
-    // 1. Properties
-    getPropertiesAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchProperties = React.useCallback(async () => {
+    try {
+      const propFetcher = activeRole === "seller" ? getMyPropertiesAction() : getPropertiesAction()
+      const res = await propFetcher
+      if (res.success && res.data) {
         setProperties(res.data.map(mapBackendToDashboardProperty))
+      } else if (activeRole === "seller") {
+        const fallbackRes = await getPropertiesAction()
+        if (fallbackRes.success && fallbackRes.data) {
+          setProperties(fallbackRes.data.map(mapBackendToDashboardProperty))
+        }
       }
-    }).catch(() => {})
+    } catch (err) {
+      console.error("Error fetching properties", err)
+    }
+  }, [activeRole])
 
-    // 2. Offers
-    getMyOffersAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchOffers = React.useCallback(async () => {
+    try {
+      const res = await getMyOffersAction()
+      if (res.success && res.data) {
         setOffers(res.data.map(mapBackendToDashboardOffer))
       }
-    }).catch(() => {})
+    } catch (err) {
+      console.error("Error fetching offers", err)
+    }
+  }, [])
 
-    // 3. Tours
-    getMyToursAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchTours = React.useCallback(async () => {
+    try {
+      const res = await getMyToursAction()
+      if (res.success && res.data) {
         setTours(res.data.map(mapBackendToDashboardTour))
       }
-    }).catch(() => {})
+    } catch (err) {
+      console.error("Error fetching tours", err)
+    }
+  }, [])
 
-    // 4. Saved Bookmarks
-    getBookmarkedPropertiesAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchSaved = React.useCallback(async () => {
+    try {
+      const res = await getBookmarkedPropertiesAction()
+      if (res.success && res.data) {
         const mappedSaved: SavedPropertyItem[] = res.data.map((p) => ({
           id: `SAV-${p.id.slice(0, 8)}`,
           propertyId: p.slug || p.id,
@@ -255,12 +272,23 @@ export function useCommandState() {
         }))
         setSavedProperties(mappedSaved)
       }
-    }).catch(() => {})
-
-    return () => {
-      isMounted = false
+    } catch (err) {
+      console.error("Error fetching saved properties", err)
     }
-  }, [user?.role])
+  }, [])
+
+  // Initial and reactive data fetch from backend Go API
+  React.useEffect(() => {
+    setIsLoadingData(true)
+    Promise.allSettled([
+      refetchProperties(),
+      refetchOffers(),
+      refetchTours(),
+      refetchSaved(),
+    ]).finally(() => {
+      setIsLoadingData(false)
+    })
+  }, [refetchProperties, refetchOffers, refetchTours, refetchSaved, user?.role, activeRole])
 
   const [securityArmed, setSecurityArmed] = React.useState(true)
   const [gateUnlocked, setGateUnlocked] = React.useState(false)
@@ -323,50 +351,44 @@ export function useCommandState() {
     }
   }, [actionQuery, propertyQuery])
 
-  const handleCreateProperty = (e: React.FormEvent) => {
+  const handleCreateProperty = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPropertyTitle || !newPropertyPrice || !newPropertyLocation) return
 
-    const newProp: PropertyItem = {
-      id: `EST-00${properties.length + 1}`,
-      title: newPropertyTitle,
-      location: newPropertyLocation,
-      price: Number(newPropertyPrice),
-      category: newPropertyCategory,
-      status: "Active",
-      beds: Number(newPropertyBeds) || 4,
-      baths: Number(newPropertyBaths) || 4,
-      sqft: Number(newPropertySqft) || 5000,
-      inquiries: 0,
-      viewsCount: 1,
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
-      featured: false,
+    try {
+      const res = await createPropertyAction({
+        title: newPropertyTitle,
+        address: newPropertyLocation,
+        city: newPropertyLocation.split(",")[0]?.trim() || "Beverly Hills",
+        state: "CA",
+        price: Number(newPropertyPrice),
+        beds: Number(newPropertyBeds) || 4,
+        baths: Number(newPropertyBaths) || 4,
+        sqft: Number(newPropertySqft) || 5000,
+        property_type: newPropertyCategory.toLowerCase(),
+        transaction_type: "buy",
+        hero_image:
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+        description: `Exclusive ${newPropertyCategory} residence located in ${newPropertyLocation}.`,
+        approved: true,
+        featured: false,
+        status: "Active Listing",
+      })
+
+      setIsAddPropertyModalOpen(false)
+      setNewPropertyTitle("")
+      setNewPropertyLocation("")
+      setNewPropertyPrice("")
+
+      if (res.success) {
+        triggerToast(`Added listing "${newPropertyTitle}" to inventory`)
+        await refetchProperties()
+      } else {
+        triggerToast(`Error adding listing: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Network error creating listing")
     }
-
-    setProperties([newProp, ...properties])
-    createPropertyAction({
-      title: newProp.title,
-      address: newProp.location,
-      city: newProp.location.split(",")[0]?.trim() || "Beverly Hills",
-      state: "CA",
-      price: newProp.price,
-      beds: newProp.beds,
-      baths: newProp.baths,
-      sqft: newProp.sqft,
-      property_type: newProp.category.toLowerCase(),
-      transaction_type: "buy",
-      hero_image: newProp.image,
-      description: `Exclusive ${newProp.category} residence located in ${newProp.location}.`,
-      approved: true,
-      featured: false,
-    }).catch(() => {})
-
-    setIsAddPropertyModalOpen(false)
-    setNewPropertyTitle("")
-    setNewPropertyLocation("")
-    setNewPropertyPrice("")
-    triggerToast(`Added listing "${newProp.title}" to inventory`)
   }
 
   const handleCreateClient = (e: React.FormEvent) => {
@@ -398,118 +420,142 @@ export function useCommandState() {
     triggerToast(`New client "${newLead.name}" enrolled into CRM`)
   }
 
-  const handleSubmitLoi = (e: React.FormEvent) => {
+  const handleSubmitLoi = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!loiOfferPrice) return
 
     const prop = properties.find((p) => p.id === loiTargetProperty) || properties[0]
-    const newOffer: OfferItem = {
-      id: `OFF-${offers.length + 905}`,
-      propertyId: prop.id,
-      propertyTitle: prop.title,
-      buyerName: user?.name || "Julian Rossi",
-      buyerEntity: "Rossi Family Office & Trust",
-      offerPrice: Number(loiOfferPrice),
-      earnestDeposit: Number(loiEarnestDeposit) || Number(loiOfferPrice) * 0.1,
-      financing: loiFinancing,
-      status: "Pending Review",
-      submittedDate: "Just now",
-      expiryDate: "48 Hours",
-      proofOfFundsVerified: true,
+    if (!prop) {
+      triggerToast("No valid property selected for LOI")
+      return
     }
 
-    setOffers([newOffer, ...offers])
-    submitOfferAction({
-      property_id: prop.id,
-      offer_amount: newOffer.offerPrice,
-      earnest_deposit: newOffer.earnestDeposit,
-      financing_type: "sovereign_wire",
-      contingency_period_days: Number(loiContingencyDays) || 14,
-      closing_timeline_days: 30,
-      note: `Bilateral LOI transmitted with ${newOffer.financing}`,
-    }).catch(() => {})
+    try {
+      const res = await submitOfferAction({
+        property_id: prop.id,
+        offer_amount: Number(loiOfferPrice),
+        earnest_deposit: Number(loiEarnestDeposit) || Number(loiOfferPrice) * 0.1,
+        financing_type: "sovereign_wire",
+        contingency_period_days: Number(loiContingencyDays) || 14,
+        closing_timeline_days: 30,
+        note: `Bilateral LOI transmitted with ${loiFinancing}`,
+      })
 
-    setIsSubmitLoiModalOpen(false)
-    triggerToast(`Bilateral LOI for $${(newOffer.offerPrice / 1000000).toFixed(2)}M transmitted to Seller Trust`)
+      setIsSubmitLoiModalOpen(false)
+      if (res.success) {
+        triggerToast(`Bilateral LOI for $${(Number(loiOfferPrice) / 1000000).toFixed(2)}M transmitted`)
+        await refetchOffers()
+      } else {
+        triggerToast(`LOI error: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Failed to transmit LOI")
+    }
   }
 
-  const handleBookTour = (e: React.FormEvent) => {
+  const handleBookTour = async (e: React.FormEvent) => {
     e.preventDefault()
     const prop = properties.find((p) => p.id === tourPropertyId) || properties[0]
-    const newTour: TourBookingItem = {
-      id: `TR-${tours.length + 504}`,
-      propertyId: prop.id,
-      propertyTitle: prop.title,
-      clientName: user?.name || "Julian Rossi",
-      clientRole: activeRole === "organizer" ? "organizer" : "buyer",
-      date: tourDate || "Scheduled Date",
-      timeSlot: tourTimeSlot || "14:00 - 16:00",
-      transportType: tourTransportType,
-      assignedAgent: "Sarah Jenkins",
-      status: "Confirmed",
-      specialRequests: tourSpecialRequests || "Diplomatic VIP protocol requested.",
+    if (!prop) {
+      triggerToast("Select property to book tour")
+      return
     }
-    setTours([newTour, ...tours])
-    bookTourAction({
-      property_id: prop.id,
-      tour_type: "in_person",
-      date: newTour.date,
-      time_slot: newTour.timeSlot,
-      visitor_name: newTour.clientName,
-      visitor_email: user?.email || "investor@estatehub.com",
-    }).catch(() => {})
-    setIsBookTourModalOpen(false)
-    setTourSpecialRequests("")
-    triggerToast(`Private showing confirmed for "${prop.title}"`)
+
+    try {
+      const res = await bookTourAction({
+        property_id: prop.id,
+        tour_type: "in_person",
+        date: tourDate || "Scheduled Date",
+        time_slot: tourTimeSlot || "14:00 - 16:00",
+        visitor_name: user?.name || "Julian Rossi",
+        visitor_email: user?.email || "investor@estatehub.com",
+      })
+
+      setIsBookTourModalOpen(false)
+      setTourSpecialRequests("")
+      if (res.success) {
+        triggerToast(`Private showing confirmed for "${prop.title}"`)
+        await refetchTours()
+      } else {
+        triggerToast(`Tour error: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Failed to book private showing")
+    }
   }
 
-  const handleCancelTour = (id: string) => {
-    setTours((prev) => prev.filter((t) => t.id !== id))
-    updateTourStatusAction(id, "cancelled").catch(() => {})
-    triggerToast("Tour booking cancelled")
+  const handleCancelTour = async (id: string) => {
+    try {
+      const res = await updateTourStatusAction(id, "cancelled")
+      if (res.success) {
+        triggerToast("Tour booking cancelled")
+        await refetchTours()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to cancel"}`)
+      }
+    } catch {
+      triggerToast("Failed to cancel tour")
+    }
   }
 
-  const handleRemoveSavedProperty = (id: string) => {
-    setSavedProperties((prev) => prev.filter((p) => p.id !== id))
-    toggleBookmarkAction(id).catch(() => {})
-    triggerToast("Property removed from watchlist")
+  const handleRemoveSavedProperty = async (id: string) => {
+    try {
+      const res = await toggleBookmarkAction(id)
+      if (res.success) {
+        triggerToast("Property removed from watchlist")
+        await refetchSaved()
+      }
+    } catch {
+      triggerToast("Failed to remove from watchlist")
+    }
   }
 
-  const handleAcceptOffer = (id: string) => {
-    setOffers((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: "Escrow Opened" } : o))
-    )
-    acceptOfferAction(id).catch(() => {})
-    triggerToast("Offer accepted! Escrow desk initialized.")
+  const handleAcceptOffer = async (id: string) => {
+    try {
+      const res = await acceptOfferAction(id)
+      if (res.success) {
+        triggerToast("Offer accepted! Escrow desk initialized.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to accept offer"}`)
+      }
+    } catch {
+      triggerToast("Error accepting offer")
+    }
   }
 
-  const handleDeclineOffer = (id: string) => {
-    setOffers((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: "Declined" } : o))
-    )
-    rejectOfferAction(id).catch(() => {})
-    triggerToast("Offer declined.")
+  const handleDeclineOffer = async (id: string) => {
+    try {
+      const res = await rejectOfferAction(id)
+      if (res.success) {
+        triggerToast("Offer declined.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to decline offer"}`)
+      }
+    } catch {
+      triggerToast("Error declining offer")
+    }
   }
 
-  const handleApplyCounterOffer = () => {
+  const handleApplyCounterOffer = async () => {
     if (!counterModalOffer || !counterPriceInput) return
     const counterId = counterModalOffer.id
     const counterAmount = Number(counterPriceInput)
-    setOffers((prev) =>
-      prev.map((o) =>
-        o.id === counterId
-          ? {
-              ...o,
-              offerPrice: counterAmount,
-              status: "Under Negotiation",
-            }
-          : o
-      )
-    )
-    counterOfferAction(counterId, counterAmount).catch(() => {})
-    setCounterModalOffer(null)
-    setCounterPriceInput("")
-    triggerToast("Counter-offer transmitted.")
+
+    try {
+      const res = await counterOfferAction(counterId, counterAmount)
+      setCounterModalOffer(null)
+      setCounterPriceInput("")
+      if (res.success) {
+        triggerToast("Counter-offer transmitted.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to counter offer"}`)
+      }
+    } catch {
+      triggerToast("Failed to transmit counter-offer")
+    }
   }
 
   const handleAdvanceDealStage = (id: string) => {
@@ -531,25 +577,34 @@ export function useCommandState() {
     triggerToast("Deal milestone advanced.")
   }
 
-  const handleTogglePropertyStatus = (id: string) => {
-    setProperties((prev) =>
-      prev.map((p) => {
-        if (p.id !== id) return p
-        const nextStatus: PropertyItem["status"] =
-          p.status === "Active"
-            ? "Draft"
-            : p.status === "Draft"
-              ? "Active"
-              : p.status
-        return { ...p, status: nextStatus }
+  const handleTogglePropertyStatus = async (id: string) => {
+    const targetProp = properties.find((p) => p.id === id)
+    const nextStatus = targetProp?.status === "Active" ? "Draft" : "Active"
+
+    try {
+      await updatePropertyAction(id, {
+        status: nextStatus === "Active" ? "Active Listing" : "Draft",
+        approved: nextStatus === "Active",
       })
-    )
-    triggerToast("Property listing status updated.")
+      triggerToast(`Property listing status updated to ${nextStatus}.`)
+      await refetchProperties()
+    } catch {
+      triggerToast("Failed to update property status")
+    }
   }
 
-  const handleDeleteProperty = (id: string) => {
-    setProperties((prev) => prev.filter((p) => p.id !== id))
-    triggerToast("Property removed from inventory.")
+  const handleDeleteProperty = async (id: string) => {
+    try {
+      const res = await deletePropertyAction(id)
+      if (res.success) {
+        triggerToast("Property removed from inventory.")
+        await refetchProperties()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to delete"}`)
+      }
+    } catch {
+      triggerToast("Failed to delete property")
+    }
   }
 
   const filteredProperties = properties.filter((p) => {
@@ -1084,6 +1139,11 @@ export function useCommandState() {
     activeEscrowDeals,
     totalCommissionPipeline,
     newOffersCount,
+    refetchProperties,
+    refetchOffers,
+    refetchTours,
+    refetchSaved,
+    isLoadingData,
     ROLES,
     NAV_ITEMS,
     STATS_DATA,

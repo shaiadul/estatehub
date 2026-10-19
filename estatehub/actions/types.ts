@@ -209,3 +209,27 @@ export interface AdminOverview {
   total_offers: number
   tours_scheduled: number
 }
+
+export interface ValuationInput {
+  property_type?: string
+  sqft: number
+  beds?: number
+  baths?: number
+  city?: string
+  state?: string
+  amenities_count?: number
+  asking_price?: number
+}
+
+export interface ValuationResult {
+  estimated_value: number
+  value_range_low: number
+  value_range_high: number
+  price_per_sqft: number
+  cap_rate_estimated: string
+  est_monthly_mortgage: string
+  confidence_score: number
+  comps_count: number
+  market_tier: string
+}
+

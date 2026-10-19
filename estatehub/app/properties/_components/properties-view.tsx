@@ -4,14 +4,14 @@ import * as React from "react"
 import { Header } from "@/components/home/header"
 import { Footer } from "@/components/home/footer"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
-import { PROPERTIES, type PropertyData } from "@/lib/properties-data"
+import { mapBackendPropertyToPropertyData, type PropertyData } from "@/lib/properties-data"
 import { PropertiesHeader } from "./properties-header"
 import { ActiveFilters } from "./active-filters"
 import { FilterPanel } from "./filter-panel"
 import { PropertiesList } from "./properties-list"
 import { PropertiesMapPanel } from "./properties-map-panel"
 
-import { toggleBookmarkAction } from "@/actions/properties"
+import { getPropertiesAction, toggleBookmarkAction } from "@/actions/properties"
 import { useSearchParams } from "next/navigation"
 
 interface PropertiesViewProps {
@@ -27,10 +27,21 @@ export function PropertiesView({
   const urlPropertyType = searchParams.get("propertyType")
   const urlBeds = searchParams.get("beds")
 
-  const sourceProperties =
-    initialProperties && initialProperties.length > 0
-      ? initialProperties
-      : PROPERTIES
+  const [sourceProperties, setSourceProperties] = React.useState<PropertyData[]>(
+    initialProperties || []
+  )
+
+  React.useEffect(() => {
+    if (initialProperties && initialProperties.length > 0) {
+      setSourceProperties(initialProperties)
+    } else {
+      getPropertiesAction().then((res) => {
+        if (res.success && res.data) {
+          setSourceProperties(res.data.map(mapBackendPropertyToPropertyData))
+        }
+      }).catch(() => {})
+    }
+  }, [initialProperties])
 
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [showMap, setShowMap] = React.useState(true)
@@ -47,12 +58,16 @@ export function PropertiesView({
   )
   const [priceSort, setPriceSort] = React.useState("high-to-low")
   const [selectedAmenities, setSelectedAmenities] = React.useState<string[]>([])
-  const [favorites, setFavorites] = React.useState<Record<string, boolean>>({
-    "1": true,
-  })
+  const [favorites, setFavorites] = React.useState<Record<string, boolean>>({})
   const [activePin, setActivePin] = React.useState<PropertyData | null>(
-    sourceProperties[0] || PROPERTIES[0]
+    sourceProperties[0] || null
   )
+
+  React.useEffect(() => {
+    if (!activePin && sourceProperties.length > 0) {
+      setActivePin(sourceProperties[0])
+    }
+  }, [sourceProperties, activePin])
 
   // Sync if query parameters change
   React.useEffect(() => {

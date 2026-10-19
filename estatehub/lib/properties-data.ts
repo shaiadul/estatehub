@@ -606,8 +606,34 @@ export function getSimilarProperties(currentId: string, limit = 2): PropertyData
 }
 
 export function mapBackendPropertyToPropertyData(p: any): PropertyData {
-  if (!p) return PROPERTIES[0]
-  if (p.priceFormatted || p.propertyType) return p as PropertyData
+  if (!p) return null as any
+  if (p.priceFormatted && p.propertyType && p.heroImage) return p as PropertyData
+
+  const agentObj = p.agent
+    ? {
+        name: p.agent.full_name || p.agent.name || "EstateHub Managing Broker",
+        title: p.agent.title || "Licensed Real Estate Broker Partner",
+        phone: p.agent.phone || "+1 (310) 849-2100",
+        email: p.agent.email || "advisory@estatehub.com",
+        license: p.agent.jurisdiction || "#DRE-01928475",
+        rating: "4.98",
+        reviews: 95,
+        image:
+          p.agent.avatar_url ||
+          "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
+      }
+    : {
+        name: "EstateHub Private Client Desk",
+        title: "Senior Partner • Sovereign Portfolio Advisory",
+        phone: "+1 (310) 849-2100",
+        email: "advisory@estatehub.com",
+        license: "#DRE-01928475",
+        rating: "5.0",
+        reviews: 120,
+        image:
+          "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
+      }
+
   return {
     id: p.id || "prop-" + Date.now(),
     slug: p.slug || (p.title ? p.title.toLowerCase().replace(/\s+/g, "-") : "property"),
@@ -618,38 +644,38 @@ export function mapBackendPropertyToPropertyData(p: any): PropertyData {
     zip: p.zip || "90210",
     price: p.price || 0,
     priceFormatted: p.price_formatted || (p.price ? `$${Number(p.price).toLocaleString()}` : "$0"),
-    estMortgage: p.est_mortgage || "$0 / mo",
-    beds: p.beds || 4,
-    baths: p.baths || 4,
-    sqft: p.sqft || 5000,
-    sqftFormatted: p.sqft_formatted || (p.sqft ? `${Number(p.sqft).toLocaleString()}` : "5,000"),
+    estMortgage: p.est_mortgage || (p.price ? `~$${Math.round(p.price * 0.0045).toLocaleString()} / mo` : "$0 / mo"),
+    beds: p.beds || 0,
+    baths: p.baths || 0,
+    sqft: p.sqft || 0,
+    sqftFormatted: p.sqft_formatted || (p.sqft ? `${Number(p.sqft).toLocaleString()}` : "0"),
     lotSize: p.lot_size || "1.0 Acre",
     yearBuilt: p.year_built || 2022,
-    garage: p.garage || 3,
+    garage: p.garage || 2,
     propertyType: (p.property_type || "villa") as any,
     transactionType: (p.transaction_type || "buy") as any,
     badge: p.badge || "Verified",
     status: p.status || "Active",
-    viewsCount: p.views_count || 120,
-    daysListed: p.days_listed || 14,
+    viewsCount: p.views_count || 0,
+    daysListed: p.days_listed || 1,
     mlsId: p.mls_id || "#MLS-0001",
     coordinates: {
       lat: p.latitude || 34.0736,
       lng: p.longitude || -118.4004,
     },
-    heroImage: p.hero_image || (p.images && p.images[0]) || PROPERTIES[0].heroImage,
-    images: p.images && p.images.length ? p.images : PROPERTIES[0].images,
-    description: p.description || PROPERTIES[0].description,
-    interiorAmenities: p.interior_amenities || PROPERTIES[0].interiorAmenities,
-    exteriorAmenities: p.exterior_amenities || PROPERTIES[0].exteriorAmenities,
-    securityAmenities: p.security_amenities || PROPERTIES[0].securityAmenities,
+    heroImage: p.hero_image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
+    images: p.images && p.images.length ? p.images : (p.hero_image ? [p.hero_image] : []),
+    description: p.description || "",
+    interiorAmenities: p.interior_amenities || [],
+    exteriorAmenities: p.exterior_amenities || [],
+    securityAmenities: p.security_amenities || [],
     financials: {
-      assessedValue: p.assessed_value || "$10,000,000",
-      annualTax: p.annual_tax || "$120,000",
-      estimatedCapRate: p.estimated_cap_rate || "4.5%",
-      hoaFee: p.hoa_fee || "$1,500 / mo",
+      assessedValue: p.assessed_value || (p.price ? `$${(p.price * 0.95).toLocaleString()}` : "$0"),
+      annualTax: p.annual_tax || (p.price ? `$${Math.round(p.price * 0.012).toLocaleString()}` : "$0"),
+      estimatedCapRate: p.estimated_cap_rate || "5.2%",
+      hoaFee: p.hoa_fee || "$0 / mo",
     },
-    agent: PROPERTIES[0].agent,
+    agent: agentObj,
   }
 }
 

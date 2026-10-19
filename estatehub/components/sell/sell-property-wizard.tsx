@@ -47,7 +47,9 @@ import {
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n"
-import { createPropertyAction } from "@/actions/properties"
+import { createPropertyAction, saveDraftPropertyAction, estimateValuationAction } from "@/actions/properties"
+import { getPresignedUploadUrlAction } from "@/actions/storage"
+import type { ValuationResult } from "@/actions/types"
 
 interface FormState {
   propertyType: "villa" | "penthouse" | "waterfront" | "chalet" | "compound"
@@ -88,6 +90,13 @@ export function SellPropertyWizard() {
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [isPublished, setIsPublished] = React.useState<boolean>(false)
   const [saveDraftToast, setSaveDraftToast] = React.useState<boolean>(false)
+  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false)
+  const [isDrafting, setIsDrafting] = React.useState<boolean>(false)
+  const [isUploadingMedia, setIsUploadingMedia] = React.useState<boolean>(false)
+  const [uploadedMediaName, setUploadedMediaName] = React.useState<string>("")
+  const [createdSlug, setCreatedSlug] = React.useState<string>("")
+  const [valuationData, setValuationData] = React.useState<ValuationResult | null>(null)
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
   React.useEffect(() => {
     if (!isLoggedIn) {
@@ -97,33 +106,26 @@ export function SellPropertyWizard() {
 
   const [form, setForm] = React.useState<FormState>({
     propertyType: "villa",
-    title: "The Bel Air Horizon Compound",
-    address: "10480 Bellagio Road",
-    city: "Bel Air, Los Angeles",
+    title: "",
+    address: "",
+    city: "",
     state: "CA",
-    zip: "90077",
-    gatedCommunity: true,
+    zip: "",
+    gatedCommunity: false,
     mlsSync: true,
-    beds: 5,
-    baths: 7,
-    sqft: 8500,
-    lotSize: "0.85 Acres",
+    beds: 4,
+    baths: 4,
+    sqft: 4500,
+    lotSize: "0.5 Acres",
     yearBuilt: 2024,
-    garage: 4,
-    price: 9850000,
-    hoaFee: 650,
+    garage: 2,
+    price: 3500000,
+    hoaFee: 0,
     commission: 2.5,
-    ndaRequired: true,
-    virtualTourUrl: "https://matterport.com/discover/space/estatehub-sample",
-    selectedAmenities: [
-      "Zero-Edge Infinity Pool",
-      "600-Bottle Glass Wine Cellar",
-      "Dolby Atmos Cinema",
-      "Gaggenau 400 Kitchen Suite",
-      "Subterranean Motor Vault",
-    ],
-    heroImage:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
+    ndaRequired: false,
+    virtualTourUrl: "",
+    selectedAmenities: [],
+    heroImage: "",
   })
 
   const steps = [
@@ -380,13 +382,76 @@ export function SellPropertyWizard() {
     }))
   }
 
-  const handlePublish = async () => {
-    setIsPublished(true)
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    }
+  // Calculate algorithmic valuation in real-time as specs or pricing change
+  React.useEffect(() => {
+    estimateValuationAction({
+      property_type: form.propertyType,
+      sqft: form.sqft,
+      beds: form.beds,
+      baths: form.baths,
+      city: form.city,
+      state: form.state,
+      amenities_count: form.selectedAmenities.length,
+      asking_price: form.price,
+    })
+      .then((res) => {
+        if (res.success && res.data) {
+          setValuationData(res.data)
+        }
+      })
+      .catch(() => {})
+  }, [
+    form.propertyType,
+    form.sqft,
+    form.beds,
+    form.baths,
+    form.city,
+    form.state,
+    form.selectedAmenities.length,
+    form.price,
+  ])
+
+  // Direct S3 presigned upload with automatic local preview fallback
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploadingMedia(true)
+    setUploadedMediaName(file.name)
+
     try {
-      await createPropertyAction({
+      const presign = await getPresignedUploadUrlAction(file.name, file.type, "properties")
+      if (presign.success && presign.data?.upload_url) {
+        try {
+          await fetch(presign.data.upload_url, {
+            method: "PUT",
+            headers: { "Content-Type": file.type },
+            body: file,
+          })
+          const cleanUrl = presign.data.upload_url.split("?")[0]
+          setForm((prev) => ({ ...prev, heroImage: cleanUrl }))
+        } catch {
+          const localUrl = URL.createObjectURL(file)
+          setForm((prev) => ({ ...prev, heroImage: localUrl }))
+        }
+      } else {
+        const localUrl = URL.createObjectURL(file)
+        setForm((prev) => ({ ...prev, heroImage: localUrl }))
+      }
+    } catch {
+      const localUrl = URL.createObjectURL(file)
+      setForm((prev) => ({ ...prev, heroImage: localUrl }))
+    } finally {
+      setIsUploadingMedia(false)
+    }
+  }
+
+  // Save as draft to backend API
+  const handleSaveDraft = async () => {
+    if (isDrafting) return
+    setIsDrafting(true)
+    try {
+      await saveDraftPropertyAction({
         title: form.title,
         address: form.address,
         city: form.city,
@@ -396,15 +461,73 @@ export function SellPropertyWizard() {
         beds: form.beds,
         baths: form.baths,
         sqft: form.sqft,
+        lot_size: form.lotSize,
+        year_built: form.yearBuilt,
+        garage: form.garage,
+        hoa_fee: `$${form.hoaFee}/mo`,
         property_type: form.propertyType,
         transaction_type: "buy",
         hero_image: form.heroImage,
-        description: `Luxury trophy residence in ${form.city}. Fully syndicated on private exchange.`,
-        approved: true,
-        featured: true,
+        images: [form.heroImage],
+        interior_amenities: form.selectedAmenities,
+        badge: form.gatedCommunity ? "Private Gated" : "Draft Holding",
+        description: `Draft luxury estate: ${form.title} in ${form.city}.`,
       })
     } catch {
-      // offline/demo resilience
+      // Offline / demo resilience
+    } finally {
+      setIsDrafting(false)
+      setSaveDraftToast(true)
+      setTimeout(() => setSaveDraftToast(false), 3500)
+    }
+  }
+
+  // Live syndication broadcast to API
+  const handlePublish = async () => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+    setIsPublished(true)
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    try {
+      const resolvedHero =
+        form.heroImage.trim() ||
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop"
+
+      const res = await createPropertyAction({
+        title: form.title,
+        address: form.address,
+        city: form.city,
+        state: form.state,
+        zip: form.zip,
+        price: form.price,
+        beds: form.beds,
+        baths: form.baths,
+        sqft: form.sqft,
+        lot_size: form.lotSize,
+        year_built: form.yearBuilt,
+        garage: form.garage,
+        hoa_fee: `$${form.hoaFee}/mo`,
+        property_type: form.propertyType,
+        transaction_type: "buy",
+        hero_image: resolvedHero,
+        images: [resolvedHero],
+        interior_amenities: form.selectedAmenities,
+        badge: form.gatedCommunity ? "Private Gated" : "Sovereign Asset",
+        description: `Luxury trophy residence in ${form.city || "Prime Enclave"}. Fully syndicated on private exchange with ${form.commission}% buyer broker commission.`,
+        approved: true,
+        featured: true,
+        status: "Active Listing",
+      })
+      if (res.success && res.data?.slug) {
+        setCreatedSlug(res.data.slug)
+        router.refresh()
+      }
+    } catch {
+      // offline resilience
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -439,14 +562,12 @@ export function SellPropertyWizard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setSaveDraftToast(true)
-                    setTimeout(() => setSaveDraftToast(false), 3000)
-                  }}
+                  disabled={isDrafting}
+                  onClick={handleSaveDraft}
                   className="gap-1.5 text-xs"
                 >
-                  <IconBookmark size={15} />
-                  <span>{t("sell.saveDraft", "Save Draft")}</span>
+                  <IconBookmark size={15} className={isDrafting ? "animate-pulse text-secondary" : ""} />
+                  <span>{isDrafting ? "Saving Draft..." : t("sell.saveDraft", "Save Draft")}</span>
                 </Button>
               </div>
             </div>
@@ -649,7 +770,7 @@ export function SellPropertyWizard() {
                   <Button
                     variant="outline"
                     size="lg"
-                    render={<Link href="/properties" />}
+                    render={<Link href={createdSlug ? `/properties/${createdSlug}` : "/properties"} />}
                     className="gap-2"
                   >
                     <span>{t("wizard.viewInPortfolio", "View in Portfolio")}</span>
@@ -856,18 +977,40 @@ export function SellPropertyWizard() {
                         </p>
                       </div>
 
-                      <div className="border-2 border-dashed border-outline-variant/40 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group">
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-outline-variant/40 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group"
+                      >
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleMediaUpload}
+                          accept="image/png,image/jpeg,image/webp,image/avif"
+                          className="hidden"
+                        />
                         <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
-                          <IconUpload size={28} />
+                          <IconUpload size={28} className={isUploadingMedia ? "animate-bounce text-secondary" : ""} />
                         </div>
                         <h3 className="text-sm font-bold text-on-surface">
-                          Drag &amp; drop architectural photography
+                          {isUploadingMedia
+                            ? "Encrypting & Uploading 4K Media..."
+                            : uploadedMediaName
+                            ? `Uploaded: ${uploadedMediaName}`
+                            : "Drag & drop architectural photography"}
                         </h3>
                         <p className="text-xs text-on-surface-variant mt-1">
-                          Supports RAW, TIFF, PNG, or JPG up to 100MB per asset.
+                          {isUploadingMedia
+                            ? "Direct-to-S3 Presigned Storage Transmission"
+                            : "Supports RAW, TIFF, PNG, or JPG up to 100MB per asset."}
                         </p>
-                        <Button variant="outline" size="sm" className="mt-4 text-xs font-semibold">
-                          Browse Media Files
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploadingMedia}
+                          className="mt-4 text-xs font-semibold pointer-events-none"
+                        >
+                          {isUploadingMedia ? "Uploading Media..." : "Browse Media Files"}
                         </Button>
                       </div>
 
@@ -949,6 +1092,46 @@ export function SellPropertyWizard() {
                             </span>
                           </label>
                         </div>
+
+                        {valuationData && (
+                          <div className="p-4 rounded-2xl bg-surface-container-low border border-secondary/30 flex flex-col gap-2.5 mt-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-on-surface flex items-center gap-1.5">
+                                <IconSparkles size={14} className="text-secondary" />
+                                Institutional Algorithmic Valuation Comps
+                              </span>
+                              <Badge variant="gold" className="text-[10px]">
+                                {valuationData.confidence_score}% Confidence · {valuationData.comps_count} Comps
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-1 border-t border-outline-variant/20">
+                              <div>
+                                <span className="text-[11px] text-on-surface-variant block">Fair Value Band</span>
+                                <span className="font-bold text-on-surface font-mono">
+                                  ${(valuationData.value_range_low / 1000000).toFixed(2)}M - ${(valuationData.value_range_high / 1000000).toFixed(2)}M
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[11px] text-on-surface-variant block">Algorithmic Target</span>
+                                <span className="font-bold text-secondary font-mono">
+                                  ${(valuationData.estimated_value / 1000000).toFixed(2)}M
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[11px] text-on-surface-variant block">Comp Benchmark</span>
+                                <span className="font-bold text-on-surface font-mono">
+                                  ${valuationData.price_per_sqft}/sqft
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[11px] text-on-surface-variant block">Est. Cap Rate</span>
+                                <span className="font-bold text-tertiary font-mono">
+                                  {valuationData.cap_rate_estimated}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1011,11 +1194,16 @@ export function SellPropertyWizard() {
                         type="button"
                         variant="gold"
                         size="lg"
+                        disabled={isSubmitting}
                         onClick={handlePublish}
                         className="gap-2 font-extrabold shadow-lg bg-tertiary hover:bg-tertiary text-primary-foreground"
                       >
-                        <IconSparkles size={18} />
-                        <span>{t("wizard.confirmBroadcast", "Confirm & Broadcast Syndicate")}</span>
+                        <IconSparkles size={18} className={isSubmitting ? "animate-spin" : ""} />
+                        <span>
+                          {isSubmitting
+                            ? "Broadcasting Listing..."
+                            : t("wizard.confirmBroadcast", "Confirm & Broadcast Syndicate")}
+                        </span>
                       </Button>
                     )}
                   </div>

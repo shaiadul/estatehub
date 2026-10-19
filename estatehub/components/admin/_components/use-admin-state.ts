@@ -18,6 +18,7 @@ import {
   updateUserKycAction,
   getUsersAction,
   getAuditLogsAction,
+  deleteUserAction,
 } from "@/actions/admin"
 import { getPropertiesAction } from "@/actions/properties"
 import { listClosingRoomsAction } from "@/actions/closing"
@@ -131,7 +132,7 @@ export function useAdminState() {
   }
 
   // Users State
-  const [users, setUsers] = React.useState<AdminUserItem[]>(INITIAL_ADMIN_USERS)
+  const [users, setUsers] = React.useState<AdminUserItem[]>([])
   const [userRoleFilter, setUserRoleFilter] = React.useState<string>("All")
 
   const [isAddUserModalOpen, setIsAddUserModalOpen] = React.useState(false)
@@ -145,58 +146,69 @@ export function useAdminState() {
     )
 
   // Properties State
-  const [properties, setProperties] = React.useState<AdminPropertyItem[]>(
-    INITIAL_ADMIN_PROPERTIES
-  )
+  const [properties, setProperties] = React.useState<AdminPropertyItem[]>([])
   const [propertyStatusFilter, setPropertyStatusFilter] =
     React.useState<string>("All")
 
   // Escrow State
-  const [escrowDeals, setEscrowDeals] =
-    React.useState<AdminEscrowDeal[]>(INITIAL_ADMIN_ESCROW)
+  const [escrowDeals, setEscrowDeals] = React.useState<AdminEscrowDeal[]>([])
 
   // Audit Logs State
-  const [auditLogs, setAuditLogs] =
-    React.useState<AdminAuditLogItem[]>(INITIAL_ADMIN_AUDIT)
+  const [auditLogs, setAuditLogs] = React.useState<AdminAuditLogItem[]>([])
   const [auditFilterSeverity, setAuditFilterSeverity] =
     React.useState<string>("All")
 
-  // Hydrate with live backend data
-  React.useEffect(() => {
-    let isMounted = true
-
-    // 1. Users
-    getUsersAction({ limit: 50 }).then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
+  const refetchUsers = React.useCallback(async () => {
+    try {
+      const res = await getUsersAction({ limit: 50 })
+      if (res.success && res.data) {
         setUsers(res.data.map(mapBackendToAdminUser))
       }
-    }).catch(() => {})
-
-    // 2. Properties
-    getPropertiesAction({ limit: 50 }).then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
-        setProperties(res.data.map(mapBackendToAdminProperty))
-      }
-    }).catch(() => {})
-
-    // 3. Audit Logs
-    getAuditLogsAction({ limit: 50 }).then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
-        setAuditLogs(res.data.map(mapBackendToAdminAudit))
-      }
-    }).catch(() => {})
-
-    // 4. Escrow Closing Deals
-    listClosingRoomsAction().then((res) => {
-      if (isMounted && res.success && res.data && res.data.length > 0) {
-        setEscrowDeals(res.data.map(mapBackendToAdminEscrow))
-      }
-    }).catch(() => {})
-
-    return () => {
-      isMounted = false
+    } catch (err) {
+      console.error("Error fetching admin users", err)
     }
   }, [])
+
+  const refetchProperties = React.useCallback(async () => {
+    try {
+      const res = await getPropertiesAction({ limit: 50 })
+      if (res.success && res.data) {
+        setProperties(res.data.map(mapBackendToAdminProperty))
+      }
+    } catch (err) {
+      console.error("Error fetching admin properties", err)
+    }
+  }, [])
+
+  const refetchAuditLogs = React.useCallback(async () => {
+    try {
+      const res = await getAuditLogsAction({ limit: 50 })
+      if (res.success && res.data) {
+        setAuditLogs(res.data.map(mapBackendToAdminAudit))
+      }
+    } catch (err) {
+      console.error("Error fetching admin audit logs", err)
+    }
+  }, [])
+
+  const refetchEscrowDeals = React.useCallback(async () => {
+    try {
+      const res = await listClosingRoomsAction()
+      if (res.success && res.data) {
+        setEscrowDeals(res.data.map(mapBackendToAdminEscrow))
+      }
+    } catch (err) {
+      console.error("Error fetching admin escrow deals", err)
+    }
+  }, [])
+
+  // Hydrate with live backend data
+  React.useEffect(() => {
+    refetchUsers()
+    refetchProperties()
+    refetchAuditLogs()
+    refetchEscrowDeals()
+  }, [refetchUsers, refetchProperties, refetchAuditLogs, refetchEscrowDeals])
 
   // Policy & Global Settings State
   const [policy, setPolicy] = React.useState<PlatformPolicy>({
@@ -215,18 +227,17 @@ export function useAdminState() {
   const [broadcastMessage, setBroadcastMessage] = React.useState("")
 
   // User Actions
-  const handleToggleUserKyc = (id: string) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u
-        const nextStatus: AdminUserItem["kycStatus"] =
-          u.kycStatus === "Verified" ? "Action Required" : "Verified"
-        const nextVerified = nextStatus === "Verified"
-        updateUserKycAction(id, nextVerified ? "verified" : "pending").catch(() => {})
-        return { ...u, kycStatus: nextStatus, verified: nextVerified }
-      })
-    )
-    triggerToast("User KYC accreditation status updated")
+  const handleToggleUserKyc = async (id: string) => {
+    const target = users.find((u) => u.id === id)
+    const nextVerified = target?.kycStatus !== "Verified"
+    try {
+      await updateUserKycAction(id, nextVerified ? "verified" : "pending")
+      triggerToast("User KYC accreditation status updated")
+      await refetchUsers()
+      await refetchAuditLogs()
+    } catch {
+      triggerToast("Failed to update user KYC")
+    }
   }
 
   const handleChangeUserRole = (id: string, newRole: AdminUserItem["role"]) => {
@@ -236,9 +247,14 @@ export function useAdminState() {
     triggerToast(`User role updated to ${newRole.toUpperCase()}`)
   }
 
-  const handleDeleteUser = (id: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id))
-    triggerToast("User account revoked from platform enclave")
+  const handleDeleteUser = async (id: string) => {
+    try {
+      await deleteUserAction(id)
+      triggerToast("User account revoked from platform enclave")
+      await refetchUsers()
+    } catch {
+      triggerToast("Failed to revoke user account")
+    }
   }
 
   const handleCreateUser = (e: React.FormEvent) => {
@@ -276,12 +292,14 @@ export function useAdminState() {
   }
 
   // Property Actions
-  const handleApproveProperty = (id: string) => {
-    setProperties((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: "Active" } : p))
-    )
-    moderatePropertyAction(id, true).catch(() => {})
-    triggerToast("Listing approved and synchronized to public radar index")
+  const handleApproveProperty = async (id: string) => {
+    try {
+      await moderatePropertyAction(id, true)
+      triggerToast("Listing approved and synchronized to public radar index")
+      await refetchProperties()
+    } catch {
+      triggerToast("Failed to approve property")
+    }
   }
 
   const handleToggleFeaturedProperty = (id: string) => {
@@ -291,16 +309,16 @@ export function useAdminState() {
     triggerToast("Featured showcase placement updated")
   }
 
-  const handleDelistProperty = (id: string) => {
-    setProperties((prev) =>
-      prev.map((p) => {
-        if (p.id !== id) return p
-        const nextStatus = p.status === "Delisted" ? "Active" : "Delisted"
-        moderatePropertyAction(id, nextStatus === "Active").catch(() => {})
-        return { ...p, status: nextStatus }
-      })
-    )
-    triggerToast("Listing publication status modified")
+  const handleDelistProperty = async (id: string) => {
+    const target = properties.find((p) => p.id === id)
+    const nextApproved = target?.status === "Delisted"
+    try {
+      await moderatePropertyAction(id, nextApproved)
+      triggerToast("Listing publication status modified")
+      await refetchProperties()
+    } catch {
+      triggerToast("Failed to modify listing publication status")
+    }
   }
 
   // Escrow Actions
@@ -486,6 +504,10 @@ export function useAdminState() {
     totalPlatformFeesEarned,
     pendingApprovalsCount,
     pendingKycCount,
+    refetchUsers,
+    refetchProperties,
+    refetchAuditLogs,
+    refetchEscrowDeals,
   }
 }
 

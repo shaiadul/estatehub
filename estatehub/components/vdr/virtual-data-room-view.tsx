@@ -7,7 +7,6 @@ import {
   DEFAULT_PROPERTY,
   DiligenceRepository,
   DirectorCard,
-  DOCUMENTS,
   EscrowChannels,
   ExhibitModal,
   FinancialsSection,
@@ -78,8 +77,12 @@ export function VirtualDataRoomView({ property = DEFAULT_PROPERTY }: VirtualData
     }, 3200)
   }, [])
 
-  const vdr = useVdrState({ initialPrice: activeProperty.price, onNotify: notify })
-  const totalVaultMb = React.useMemo(() => vaultSizeMb(DOCUMENTS), [])
+  const vdr = useVdrState({
+    propertyId: activeProperty.id,
+    initialPrice: activeProperty.price,
+    onNotify: notify,
+  })
+  const totalVaultMb = React.useMemo(() => vaultSizeMb(vdr.docList), [vdr.docList])
 
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] bg-surface">
@@ -93,13 +96,13 @@ export function VirtualDataRoomView({ property = DEFAULT_PROPERTY }: VirtualData
           onDownloadVault={vdr.downloadVault}
         />
 
-        <VdrTabs activeTab={vdr.activeTab} onChange={vdr.setActiveTab} docs={DOCUMENTS} />
+        <VdrTabs activeTab={vdr.activeTab} onChange={vdr.setActiveTab} docs={vdr.docList} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8 flex flex-col gap-6 md:gap-8">
             <DiligenceRepository
               filteredDocs={vdr.filteredDocs}
-              totalCount={DOCUMENTS.length}
+              totalCount={vdr.docList.length}
               searchQuery={vdr.searchQuery}
               onSearchChange={vdr.setSearchQuery}
               downloadingId={vdr.downloadingId}

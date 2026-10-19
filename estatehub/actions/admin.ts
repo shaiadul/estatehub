@@ -102,3 +102,21 @@ export async function getAuditLogsAction(
     cache: "no-store",
   })
 }
+
+/**
+ * Delete a user from administration desk.
+ */
+export async function deleteUserAction(
+  userId: string
+): Promise<ApiResponse<{ message: string }>> {
+  const res = await fetcherWithAuth<{ message: string }>(`/admin/users/${userId}`, {
+    method: "DELETE",
+    cache: "no-store",
+  })
+
+  if (res.success) {
+    revalidatePath("/admin")
+  }
+
+  return res
+}
