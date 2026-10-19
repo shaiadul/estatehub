@@ -78,7 +78,7 @@ export async function createPropertyAction(
 ): Promise<ApiResponse<Property>> {
   const res = await fetcherWithAuth<Property>("/properties", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: payload,
     cache: "no-store",
   })
 
@@ -100,7 +100,7 @@ export async function updatePropertyAction(
 ): Promise<ApiResponse<Property>> {
   const res = await fetcherWithAuth<Property>(`/properties/${id}`, {
     method: "PUT",
-    body: JSON.stringify(payload),
+    body: payload,
     cache: "no-store",
   })
 

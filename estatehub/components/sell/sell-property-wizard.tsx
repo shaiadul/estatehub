@@ -45,6 +45,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { useRouter } from "next/navigation"
+import { Spinner } from "@/components/ui/spinner"
 import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n"
 import { createPropertyAction, saveDraftPropertyAction, estimateValuationAction } from "@/actions/properties"
@@ -85,7 +86,7 @@ const STEP_META: Record<number, { Icon: typeof IconMapPin; blurb: string }> = {
 
 export function SellPropertyWizard() {
   const router = useRouter()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const { t } = useI18n()
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [isPublished, setIsPublished] = React.useState<boolean>(false)
@@ -99,10 +100,11 @@ export function SellPropertyWizard() {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
   React.useEffect(() => {
+    if (authLoading) return
     if (!isLoggedIn) {
-      router.replace("/register?role=seller&redirect=/sell")
+      router.replace("/login?role=seller&redirect=/sell")
     }
-  }, [isLoggedIn, router])
+  }, [authLoading, isLoggedIn, router])
 
   const [form, setForm] = React.useState<FormState>({
     propertyType: "villa",
@@ -529,6 +531,14 @@ export function SellPropertyWizard() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
+        <Spinner className="size-8 text-primary" />
+      </div>
+    )
   }
 
   return (

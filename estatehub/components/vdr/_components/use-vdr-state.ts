@@ -11,7 +11,7 @@ import type {
 } from "./types"
 import { DEFAULT_LOI_PRINCIPAL, DOCUMENTS, LOI_BOUNDS } from "./vdr-data"
 import { filterDocs, generateLoiNumber, generateVdrHash, validateLoiPrice } from "./vdr-utils"
-import { getVdrDocumentsAction } from "@/actions/vdr"
+import { getVdrDocumentsAction, getVdrDownloadUrlAction } from "@/actions/vdr"
 import { submitOfferAction } from "@/actions/offers"
 
 function mapBackendVdrDoc(d: any): DiligenceDoc {
@@ -102,18 +102,25 @@ export function useVdrState(options: UseVdrStateOptions = {}) {
   const refreshHash = React.useCallback(() => setVdrHash(generateVdrHash()), [])
 
   const downloadDoc = React.useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (downloadingId) return
       const doc = docList.find((d) => d.id === id) || DOCUMENTS.find((d) => d.id === id)
       setDownloadingId(id)
-      window.setTimeout(() => {
+      try {
+        const res = await getVdrDownloadUrlAction(id, { inline: false })
+        if (res.success && res.data?.download_url) {
+          window.open(res.data.download_url, "_blank")
+        }
+      } catch {
+        // resilience fallback
+      } finally {
         setDownloadingId(null)
         setPreviewDoc((current) => (current?.id === id ? null : current))
         notify({
           title: "Document decrypted",
           description: `${doc?.title ?? "Exhibit"} verified (SHA-256) and downloaded.`,
         })
-      }, 800)
+      }
     },
     [downloadingId, docList, notify],
   )

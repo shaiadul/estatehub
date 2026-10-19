@@ -2,7 +2,15 @@
 
 import { cookies } from "next/headers"
 import { fetcher, fetcherWithAuth } from "./fetcher"
-import type { ApiResponse, AuthTokens, User, UserRole } from "./types"
+import type {
+  ApiResponse,
+  AuthTokens,
+  ForgotPasswordResponse,
+  ResetPasswordPayload,
+  UpdateProfilePayload,
+  User,
+  UserRole,
+} from "./types"
 
 export interface LoginPayload {
   email: string
@@ -31,10 +39,10 @@ export async function loginAction(
 
   const res = await fetcher<AuthTokens>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       email: credentials.email.trim(),
       password: credentials.password || "Password123!",
-    }),
+    },
     cache: "no-store",
   })
 
@@ -73,7 +81,7 @@ export async function registerAction(
 ): Promise<ApiResponse<AuthTokens>> {
   const res = await fetcher<AuthTokens>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       email: payload.email.trim(),
       password: payload.password || "Password123!",
       full_name: payload.full_name,
@@ -81,7 +89,7 @@ export async function registerAction(
       title: payload.title,
       entity_name: payload.entity_name,
       phone: payload.phone,
-    }),
+    },
     cache: "no-store",
   })
 
@@ -145,7 +153,7 @@ export async function refreshTokenAction(
 ): Promise<ApiResponse<AuthTokens>> {
   const res = await fetcher<AuthTokens>("/auth/refresh", {
     method: "POST",
-    body: JSON.stringify({ refresh_token: refreshToken }),
+    body: { refresh_token: refreshToken },
     cache: "no-store",
   })
 
@@ -172,7 +180,7 @@ export async function googleAuthCallbackAction(
 ): Promise<ApiResponse<AuthTokens>> {
   const res = await fetcher<AuthTokens>("/auth/oauth/google", {
     method: "POST",
-    body: JSON.stringify({ code, default_role: defaultRole }),
+    body: { code, default_role: defaultRole },
     cache: "no-store",
   })
 
@@ -197,6 +205,57 @@ export async function listAgentsAction(): Promise<ApiResponse<User[]>> {
   return fetcher<User[]>("/agents", {
     revalidate: 60,
     tags: ["agents"],
+  })
+}
+
+/**
+ * Dispatch encrypted password recovery nonce to registered email.
+ */
+export async function forgotPasswordAction(
+  email: string
+): Promise<ApiResponse<ForgotPasswordResponse>> {
+  if (!email) {
+    return { success: false, error: "Email is required" }
+  }
+
+  return fetcher<ForgotPasswordResponse>("/auth/forgot-password", {
+    method: "POST",
+    body: { email: email.trim() },
+    cache: "no-store",
+  })
+}
+
+/**
+ * Reset password using the verification token / recovery nonce.
+ */
+export async function resetPasswordAction(
+  payload: ResetPasswordPayload
+): Promise<ApiResponse<{ message: string }>> {
+  if (!payload.email || !payload.new_password) {
+    return { success: false, error: "Email and new password are required" }
+  }
+
+  return fetcher<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    body: {
+      email: payload.email.trim(),
+      token: payload.token,
+      new_password: payload.new_password,
+    },
+    cache: "no-store",
+  })
+}
+
+/**
+ * Update authenticated user profile details.
+ */
+export async function updateProfileAction(
+  payload: UpdateProfilePayload
+): Promise<ApiResponse<User>> {
+  return fetcherWithAuth<User>("/auth/me", {
+    method: "PUT",
+    body: payload,
+    cache: "no-store",
   })
 }
 

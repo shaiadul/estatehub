@@ -16,10 +16,12 @@ import {
 import {
   moderatePropertyAction,
   updateUserKycAction,
+  updateUserRoleAction,
   getUsersAction,
   getAuditLogsAction,
   deleteUserAction,
 } from "@/actions/admin"
+import { registerAction } from "@/actions/auth"
 import { getPropertiesAction } from "@/actions/properties"
 import { listClosingRoomsAction } from "@/actions/closing"
 
@@ -240,11 +242,17 @@ export function useAdminState() {
     }
   }
 
-  const handleChangeUserRole = (id: string, newRole: AdminUserItem["role"]) => {
+  const handleChangeUserRole = async (id: string, newRole: AdminUserItem["role"]) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
     )
-    triggerToast(`User role updated to ${newRole.toUpperCase()}`)
+    try {
+      await updateUserRoleAction(id, newRole)
+      triggerToast(`User role updated to ${newRole.toUpperCase()} in enclave registry`)
+      await refetchUsers()
+    } catch {
+      triggerToast("User role update failed")
+    }
   }
 
   const handleDeleteUser = async (id: string) => {
@@ -257,38 +265,29 @@ export function useAdminState() {
     }
   }
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newUserName || !newUserEmail) return
 
-    const newUser: AdminUserItem = {
-      id: `USR-${users.length + 101}`,
-      name: newUserName,
-      email: newUserEmail,
-      role: newUserRole,
-      roleTitle:
-        newUserRole === "admin"
-          ? "Platform Administrator"
-          : newUserRole === "broker"
-            ? "Licensed Broker Partner"
-            : newUserRole === "seller"
-              ? "Accredited Estate Seller"
-              : "Accredited Sovereign Buyer",
-      accreditationTier: newUserTier,
-      kycStatus: "Verified",
-      avatar:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
-      portfolioCount: 1,
-      joinedDate: "Just now",
-      lastActive: "Just now",
-      verified: true,
+    try {
+      const res = await registerAction({
+        email: newUserEmail.trim(),
+        full_name: newUserName.trim(),
+        role: newUserRole,
+      })
+      if (res.success) {
+        triggerToast(`New enclave member "${newUserName}" authorized`)
+        await refetchUsers()
+      } else {
+        triggerToast(res.error || "Failed to authorize user")
+      }
+    } catch {
+      triggerToast("Network error authorizing user")
+    } finally {
+      setIsAddUserModalOpen(false)
+      setNewUserName("")
+      setNewUserEmail("")
     }
-
-    setUsers([newUser, ...users])
-    setIsAddUserModalOpen(false)
-    setNewUserName("")
-    setNewUserEmail("")
-    triggerToast(`New enclave member "${newUser.name}" authorized`)
   }
 
   // Property Actions

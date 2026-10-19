@@ -25,11 +25,11 @@ export async function getPresignedUploadUrlAction(
 ): Promise<ApiResponse<PresignedUploadResponse>> {
   return fetcherWithAuth<PresignedUploadResponse>("/storage/presign-upload", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       folder: purpose,
       filename,
       content_type: fileType,
-    }),
+    },
     cache: "no-store",
   })
 }

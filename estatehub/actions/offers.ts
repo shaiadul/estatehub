@@ -23,7 +23,7 @@ export async function submitOfferAction(
 ): Promise<ApiResponse<Offer>> {
   const res = await fetcherWithAuth<Offer>("/offers", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: payload,
     cache: "no-store",
   })
 
@@ -63,10 +63,10 @@ export async function counterOfferAction(
 ): Promise<ApiResponse<Offer>> {
   const res = await fetcherWithAuth<Offer>(`/offers/${id}/counter`, {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       counter_amount: counterAmount,
       counter_note: counterNote,
-    }),
+    },
     cache: "no-store",
   })
 

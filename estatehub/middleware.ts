@@ -72,11 +72,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 3. Protected Member Routes (/dashboard, /sell, /closing)
+  // 3. Protected Member Routes (/dashboard, /sell, /closing, /vdr)
   const isProtectedPath =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/sell") ||
-    pathname.startsWith("/closing")
+    pathname.startsWith("/closing") ||
+    pathname.startsWith("/vdr")
 
   if (isProtectedPath) {
     if (!isValidAuth) {
@@ -84,6 +85,8 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set("redirect", pathname + search)
       if (pathname.startsWith("/sell")) {
         loginUrl.searchParams.set("role", "seller")
+      } else if (pathname.startsWith("/vdr")) {
+        loginUrl.searchParams.set("role", "buyer")
       }
       const res = NextResponse.redirect(loginUrl)
       if (isTokenExpired) {
@@ -107,6 +110,8 @@ export const config = {
     "/sell",
     "/closing/:path*",
     "/closing",
+    "/vdr/:path*",
+    "/vdr",
     "/login",
     "/register",
   ],

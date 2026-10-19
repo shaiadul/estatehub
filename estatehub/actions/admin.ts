@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { fetcherWithAuth, getQueryString } from "./fetcher"
-import type { AdminOverview, ApiResponse, AuditLog, KYCStatus, User } from "./types"
+import type { AdminOverview, ApiResponse, AuditLog, KYCStatus, User, UserRole } from "./types"
 
 /**
  * Fetch top-level admin platform metrics (GMV, Escrow volume, KYC pending).
@@ -25,7 +25,27 @@ export async function updateUserKycAction(
 ): Promise<ApiResponse<User>> {
   const res = await fetcherWithAuth<User>(`/admin/users/${userId}/kyc`, {
     method: "PUT",
-    body: JSON.stringify({ kyc_status: status, accredited }),
+    body: { kyc_status: status, accredited },
+    cache: "no-store",
+  })
+
+  if (res.success) {
+    revalidatePath("/admin")
+  }
+
+  return res
+}
+
+/**
+ * Update a user's enclave access role (buyer, seller, broker, admin).
+ */
+export async function updateUserRoleAction(
+  userId: string,
+  role: UserRole
+): Promise<ApiResponse<User>> {
+  const res = await fetcherWithAuth<User>(`/admin/users/${userId}/role`, {
+    method: "PUT",
+    body: { role },
     cache: "no-store",
   })
 
@@ -48,7 +68,7 @@ export async function moderatePropertyAction(
     `/admin/properties/${propertyId}/moderate`,
     {
       method: "PUT",
-      body: JSON.stringify({ approved }),
+      body: { approved },
       cache: "no-store",
     }
   )

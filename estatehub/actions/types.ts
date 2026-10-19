@@ -48,6 +48,37 @@ export interface AuthTokens {
   user: User
 }
 
+export interface ForgotPasswordResponse {
+  message: string
+  verification_nonce: string
+  expires_in_secs: number
+}
+
+export interface ResetPasswordPayload {
+  email: string
+  token: string
+  new_password: string
+}
+
+export interface UpdateProfilePayload {
+  full_name?: string
+  title?: string
+  entity_name?: string
+  phone?: string
+  avatar_url?: string
+}
+
+export interface VdrAccessLog {
+  id: string
+  property_id: string
+  user_id: string
+  document_id?: string
+  action: string
+  ip_address?: string
+  user_agent?: string
+  created_at: string
+}
+
 export interface Property {
   id: string
   slug: string

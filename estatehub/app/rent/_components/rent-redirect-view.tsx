@@ -10,18 +10,17 @@ import { Spinner } from "@/components/ui/spinner"
 
 export function RentRedirectView() {
   const router = useRouter()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading } = useAuth()
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!isLoggedIn) {
-        router.replace("/login?role=buyer&redirect=/properties?type=rent")
-      } else {
-        router.replace("/properties?type=rent")
-      }
-    }, 400)
-    return () => clearTimeout(timer)
-  }, [isLoggedIn, router])
+    if (isLoading) return
+
+    if (!isLoggedIn) {
+      router.replace("/login?role=buyer&redirect=/properties?type=rent")
+    } else {
+      router.replace("/properties?type=rent")
+    }
+  }, [isLoggedIn, isLoading, router])
 
   return (
     <div className="flex min-h-screen flex-col bg-surface text-on-surface">

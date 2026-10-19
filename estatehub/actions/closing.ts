@@ -35,7 +35,7 @@ export async function disburseWireAction(
 ): Promise<ApiResponse<ClosingRoom>> {
   const res = await fetcherWithAuth<ClosingRoom>(`/closing/${id}/disburse`, {
     method: "POST",
-    body: JSON.stringify({ fido_token: fidoToken }),
+    body: { fido_token: fidoToken },
     cache: "no-store",
   })
 

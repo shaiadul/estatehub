@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { fetcherWithAuth, getQueryString } from "./fetcher"
-import type { ApiResponse, VdrDocument } from "./types"
+import type { ApiResponse, VdrAccessLog, VdrDocument } from "./types"
 
 export interface VdrFilterParams {
   category?: "legal" | "engineering" | "financial" | "permits" | "all" | string
@@ -86,9 +86,44 @@ export async function uploadVdrDocumentAction(
 ): Promise<ApiResponse<VdrDocument>> {
   const res = await fetcherWithAuth<VdrDocument>(`/vdr/${propertyId}/documents`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: payload,
     cache: "no-store",
   })
+
+  if (res.success) {
+    revalidatePath("/vdr")
+    revalidatePath("/dashboard")
+  }
+
+  return res
+}
+
+/**
+ * Fetch immutable cryptographic access logs for a VDR data room.
+ */
+export async function getVdrLogsAction(
+  propertyId: string,
+  limit = 50
+): Promise<ApiResponse<VdrAccessLog[]>> {
+  return fetcherWithAuth<VdrAccessLog[]>(
+    `/vdr/properties/${propertyId}/logs${getQueryString({ limit })}`,
+    { cache: "no-store" }
+  )
+}
+
+/**
+ * Delete a document from the Virtual Data Room.
+ */
+export async function deleteVdrDocumentAction(
+  documentId: string
+): Promise<ApiResponse<{ message: string }>> {
+  const res = await fetcherWithAuth<{ message: string }>(
+    `/vdr/documents/${documentId}`,
+    {
+      method: "DELETE",
+      cache: "no-store",
+    }
+  )
 
   if (res.success) {
     revalidatePath("/vdr")
