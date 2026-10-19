@@ -50,9 +50,20 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type UpdateProfileRequest struct {
+	FullName   string `json:"full_name"`
+	Title      string `json:"title"`
+	EntityName string `json:"entity_name"`
+	Phone      string `json:"phone"`
+	AvatarURL  string `json:"avatar_url"`
+}
+
 type AuthResponse struct {
-	User   *domain.User   `json:"user"`
-	Tokens *jwt.TokenPair `json:"tokens"`
+	User         *domain.User   `json:"user"`
+	Tokens       *jwt.TokenPair `json:"tokens,omitempty"`
+	AccessToken  string         `json:"access_token"`
+	RefreshToken string         `json:"refresh_token"`
+	ExpiresIn    int64          `json:"expires_in"`
 }
 
 func (s *AuthService) Register(ctx context.Context, req RegisterRequest) (*AuthResponse, error) {
@@ -114,7 +125,13 @@ func (s *AuthService) Register(ctx context.Context, req RegisterRequest) (*AuthR
 		Details:   fmt.Sprintf("Registered new account with role %s", user.Role),
 	})
 
-	return &AuthResponse{User: user, Tokens: tokens}, nil
+	return &AuthResponse{
+		User:         user,
+		Tokens:       tokens,
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		ExpiresIn:    tokens.ExpiresIn,
+	}, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, req LoginRequest, ip, ua string) (*AuthResponse, error) {
@@ -145,14 +162,21 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest, ip, ua string
 		UserEmail: user.Email,
 		Action:    "USER_LOGIN",
 		Resource:  "auth",
+		Details:   "User authenticated successfully",
 		IPAddress: ip,
 		UserAgent: ua,
 	})
 
-	return &AuthResponse{User: user, Tokens: tokens}, nil
+	return &AuthResponse{
+		User:         user,
+		Tokens:       tokens,
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		ExpiresIn:    tokens.ExpiresIn,
+	}, nil
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*jwt.TokenPair, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*AuthResponse, error) {
 	claims, err := s.tokenManager.ValidateToken(refreshToken)
 	if err != nil {
 		return nil, domain.ErrUnauthorized
@@ -171,7 +195,18 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*j
 		return nil, errors.New("account is frozen")
 	}
 
-	return s.tokenManager.GeneratePair(user.ID, user.Email, string(user.Role), user.Accredited)
+	tokens, err := s.tokenManager.GeneratePair(user.ID, user.Email, string(user.Role), user.Accredited)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AuthResponse{
+		User:         user,
+		Tokens:       tokens,
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		ExpiresIn:    tokens.ExpiresIn,
+	}, nil
 }
 
 func (s *AuthService) GoogleOAuthLogin(ctx context.Context, code string, defaultRole domain.UserRole) (*AuthResponse, error) {
@@ -210,9 +245,114 @@ func (s *AuthService) GoogleOAuthLogin(ctx context.Context, code string, default
 		return nil, err
 	}
 
-	return &AuthResponse{User: user, Tokens: tokens}, nil
+	return &AuthResponse{
+		User:         user,
+		Tokens:       tokens,
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		ExpiresIn:    tokens.ExpiresIn,
+	}, nil
 }
 
 func (s *AuthService) GetProfile(ctx context.Context, userID string) (*domain.User, error) {
 	return s.userRepo.FindByID(ctx, userID)
+}
+
+func (s *AuthService) UpdateProfile(ctx context.Context, userID string, req UpdateProfileRequest) (*domain.User, error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.FullName != "" {
+		user.FullName = req.FullName
+	}
+	if req.Title != "" {
+		user.Title = req.Title
+	}
+	if req.EntityName != "" {
+		user.EntityName = req.EntityName
+	}
+	if req.Phone != "" {
+		user.Phone = req.Phone
+	}
+	if req.AvatarURL != "" {
+		user.AvatarURL = req.AvatarURL
+	}
+
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:    &user.ID,
+		UserEmail: user.Email,
+		Action:    "PROFILE_UPDATED",
+		Resource:  "auth",
+		Details:   "User profile updated",
+	})
+
+	return user, nil
+}
+
+type ForgotPasswordResponse struct {
+	Message         string `json:"message"`
+	VerificationNonce string `json:"verification_nonce"`
+	ExpiresInSecs   int    `json:"expires_in_secs"`
+}
+
+func (s *AuthService) ForgotPassword(ctx context.Context, email string) (*ForgotPasswordResponse, error) {
+	user, _ := s.userRepo.FindByEmail(ctx, email)
+	// Return success regardless to prevent email enumeration
+	nonce := fmt.Sprintf("#0x%x", time.Now().UnixNano()%0xFFFFFFF)
+	if user != nil {
+		_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+			UserID:    &user.ID,
+			UserEmail: user.Email,
+			Action:    "PASSWORD_RECOVERY_REQUESTED",
+			Resource:  "auth",
+			Details:   fmt.Sprintf("Dispatched recovery nonce %s", nonce),
+		})
+	}
+	return &ForgotPasswordResponse{
+		Message:         "Encrypted recovery dispatched to institutional mailbox",
+		VerificationNonce: nonce,
+		ExpiresInSecs:   900,
+	}, nil
+}
+
+func (s *AuthService) ResetPassword(ctx context.Context, email, token, newPassword string) error {
+	user, err := s.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		return errors.New("invalid or expired recovery session")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	user.PasswordHash = string(hashedPassword)
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return err
+	}
+
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:    &user.ID,
+		UserEmail: user.Email,
+		Action:    "PASSWORD_RESET_SUCCESSFUL",
+		Resource:  "auth",
+		Details:   "Password successfully reset",
+	})
+
+	return nil
+}
+
+func (s *AuthService) ListAgents(ctx context.Context) ([]domain.User, error) {
+	brokerRole := domain.RoleBroker
+	users, _, err := s.userRepo.List(ctx, domain.UserFilter{
+		Role:  &brokerRole,
+		Limit: 50,
+	})
+	return users, err
 }

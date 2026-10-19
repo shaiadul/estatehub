@@ -25,6 +25,7 @@ type TokenPair struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token"`
 	ExpiresAt    time.Time `json:"expires_at"`
+	ExpiresIn    int64     `json:"expires_in"`
 	Role         string    `json:"role"`
 	UserID       string    `json:"user_id"`
 }
@@ -94,6 +95,7 @@ func (m *TokenManager) GeneratePair(userID, email, role string, accredited bool)
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpiresAt:    accessExp,
+		ExpiresIn:    int64(m.accessExpiry.Seconds()),
 		Role:         role,
 		UserID:       userID,
 	}, nil

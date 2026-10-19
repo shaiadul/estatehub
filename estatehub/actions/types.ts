@@ -48,6 +48,37 @@ export interface AuthTokens {
   user: User
 }
 
+export interface ForgotPasswordResponse {
+  message: string
+  verification_nonce: string
+  expires_in_secs: number
+}
+
+export interface ResetPasswordPayload {
+  email: string
+  token: string
+  new_password: string
+}
+
+export interface UpdateProfilePayload {
+  full_name?: string
+  title?: string
+  entity_name?: string
+  phone?: string
+  avatar_url?: string
+}
+
+export interface VdrAccessLog {
+  id: string
+  property_id: string
+  user_id: string
+  document_id?: string
+  action: string
+  ip_address?: string
+  user_agent?: string
+  created_at: string
+}
+
 export interface Property {
   id: string
   slug: string
@@ -209,3 +240,27 @@ export interface AdminOverview {
   total_offers: number
   tours_scheduled: number
 }
+
+export interface ValuationInput {
+  property_type?: string
+  sqft: number
+  beds?: number
+  baths?: number
+  city?: string
+  state?: string
+  amenities_count?: number
+  asking_price?: number
+}
+
+export interface ValuationResult {
+  estimated_value: number
+  value_range_low: number
+  value_range_high: number
+  price_per_sqft: number
+  cap_rate_estimated: string
+  est_monthly_mortgage: string
+  confidence_score: number
+  comps_count: number
+  market_tier: string
+}
+

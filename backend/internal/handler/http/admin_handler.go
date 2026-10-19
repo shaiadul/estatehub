@@ -37,11 +37,11 @@ func (h *AdminHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 		Search: q.Get("search"),
 	}
 
-	if role := q.Get("role"); role != "" {
+	if role := q.Get("role"); role != "" && role != "All" {
 		r := domain.UserRole(role)
 		filter.Role = &r
 	}
-	if kyc := q.Get("kyc_status"); kyc != "" {
+	if kyc := q.Get("kyc_status"); kyc != "" && kyc != "All" {
 		k := domain.KYCStatus(kyc)
 		filter.KYCStatus = &k
 	}
@@ -90,6 +90,41 @@ func (h *AdminHandler) UpdateKYC(w http.ResponseWriter, r *http.Request) {
 	JSON(w, http.StatusOK, user)
 }
 
+type UpdateUserRoleRequest struct {
+	Role domain.UserRole `json:"role"`
+}
+
+func (h *AdminHandler) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
+	targetUserID := chi.URLParam(r, "id")
+	adminID := GetUserID(r)
+
+	var req UpdateUserRoleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Role == "" {
+		Error(w, http.StatusBadRequest, "INVALID_BODY", "Valid role is required")
+		return
+	}
+
+	user, err := h.adminService.UpdateUserRole(r.Context(), adminID, targetUserID, req.Role)
+	if err != nil {
+		Error(w, http.StatusBadRequest, "UPDATE_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, user)
+}
+
+func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	targetUserID := chi.URLParam(r, "id")
+	adminID := GetUserID(r)
+
+	if err := h.adminService.DeleteUser(r.Context(), adminID, targetUserID); err != nil {
+		Error(w, http.StatusBadRequest, "DELETE_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, map[string]string{"message": "User deleted successfully"})
+}
+
 type ModeratePropertyRequest struct {
 	Approved bool `json:"approved"`
 	Featured bool `json:"featured"`
@@ -116,12 +151,21 @@ func (h *AdminHandler) ModerateProperty(w http.ResponseWriter, r *http.Request) 
 
 func (h *AdminHandler) AuditLogs(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	filter := domain.AuditFilter{}
+	filter := domain.AuditFilter{
+		Search: q.Get("search"),
+	}
+
 	if email := q.Get("user_email"); email != "" {
 		filter.UserEmail = &email
 	}
 	if action := q.Get("action"); action != "" {
 		filter.Action = &action
+	}
+	if role := q.Get("actor_role"); role != "" {
+		filter.ActorRole = &role
+	}
+	if resType := q.Get("resource_type"); resType != "" {
+		filter.ResourceType = &resType
 	}
 
 	page, _ := strconv.Atoi(q.Get("page"))

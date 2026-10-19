@@ -124,9 +124,17 @@ export function PropertiesTab({ state }: PropertiesTabProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/20">
-              {filteredProperties.map((prop) => (
-                <tr
-                  key={prop.id}
+              {filteredProperties.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-on-surface-variant">
+                    <p className="text-sm font-semibold">No property listings found</p>
+                    <p className="mt-1 text-xs text-on-surface-variant/70">Add a new property or adjust filters above.</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredProperties.map((prop) => (
+                  <tr
+                    key={prop.id}
                   className="transition-colors hover:bg-surface-container-high/30"
                 >
                   <td className="py-4 font-mono text-[11px] text-on-surface-variant">
@@ -220,7 +228,7 @@ export function PropertiesTab({ state }: PropertiesTabProps) {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

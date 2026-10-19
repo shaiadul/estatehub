@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	apphttp "github.com/estatehub/backend/internal/handler/http"
 	"github.com/estatehub/backend/internal/domain"
+	apphttp "github.com/estatehub/backend/internal/handler/http"
 	"github.com/estatehub/backend/pkg/jwt"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -70,13 +70,20 @@ func NewRouter(p RouterParams) *chi.Mux {
 			a.Post("/login", p.AuthHandler.Login)
 			a.Post("/refresh", p.AuthHandler.Refresh)
 			a.Post("/oauth/google", p.AuthHandler.GoogleOAuth)
+			a.Post("/forgot-password", p.AuthHandler.ForgotPassword)
+			a.Post("/reset-password", p.AuthHandler.ResetPassword)
 
 			// Protected Profile
 			a.Group(func(pr chi.Router) {
 				pr.Use(apphttp.AuthMiddleware(p.TokenManager))
 				pr.Get("/me", p.AuthHandler.Me)
+				pr.Put("/me", p.AuthHandler.UpdateProfile)
+				pr.Put("/profile", p.AuthHandler.UpdateProfile)
 			})
 		})
+
+		// Public Agents & Advisors Directory
+		v1.Get("/agents", p.AuthHandler.ListAgents)
 
 		// Properties
 		v1.Route("/properties", func(pr chi.Router) {
@@ -91,6 +98,8 @@ func NewRouter(p RouterParams) *chi.Mux {
 				// Bookmarks
 				authPr.Get("/saved", p.PropertyHandler.ListSaved)
 				authPr.Post("/{id}/bookmark", p.PropertyHandler.ToggleBookmark)
+				authPr.Get("/mine", p.PropertyHandler.ListMyProperties)
+				authPr.Get("/my", p.PropertyHandler.ListMyProperties)
 
 				// Sellers, Brokers, and Admins can create/manage listings
 				authPr.Group(func(sellerPr chi.Router) {
@@ -123,8 +132,17 @@ func NewRouter(p RouterParams) *chi.Mux {
 		// Virtual Data Room (VDR)
 		v1.Route("/vdr", func(vd chi.Router) {
 			vd.Use(apphttp.AuthMiddleware(p.TokenManager))
+			// Property-scoped documents list and upload
 			vd.Get("/properties/{property_id}/documents", p.VdrHandler.ListDocuments)
+			vd.Post("/properties/{property_id}/documents", p.VdrHandler.UploadDocument)
+			// Aliases used directly by actions
+			vd.Get("/{property_id}/documents", p.VdrHandler.ListDocuments)
+			vd.Post("/{property_id}/documents", p.VdrHandler.UploadDocument)
+			// Access logs
+			vd.Get("/properties/{property_id}/logs", p.VdrHandler.AccessLogs)
+			// Direct document actions
 			vd.Post("/documents/{id}/download", p.VdrHandler.Download)
+			vd.Delete("/documents/{id}", p.VdrHandler.DeleteDocument)
 		})
 
 		// Bilateral Closing Desk
@@ -133,6 +151,7 @@ func NewRouter(p RouterParams) *chi.Mux {
 			cl.Get("/", p.ClosingHandler.List)
 			cl.Get("/{id}", p.ClosingHandler.Get)
 			cl.Post("/{id}/disburse", p.ClosingHandler.DisburseWire)
+			cl.Post("/{id}/record-deed", p.ClosingHandler.RecordDeed)
 		})
 
 		// S3 Presigned Media Storage
@@ -150,6 +169,8 @@ func NewRouter(p RouterParams) *chi.Mux {
 			ad.Get("/overview", p.AdminHandler.Overview)
 			ad.Get("/users", p.AdminHandler.ListUsers)
 			ad.Put("/users/{id}/kyc", p.AdminHandler.UpdateKYC)
+			ad.Put("/users/{id}/role", p.AdminHandler.UpdateUserRole)
+			ad.Delete("/users/{id}", p.AdminHandler.DeleteUser)
 			ad.Put("/properties/{id}/moderate", p.AdminHandler.ModerateProperty)
 			ad.Get("/audit", p.AdminHandler.AuditLogs)
 		})

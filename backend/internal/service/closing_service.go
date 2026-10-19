@@ -38,11 +38,16 @@ func (s *ClosingService) DisburseWire(ctx context.Context, closingID, userID, fi
 	wireTx := fmt.Sprintf("#FED-%d-%06d", time.Now().Year(), rand.Intn(900000)+100000)
 	deedRec := fmt.Sprintf("#CA-LA-%d-%05d", time.Now().Year(), rand.Intn(90000)+10000)
 
+	room.FidoWireAuthorized = true
+	room.DeedRecorded = true
 	room.PhaseWireDisbursed = true
 	room.PhaseDeedRecorded = true
 	room.WireTransactionID = wireTx
 	room.DeedRecordingNumber = deedRec
-	room.Status = domain.ClosingStatusSettled
+	room.Stage = domain.ClosingStageSettled
+	room.Status = "Settled"
+	now := time.Now()
+	room.ClosingDate = &now
 
 	if err := s.repo.Update(ctx, room); err != nil {
 		return nil, err
@@ -53,7 +58,39 @@ func (s *ClosingService) DisburseWire(ctx context.Context, closingID, userID, fi
 		Action:   "WIRE_DISBURSED_SETTLED",
 		Resource: fmt.Sprintf("closing:%s", room.ID),
 		Details: fmt.Sprintf("Settled $%.2f via %s. Recorded deed %s with FIDO2 token %s",
-			room.BalanceToClose, wireTx, deedRec, fidoToken),
+			room.RemainingBalance, wireTx, deedRec, fidoToken),
+		HashSignature: fmt.Sprintf("0x%x", rand.Int63()),
+	})
+
+	return room, nil
+}
+
+func (s *ClosingService) RecordDeed(ctx context.Context, closingID, userID string) (*domain.ClosingRoom, error) {
+	room, err := s.repo.FindByID(ctx, closingID)
+	if err != nil {
+		return nil, err
+	}
+
+	deedRec := fmt.Sprintf("#CA-COUNTY-%d-%05d", time.Now().Year(), rand.Intn(90000)+10000)
+	room.DeedRecorded = true
+	room.PhaseDeedRecorded = true
+	room.DeedRecordingNumber = deedRec
+	if room.FidoWireAuthorized {
+		room.Stage = domain.ClosingStageSettled
+		room.Status = "Settled"
+	} else {
+		room.Stage = domain.ClosingStageDeedRecording
+	}
+
+	if err := s.repo.Update(ctx, room); err != nil {
+		return nil, err
+	}
+
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:   &userID,
+		Action:   "DEED_RECORDED",
+		Resource: fmt.Sprintf("closing:%s", room.ID),
+		Details:  fmt.Sprintf("Recorded deed %s for contract %s", deedRec, room.ContractNumber),
 		HashSignature: fmt.Sprintf("0x%x", rand.Int63()),
 	})
 

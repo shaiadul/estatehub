@@ -5,6 +5,8 @@ import Image from "next/image"
 import { Fragment } from "react"
 import { IconArrowRight } from "@tabler/icons-react"
 import { PropertyData } from "@/lib/properties-data"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 interface SimilarPropertiesProps {
   similarProperties: PropertyData[]
@@ -29,41 +31,42 @@ export function SimilarProperties({ similarProperties }: SimilarPropertiesProps)
           {similarProperties.map((simProp) => {
             const stats = [`${simProp.beds} Beds`, `${simProp.baths} Baths`, `${simProp.sqftFormatted} Sq Ft`]
             return (
-              <Link
+              <Card
                 key={simProp.id}
-                href={`/properties/${simProp.slug}`}
-                className="group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-outline-variant/20 block"
+                className="group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all border border-outline-variant/30 p-0 block"
               >
-                <div className="relative h-52 overflow-hidden bg-surface-container">
-                  <Image
-                    src={simProp.heroImage}
-                    alt={simProp.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-primary-container/80 backdrop-blur text-primary-foreground text-xs font-bold">
-                    {simProp.priceFormatted}
-                  </span>
-                </div>
-
-                <div className="p-4 flex flex-col gap-1.5">
-                  <h3 className="text-sm font-bold text-on-surface truncate group-hover:text-secondary transition-colors">
-                    {simProp.title}
-                  </h3>
-                  <p className="text-xs text-on-surface-variant truncate">
-                    {simProp.address}, {simProp.city}
-                  </p>
-                  <div className="flex items-center gap-3 text-on-surface-variant text-[11px] pt-2 border-t border-outline-variant/20 mt-1">
-                    {stats.map((stat, idx) => (
-                      <Fragment key={stat}>
-                        {idx > 0 && <span>•</span>}
-                        <span>{stat}</span>
-                      </Fragment>
-                    ))}
+                <Link href={`/properties/${simProp.slug}`} className="block">
+                  <div className="relative h-52 overflow-hidden bg-surface-container">
+                    <Image
+                      src={simProp.heroImage}
+                      alt={simProp.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <Badge variant="gold" className="absolute top-3 left-3 text-xs font-bold shadow-sm">
+                      {simProp.priceFormatted}
+                    </Badge>
                   </div>
-                </div>
-              </Link>
+
+                  <CardContent className="p-4 flex flex-col gap-1.5">
+                    <h3 className="text-sm font-bold text-on-surface truncate group-hover:text-secondary transition-colors">
+                      {simProp.title}
+                    </h3>
+                    <p className="text-xs text-on-surface-variant truncate">
+                      {simProp.address}, {simProp.city}
+                    </p>
+                    <div className="flex items-center gap-3 text-on-surface-variant text-[11px] pt-2 border-t border-outline-variant/20 mt-1">
+                      {stats.map((stat, idx) => (
+                        <Fragment key={stat}>
+                          {idx > 0 && <span>•</span>}
+                          <span>{stat}</span>
+                        </Fragment>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Link>
+              </Card>
             )
           })}
         </div>

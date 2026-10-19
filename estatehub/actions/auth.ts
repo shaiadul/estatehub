@@ -2,7 +2,15 @@
 
 import { cookies } from "next/headers"
 import { fetcher, fetcherWithAuth } from "./fetcher"
-import type { ApiResponse, AuthTokens, User, UserRole } from "./types"
+import type {
+  ApiResponse,
+  AuthTokens,
+  ForgotPasswordResponse,
+  ResetPasswordPayload,
+  UpdateProfilePayload,
+  User,
+  UserRole,
+} from "./types"
 
 export interface LoginPayload {
   email: string
@@ -25,24 +33,41 @@ export interface RegisterPayload {
 export async function loginAction(
   credentials: LoginPayload
 ): Promise<ApiResponse<AuthTokens>> {
+  if (!credentials.email) {
+    return { success: false, error: "Email is required" }
+  }
+
   const res = await fetcher<AuthTokens>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({
-      email: credentials.email,
-      password: credentials.password || "Password123!", // fallback for quick demo auth
-    }),
+    body: {
+      email: credentials.email.trim(),
+      password: credentials.password || "Password123!",
+    },
     cache: "no-store",
   })
 
-  if (res.success && res.data?.access_token) {
-    const cookieStore = await cookies()
-    cookieStore.set("estatehub_token", res.data.access_token, {
-      httpOnly: false, // allow client fetchers if needed
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    })
+  if (res.success && res.data) {
+    const token = res.data.access_token || (res.data as any).tokens?.access_token
+    const user = res.data.user
+    if (token) {
+      const cookieStore = await cookies()
+      cookieStore.set("estatehub_token", token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+      })
+      if (user?.role) {
+        cookieStore.set("estatehub_role", user.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        })
+      }
+    }
   }
 
   return res
@@ -56,27 +81,40 @@ export async function registerAction(
 ): Promise<ApiResponse<AuthTokens>> {
   const res = await fetcher<AuthTokens>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({
-      email: payload.email,
+    body: {
+      email: payload.email.trim(),
       password: payload.password || "Password123!",
       full_name: payload.full_name,
       role: payload.role || "buyer",
       title: payload.title,
       entity_name: payload.entity_name,
       phone: payload.phone,
-    }),
+    },
     cache: "no-store",
   })
 
-  if (res.success && res.data?.access_token) {
-    const cookieStore = await cookies()
-    cookieStore.set("estatehub_token", res.data.access_token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    })
+  if (res.success && res.data) {
+    const token = res.data.access_token || (res.data as any).tokens?.access_token
+    const user = res.data.user
+    if (token) {
+      const cookieStore = await cookies()
+      cookieStore.set("estatehub_token", token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60,
+      })
+      if (user?.role) {
+        cookieStore.set("estatehub_role", user.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        })
+      }
+    }
   }
 
   return res
@@ -88,6 +126,7 @@ export async function registerAction(
 export async function logoutAction(): Promise<ApiResponse<{ message: string }>> {
   const cookieStore = await cookies()
   cookieStore.delete("estatehub_token")
+  cookieStore.delete("estatehub_role")
   cookieStore.delete("token")
   cookieStore.delete("session")
 
@@ -107,15 +146,14 @@ export async function getMeAction(): Promise<ApiResponse<User>> {
 }
 
 /**
- * Exchange Google OAuth code for tokens.
+ * Refresh access token using stored refresh token.
  */
-export async function googleAuthCallbackAction(
-  code: string,
-  state?: string
+export async function refreshTokenAction(
+  refreshToken: string
 ): Promise<ApiResponse<AuthTokens>> {
-  const res = await fetcher<AuthTokens>("/auth/google/callback", {
+  const res = await fetcher<AuthTokens>("/auth/refresh", {
     method: "POST",
-    body: JSON.stringify({ code, state }),
+    body: { refresh_token: refreshToken },
     cache: "no-store",
   })
 
@@ -132,3 +170,92 @@ export async function googleAuthCallbackAction(
 
   return res
 }
+
+/**
+ * Exchange Google OAuth code for tokens.
+ */
+export async function googleAuthCallbackAction(
+  code: string,
+  defaultRole: UserRole = "buyer"
+): Promise<ApiResponse<AuthTokens>> {
+  const res = await fetcher<AuthTokens>("/auth/oauth/google", {
+    method: "POST",
+    body: { code, default_role: defaultRole },
+    cache: "no-store",
+  })
+
+  if (res.success && res.data?.access_token) {
+    const cookieStore = await cookies()
+    cookieStore.set("estatehub_token", res.data.access_token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    })
+  }
+
+  return res
+}
+
+/**
+ * Fetch all verified broker advisors and syndicate leads from public directory.
+ */
+export async function listAgentsAction(): Promise<ApiResponse<User[]>> {
+  return fetcher<User[]>("/agents", {
+    revalidate: 60,
+    tags: ["agents"],
+  })
+}
+
+/**
+ * Dispatch encrypted password recovery nonce to registered email.
+ */
+export async function forgotPasswordAction(
+  email: string
+): Promise<ApiResponse<ForgotPasswordResponse>> {
+  if (!email) {
+    return { success: false, error: "Email is required" }
+  }
+
+  return fetcher<ForgotPasswordResponse>("/auth/forgot-password", {
+    method: "POST",
+    body: { email: email.trim() },
+    cache: "no-store",
+  })
+}
+
+/**
+ * Reset password using the verification token / recovery nonce.
+ */
+export async function resetPasswordAction(
+  payload: ResetPasswordPayload
+): Promise<ApiResponse<{ message: string }>> {
+  if (!payload.email || !payload.new_password) {
+    return { success: false, error: "Email and new password are required" }
+  }
+
+  return fetcher<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    body: {
+      email: payload.email.trim(),
+      token: payload.token,
+      new_password: payload.new_password,
+    },
+    cache: "no-store",
+  })
+}
+
+/**
+ * Update authenticated user profile details.
+ */
+export async function updateProfileAction(
+  payload: UpdateProfilePayload
+): Promise<ApiResponse<User>> {
+  return fetcherWithAuth<User>("/auth/me", {
+    method: "PUT",
+    body: payload,
+    cache: "no-store",
+  })
+}
+

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/estatehub/backend/internal/domain"
 	"gorm.io/gorm"
@@ -16,7 +17,23 @@ func NewTourRepository(db *gorm.DB) *TourRepository {
 	return &TourRepository{db: db}
 }
 
+func populateTour(tour *domain.TourBooking) {
+	if tour == nil {
+		return
+	}
+	if tour.VisitorName == "" && tour.ClientName != "" {
+		tour.VisitorName = tour.ClientName
+	}
+	if tour.ClientName == "" && tour.VisitorName != "" {
+		tour.ClientName = tour.VisitorName
+	}
+	if tour.SpecialRequests == "" && tour.Notes != "" {
+		tour.SpecialRequests = tour.Notes
+	}
+}
+
 func (r *TourRepository) Create(ctx context.Context, tour *domain.TourBooking) error {
+	populateTour(tour)
 	return r.db.WithContext(ctx).Create(tour).Error
 }
 
@@ -29,10 +46,12 @@ func (r *TourRepository) FindByID(ctx context.Context, id string) (*domain.TourB
 		}
 		return nil, err
 	}
+	populateTour(&tour)
 	return &tour, nil
 }
 
 func (r *TourRepository) Update(ctx context.Context, tour *domain.TourBooking) error {
+	populateTour(tour)
 	return r.db.WithContext(ctx).Save(tour).Error
 }
 
@@ -52,8 +71,15 @@ func (r *TourRepository) List(ctx context.Context, filter domain.TourFilter) ([]
 	if filter.PropertyID != nil {
 		q = q.Where("property_id = ?", *filter.PropertyID)
 	}
-	if filter.Status != nil {
-		q = q.Where("status = ?", *filter.Status)
+	if filter.Status != nil && *filter.Status != "" {
+		st := strings.ToLower(string(*filter.Status))
+		q = q.Where("LOWER(status) = ?", st)
+	}
+	if filter.TourType != nil && *filter.TourType != "" {
+		q = q.Where("tour_type = ?", *filter.TourType)
+	}
+	if filter.Date != nil && *filter.Date != "" {
+		q = q.Where("date = ?", *filter.Date)
 	}
 
 	if err := q.Count(&total).Error; err != nil {
@@ -65,9 +91,13 @@ func (r *TourRepository) List(ctx context.Context, filter domain.TourFilter) ([]
 		limit = 20
 	}
 
-	err := q.Order("scheduled_at ASC").Limit(limit).Offset(filter.Offset).Find(&tours).Error
+	err := q.Order("created_at DESC").Limit(limit).Offset(filter.Offset).Find(&tours).Error
 	if err != nil {
 		return nil, 0, err
+	}
+
+	for i := range tours {
+		populateTour(&tours[i])
 	}
 
 	return tours, total, nil

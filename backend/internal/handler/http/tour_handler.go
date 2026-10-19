@@ -47,6 +47,12 @@ func (h *TourHandler) List(w http.ResponseWriter, r *http.Request) {
 		st := domain.TourStatus(status)
 		filter.Status = &st
 	}
+	if tourType := q.Get("tour_type"); tourType != "" {
+		filter.TourType = &tourType
+	}
+	if date := q.Get("date"); date != "" {
+		filter.Date = &date
+	}
 
 	tours, total, err := h.tourService.ListTours(r.Context(), userID, role, filter)
 	if err != nil {

@@ -21,6 +21,7 @@ import { PropertyData } from "@/lib/properties-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Spinner } from "@/components/ui/spinner"
 import { useI18n } from "@/lib/i18n"
 import { TourType } from "./types"
 
@@ -260,7 +261,7 @@ export function BookingSidebar({
               >
                 {bookingSubmitting ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <Spinner className="size-3.5 text-current" />
                     <span>{t("booking.confirming", "Confirming Access...")}</span>
                   </span>
                 ) : (

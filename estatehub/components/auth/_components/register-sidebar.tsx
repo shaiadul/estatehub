@@ -36,6 +36,7 @@ export function RegisterSidebar() {
           <Image
             className="object-cover"
             fill
+            priority
             sizes="(max-width: 1024px) 100vw, 400px"
             alt="Ultra-luxury private architectural modern villa overlooking Lake Zurich"
             src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop"
@@ -106,7 +107,7 @@ export function RegisterSidebar() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm border border-outline-variant/50">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm border border-outline-variant/50">
             <Image
               className="object-cover"
             fill

@@ -30,12 +30,47 @@ func NewVdrService(
 }
 
 type VdrDocumentDownloadResponse struct {
-	Document  *domain.VdrDocument    `json:"document"`
-	Presigned *storage.PresignResult `json:"presigned"`
+	DownloadURL string                 `json:"download_url"`
+	ExpiresIn   int64                  `json:"expires_in"`
+	Document    *domain.VdrDocument    `json:"document"`
+	Presigned   *storage.PresignResult `json:"presigned"`
 }
 
-func (s *VdrService) ListDocuments(ctx context.Context, propertyID string, category *domain.VdrCategory) ([]domain.VdrDocument, error) {
-	return s.repo.ListDocumentsByProperty(ctx, propertyID, category)
+func (s *VdrService) ListDocuments(ctx context.Context, propertyID string, filter domain.VdrFilter) ([]domain.VdrDocument, error) {
+	return s.repo.ListDocumentsByProperty(ctx, propertyID, filter)
+}
+
+func (s *VdrService) CreateDocument(ctx context.Context, uploaderID string, doc *domain.VdrDocument) (*domain.VdrDocument, error) {
+	doc.UploadedBy = uploaderID
+	if doc.FileType == "" {
+		doc.FileType = "application/pdf"
+	}
+	if doc.Classification == "" {
+		doc.Classification = "restricted"
+	}
+	if doc.Sha256Checksum == "" {
+		doc.Sha256Checksum = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	}
+	if err := s.repo.CreateDocument(ctx, doc); err != nil {
+		return nil, err
+	}
+
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:   &uploaderID,
+		Action:   "VDR_DOCUMENT_UPLOADED",
+		Resource: fmt.Sprintf("vdr_doc:%s", doc.ID),
+		Details:  fmt.Sprintf("Uploaded VDR document %s (%s)", doc.Title, doc.Category),
+	})
+
+	return doc, nil
+}
+
+func (s *VdrService) DeleteDocument(ctx context.Context, docID string) error {
+	return s.repo.DeleteDocument(ctx, docID)
+}
+
+func (s *VdrService) ListAccessLogs(ctx context.Context, propertyID string, limit int) ([]domain.VdrAccessLog, error) {
+	return s.repo.ListAccessLogs(ctx, propertyID, limit)
 }
 
 func (s *VdrService) GetDownloadURL(ctx context.Context, docID, userID, ip, ua string) (*VdrDocumentDownloadResponse, error) {
@@ -49,11 +84,11 @@ func (s *VdrService) GetDownloadURL(ctx context.Context, docID, userID, ip, ua s
 		return nil, domain.ErrUnauthorized
 	}
 
-	if doc.IsRestricted && !user.Accredited {
+	if (doc.Classification == "restricted" || doc.Classification == "confidential") && !user.Accredited && user.Role != domain.RoleAdmin && user.Role != domain.RoleBroker {
 		return nil, domain.ErrKycRequired
 	}
 
-	presigned, err := s.presigner.GenerateDownloadURL(ctx, doc.StorageKey)
+	presigned, err := s.presigner.GenerateDownloadURL(ctx, doc.FileKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate secure presigned URL: %w", err)
 	}
@@ -71,12 +106,14 @@ func (s *VdrService) GetDownloadURL(ctx context.Context, docID, userID, ip, ua s
 		UserEmail: user.Email,
 		Action:    "VDR_DOWNLOAD",
 		Resource:  fmt.Sprintf("vdr_doc:%s", doc.ID),
-		Details:   fmt.Sprintf("Downloaded %s (%s)", doc.Title, doc.Sha256),
+		Details:   fmt.Sprintf("Downloaded %s (%s)", doc.Title, doc.Sha256Checksum),
 		IPAddress: ip,
 	})
 
 	return &VdrDocumentDownloadResponse{
-		Document:  doc,
-		Presigned: presigned,
+		DownloadURL: presigned.URL,
+		ExpiresIn:   presigned.ExpiresIn,
+		Document:    doc,
+		Presigned:   presigned,
 	}, nil
 }

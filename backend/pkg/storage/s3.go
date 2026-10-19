@@ -19,11 +19,15 @@ type S3Presigner struct {
 }
 
 type PresignResult struct {
-	URL       string    `json:"url"`
-	Key       string    `json:"key"`
-	Bucket    string    `json:"bucket"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Method    string    `json:"method"`
+	URL         string    `json:"url"`
+	Key         string    `json:"key"`
+	Bucket      string    `json:"bucket"`
+	ExpiresAt   time.Time `json:"expires_at"`
+	Method      string    `json:"method"`
+	UploadURL   string    `json:"upload_url,omitempty"`
+	DownloadURL string    `json:"download_url,omitempty"`
+	FileKey     string    `json:"file_key,omitempty"`
+	ExpiresIn   int64     `json:"expires_in,omitempty"`
 }
 
 func NewS3Presigner(endpoint, region, bucket, accessKey, secretKey string, usePathStyle bool, duration time.Duration) *S3Presigner {
@@ -72,12 +76,16 @@ func (s *S3Presigner) GenerateUploadURL(ctx context.Context, key, contentType st
 		return nil, fmt.Errorf("failed to presign upload URL: %w", err)
 	}
 
+	expSecs := int64(s.presignDuration.Seconds())
 	return &PresignResult{
-		URL:       req.URL,
-		Key:       key,
-		Bucket:    s.bucket,
-		ExpiresAt: time.Now().Add(s.presignDuration),
-		Method:    "PUT",
+		URL:         req.URL,
+		Key:         key,
+		Bucket:      s.bucket,
+		ExpiresAt:   time.Now().Add(s.presignDuration),
+		Method:      "PUT",
+		UploadURL:   req.URL,
+		FileKey:     key,
+		ExpiresIn:   expSecs,
 	}, nil
 }
 
@@ -94,12 +102,16 @@ func (s *S3Presigner) GenerateDownloadURL(ctx context.Context, key string) (*Pre
 		return nil, fmt.Errorf("failed to presign download URL: %w", err)
 	}
 
+	expSecs := int64(s.presignDuration.Seconds())
 	return &PresignResult{
-		URL:       req.URL,
-		Key:       key,
-		Bucket:    s.bucket,
-		ExpiresAt: time.Now().Add(s.presignDuration),
-		Method:    "GET",
+		URL:         req.URL,
+		Key:         key,
+		Bucket:      s.bucket,
+		ExpiresAt:   time.Now().Add(s.presignDuration),
+		Method:      "GET",
+		DownloadURL: req.URL,
+		FileKey:     key,
+		ExpiresIn:   expSecs,
 	}, nil
 }
 

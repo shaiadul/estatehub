@@ -10,7 +10,8 @@ export type QueryParamValue =
   | undefined
   | null
 
-export interface FetchOptions extends RequestInit {
+export interface FetchOptions extends Omit<RequestInit, "body"> {
+  body?: any
   params?: Record<string, QueryParamValue>
   revalidate?: number | false
   tags?: string[]
@@ -134,6 +135,19 @@ function buildUrl(endpoint: string, params?: FetchOptions["params"]): string {
 }
 
 /**
+ * Safely checks whether a value is a standard or polyfilled FormData instance across SSR & client.
+ */
+export function isFormData(val: unknown): val is FormData {
+  if (!val || typeof val !== "object") return false
+  if (typeof FormData !== "undefined" && val instanceof FormData) return true
+  return (
+    typeof (val as any).append === "function" &&
+    typeof (val as any).get === "function" &&
+    typeof (val as any).entries === "function"
+  )
+}
+
+/**
  * High-performance Public Fetcher for SSR and Client.
  * Automatically handles Next.js caching options (revalidate, tags).
  */
@@ -144,10 +158,41 @@ export async function fetcher<T = any>(
   const { params, revalidate, tags, headers, ...restInit } = options
   const targetUrl = buildUrl(endpoint, params)
 
+  const hasBody = restInit.body !== undefined && restInit.body !== null
+  const isForm = isFormData(restInit.body)
+
+  let serializedBody: BodyInit | null | undefined
+
+  if (hasBody) {
+    if (isForm) {
+      // Pass FormData directly so fetch automatically generates boundary header
+      serializedBody = restInit.body as FormData
+    } else if (
+      typeof restInit.body === "string" ||
+      (typeof Blob !== "undefined" && restInit.body instanceof Blob) ||
+      (typeof ArrayBuffer !== "undefined" && restInit.body instanceof ArrayBuffer) ||
+      (typeof URLSearchParams !== "undefined" && restInit.body instanceof URLSearchParams)
+    ) {
+      serializedBody = restInit.body as BodyInit
+    } else {
+      // Plain JS Object, Array, number, boolean -> JSON serialize
+      serializedBody = JSON.stringify(restInit.body)
+    }
+  }
+
   const requestHeaders: Record<string, string> = {
     Accept: "application/json",
-    "Content-Type": "application/json",
     ...(headers as Record<string, string>),
+  }
+
+  // Manage Content-Type safely:
+  if (isForm) {
+    // CRITICAL: Must delete Content-Type so fetch sets 'multipart/form-data; boundary=...'
+    delete requestHeaders["Content-Type"]
+    delete requestHeaders["content-type"]
+  } else if (hasBody && !requestHeaders["Content-Type"] && !requestHeaders["content-type"]) {
+    // If not FormData and sending JSON / serialized body, default to application/json
+    requestHeaders["Content-Type"] = "application/json"
   }
 
   // Next.js custom fetch options
@@ -160,17 +205,25 @@ export async function fetcher<T = any>(
   }
 
   try {
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[Next.js Action] ${restInit.method || "GET"} ${targetUrl}`)
+    }
     const res = await fetch(targetUrl, {
       ...restInit,
+      body: serializedBody,
       headers: requestHeaders,
       ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
     })
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => null)
+      const errorMsg =
+        errBody?.error?.message ||
+        (typeof errBody?.error === "string" ? errBody.error : null) ||
+        `HTTP error ${res.status}: ${res.statusText}`
       return {
         success: false,
-        error: errBody?.error || `HTTP error ${res.status}: ${res.statusText}`,
+        error: errorMsg,
       }
     }
 

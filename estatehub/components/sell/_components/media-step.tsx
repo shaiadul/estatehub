@@ -4,6 +4,7 @@ import * as React from "react"
 import { IconUpload } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getPresignedUploadUrlAction } from "@/actions/storage"
 import type { FormState } from "./types"
 
 interface MediaStepProps {
@@ -12,6 +13,44 @@ interface MediaStepProps {
 }
 
 export function MediaStep({ form, setForm }: MediaStepProps) {
+  const [isUploading, setIsUploading] = React.useState<boolean>(false)
+  const [uploadedName, setUploadedName] = React.useState<string>("")
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    setUploadedName(file.name)
+
+    try {
+      const presign = await getPresignedUploadUrlAction(file.name, file.type, "properties")
+      if (presign.success && presign.data?.upload_url) {
+        try {
+          await fetch(presign.data.upload_url, {
+            method: "PUT",
+            headers: { "Content-Type": file.type },
+            body: file,
+          })
+          const cleanUrl = presign.data.upload_url.split("?")[0]
+          setForm((prev) => ({ ...prev, heroImage: cleanUrl }))
+        } catch {
+          const localUrl = URL.createObjectURL(file)
+          setForm((prev) => ({ ...prev, heroImage: localUrl }))
+        }
+      } else {
+        const localUrl = URL.createObjectURL(file)
+        setForm((prev) => ({ ...prev, heroImage: localUrl }))
+      }
+    } catch {
+      const localUrl = URL.createObjectURL(file)
+      setForm((prev) => ({ ...prev, heroImage: localUrl }))
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const urlFields = [
     {
       key: "heroImage",
@@ -42,18 +81,40 @@ export function MediaStep({ form, setForm }: MediaStepProps) {
         </p>
       </div>
 
-      <div className="border-2 border-dashed border-outline-variant/40 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group">
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        className="border-2 border-dashed border-outline-variant/40 rounded-3xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:border-secondary transition-colors cursor-pointer group"
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept="image/png,image/jpeg,image/webp,image/avif"
+          className="hidden"
+        />
         <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
-          <IconUpload size={28} />
+          <IconUpload size={28} className={isUploading ? "animate-bounce text-secondary" : ""} />
         </div>
         <h3 className="text-sm font-bold text-on-surface">
-          Drag &amp; drop architectural photography
+          {isUploading
+            ? "Encrypting & Uploading 4K Media..."
+            : uploadedName
+            ? `Uploaded: ${uploadedName}`
+            : "Drag & drop architectural photography"}
         </h3>
         <p className="text-xs text-on-surface-variant mt-1">
-          Supports RAW, TIFF, PNG, or JPG up to 100MB per asset.
+          {isUploading
+            ? "Direct-to-S3 Presigned Storage Transmission"
+            : "Supports RAW, TIFF, PNG, or JPG up to 100MB per asset."}
         </p>
-        <Button variant="outline" size="sm" className="mt-4 text-xs font-semibold">
-          Browse Media Files
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isUploading}
+          className="mt-4 text-xs font-semibold pointer-events-none"
+        >
+          {isUploading ? "Uploading Media..." : "Browse Media Files"}
         </Button>
       </div>
 

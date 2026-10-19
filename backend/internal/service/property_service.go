@@ -90,8 +90,25 @@ func (s *PropertyService) GetByID(ctx context.Context, id string) (*domain.Prope
 
 func (s *PropertyService) Create(ctx context.Context, prop *domain.Property) error {
 	if prop.Slug == "" {
-		prop.Slug = strings.ToLower(strings.ReplaceAll(prop.Title, " ", "-"))
+		slug := strings.ToLower(strings.ReplaceAll(prop.Title, " ", "-"))
+		slug = strings.ReplaceAll(slug, "'", "")
+		slug = strings.ReplaceAll(slug, ",", "")
+		prop.Slug = slug
 	}
+	if prop.PriceFormatted == "" && prop.Price > 0 {
+		prop.PriceFormatted = fmt.Sprintf("$%.0f", prop.Price)
+	}
+	if prop.EstMortgage == "" && prop.Price > 0 {
+		prop.EstMortgage = fmt.Sprintf("$%.0f/mo", prop.Price*0.005)
+	}
+	if prop.SqftFormatted == "" && prop.Sqft > 0 {
+		prop.SqftFormatted = fmt.Sprintf("%d sqft", prop.Sqft)
+	}
+	if prop.Status == "" {
+		prop.Status = "Active Listing"
+	}
+	prop.Approved = true
+
 	if err := s.repo.Create(ctx, prop); err != nil {
 		return err
 	}

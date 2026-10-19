@@ -25,7 +25,7 @@ export async function bookTourAction(
 ): Promise<ApiResponse<TourBooking>> {
   const res = await fetcherWithAuth<TourBooking>("/tours", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: payload,
     cache: "no-store",
   })
 
@@ -60,7 +60,7 @@ export async function updateTourStatusAction(
 ): Promise<ApiResponse<TourBooking>> {
   const res = await fetcherWithAuth<TourBooking>(`/tours/${id}/status`, {
     method: "PUT",
-    body: JSON.stringify({ status }),
+    body: { status },
     cache: "no-store",
   })
 

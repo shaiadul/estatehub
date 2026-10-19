@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { fetcherWithAuth, getQueryString } from "./fetcher"
-import type { AdminOverview, ApiResponse, AuditLog, KYCStatus, User } from "./types"
+import type { AdminOverview, ApiResponse, AuditLog, KYCStatus, User, UserRole } from "./types"
 
 /**
  * Fetch top-level admin platform metrics (GMV, Escrow volume, KYC pending).
@@ -21,11 +21,11 @@ export async function getAdminOverviewAction(): Promise<
 export async function updateUserKycAction(
   userId: string,
   status: KYCStatus,
-  notes?: string
+  accredited = status === "verified"
 ): Promise<ApiResponse<User>> {
   const res = await fetcherWithAuth<User>(`/admin/users/${userId}/kyc`, {
     method: "PUT",
-    body: JSON.stringify({ status, notes }),
+    body: { kyc_status: status, accredited },
     cache: "no-store",
   })
 
@@ -35,6 +35,27 @@ export async function updateUserKycAction(
 
   return res
 }
+
+/**
+ * Update a user's enclave access role (buyer, seller, broker, admin).
+ */
+export async function updateUserRoleAction(
+  userId: string,
+  role: UserRole
+): Promise<ApiResponse<User>> {
+  const res = await fetcherWithAuth<User>(`/admin/users/${userId}/role`, {
+    method: "PUT",
+    body: { role },
+    cache: "no-store",
+  })
+
+  if (res.success) {
+    revalidatePath("/admin")
+  }
+
+  return res
+}
+
 
 /**
  * Approve or suspend a property listing from platform feed.
@@ -47,7 +68,7 @@ export async function moderatePropertyAction(
     `/admin/properties/${propertyId}/moderate`,
     {
       method: "PUT",
-      body: JSON.stringify({ approved }),
+      body: { approved },
       cache: "no-store",
     }
   )
@@ -97,7 +118,25 @@ export async function getAuditLogsAction(
   params?: AuditLogFilterParams | number
 ): Promise<ApiResponse<AuditLog[]>> {
   const queryObj = typeof params === "number" ? { limit: params, page: 1 } : params
-  return fetcherWithAuth<AuditLog[]>(`/admin/audit-logs${getQueryString(queryObj)}`, {
+  return fetcherWithAuth<AuditLog[]>(`/admin/audit${getQueryString(queryObj)}`, {
     cache: "no-store",
   })
+}
+
+/**
+ * Delete a user from administration desk.
+ */
+export async function deleteUserAction(
+  userId: string
+): Promise<ApiResponse<{ message: string }>> {
+  const res = await fetcherWithAuth<{ message: string }>(`/admin/users/${userId}`, {
+    method: "DELETE",
+    cache: "no-store",
+  })
+
+  if (res.success) {
+    revalidatePath("/admin")
+  }
+
+  return res
 }

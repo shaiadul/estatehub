@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { Metadata } from "next"
 import { VdrPageView } from "./_components"
+import { Spinner } from "@/components/ui/spinner"
 
 export const metadata: Metadata = {
   title: "Private Investor Virtual Data Room (VDR) | EstateHub",
@@ -12,7 +13,7 @@ export default function VDRPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-surface">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Spinner className="size-8 text-primary" />
         </div>
       }
     >

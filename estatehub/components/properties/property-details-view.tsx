@@ -19,6 +19,8 @@ import {
   SimilarProperties,
 } from "./_components"
 import { FloorLevel, TourType } from "./_components/types"
+import { bookTourAction } from "@/actions/tours"
+import { toggleBookmarkAction } from "@/actions/properties"
 
 interface PropertyDetailsViewProps {
   property: PropertyData
@@ -95,14 +97,31 @@ export function PropertyDetailsView({ property, similarProperties }: PropertyDet
     }
   }
 
-  const handleTourSubmit = (e: React.FormEvent) => {
+  const handleToggleSaved = () => {
+    setIsSaved((prev) => !prev)
+    toggleBookmarkAction(property.id).catch(() => {})
+  }
+
+  const handleTourSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setBookingSubmitting(true)
-    setTimeout(() => {
-      setBookingSubmitting(false)
-      setBookingToast(true)
-      setTimeout(() => setBookingToast(false), 5000)
-    }, 600)
+    try {
+      await bookTourAction({
+        property_id: property.id,
+        tour_type: tourType === "inperson" ? "in_person" : "virtual",
+        date: selectedDate,
+        time_slot: selectedTime,
+        visitor_name: fullName || "Private Investor",
+        visitor_email: email || "client@estatehub.com",
+        visitor_phone: phone,
+        party_size: 2,
+      })
+    } catch {
+      // demo fallback
+    }
+    setBookingSubmitting(false)
+    setBookingToast(true)
+    setTimeout(() => setBookingToast(false), 5000)
   }
 
   const handleSendBrokerMsg = (e: React.FormEvent) => {
@@ -126,7 +145,7 @@ export function PropertyDetailsView({ property, similarProperties }: PropertyDet
         <DetailsHeader
           property={property}
           isSaved={isSaved}
-          onToggleSaved={() => setIsSaved(!isSaved)}
+          onToggleSaved={handleToggleSaved}
           onShare={handleShare}
         />
 

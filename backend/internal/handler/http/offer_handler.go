@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/estatehub/backend/internal/domain"
 	"github.com/estatehub/backend/internal/service"
@@ -47,6 +48,19 @@ func (h *OfferHandler) List(w http.ResponseWriter, r *http.Request) {
 		st := domain.OfferStatus(status)
 		filter.Status = &st
 	}
+	if financing := q.Get("financing_type"); financing != "" {
+		filter.FinancingType = &financing
+	}
+	if minAmt := q.Get("min_amount"); minAmt != "" {
+		if v, err := strconv.ParseFloat(minAmt, 64); err == nil {
+			filter.MinAmount = &v
+		}
+	}
+	if maxAmt := q.Get("max_amount"); maxAmt != "" {
+		if v, err := strconv.ParseFloat(maxAmt, 64); err == nil {
+			filter.MaxAmount = &v
+		}
+	}
 
 	offers, total, err := h.offerService.ListOffers(r.Context(), userID, role, filter)
 	if err != nil {
@@ -60,6 +74,7 @@ func (h *OfferHandler) List(w http.ResponseWriter, r *http.Request) {
 type CounterOfferRequest struct {
 	CounterAmount float64 `json:"counter_amount"`
 	Notes         string  `json:"notes"`
+	CounterNote   string  `json:"counter_note"`
 }
 
 func (h *OfferHandler) Counter(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +85,12 @@ func (h *OfferHandler) Counter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	offer, err := h.offerService.CounterOffer(r.Context(), id, req.CounterAmount, req.Notes)
+	note := req.CounterNote
+	if note == "" {
+		note = req.Notes
+	}
+
+	offer, err := h.offerService.CounterOffer(r.Context(), id, req.CounterAmount, note)
 	if err != nil {
 		Error(w, http.StatusBadRequest, "COUNTER_FAILED", err.Error())
 		return
@@ -83,24 +103,22 @@ func (h *OfferHandler) Accept(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sellerID := GetUserID(r)
 
-	closingRoom, err := h.offerService.AcceptOffer(r.Context(), id, sellerID)
+	resp, err := h.offerService.AcceptOffer(r.Context(), id, sellerID)
 	if err != nil {
 		Error(w, http.StatusBadRequest, "ACCEPT_FAILED", err.Error())
 		return
 	}
 
-	JSON(w, http.StatusOK, map[string]interface{}{
-		"message":      "Offer accepted and Bilateral Closing Room generated",
-		"closing_room": closingRoom,
-	})
+	JSON(w, http.StatusOK, resp)
 }
 
 func (h *OfferHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	if err := h.offerService.RejectOffer(r.Context(), id); err != nil {
+	offer, err := h.offerService.RejectOffer(r.Context(), id)
+	if err != nil {
 		Error(w, http.StatusBadRequest, "REJECT_FAILED", err.Error())
 		return
 	}
 
-	JSON(w, http.StatusOK, map[string]string{"message": "Offer rejected"})
+	JSON(w, http.StatusOK, offer)
 }

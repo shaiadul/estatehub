@@ -6,6 +6,14 @@ import { PropertyData } from "@/lib/properties-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { useCurrency, useI18n } from "@/lib/i18n"
 
 interface DetailsHeaderProps {
@@ -39,19 +47,33 @@ export function DetailsHeader({ property, isSaved, onToggleSaved, onShare }: Det
     <>
       <div className="w-full bg-surface-container-lowest border-b border-outline-variant/30">
         <SectionWrapper as="div" className="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-on-surface-variant">
-            <Link href="/properties" className="hover:text-on-surface transition-colors font-medium">
-              {t("nav.properties", "Properties")}
-            </Link>
-            <IconChevronRight className="w-3.5 h-3.5 text-outline-variant" />
-            <span className="hover:text-on-surface transition-colors">{property.state === "CA" ? "California" : property.state === "NY" ? "New York" : property.state === "FL" ? "Florida" : "Colorado"}</span>
-            <IconChevronRight className="w-3.5 h-3.5 text-outline-variant" />
-            <span className="hover:text-on-surface transition-colors">{property.city.split(",")[0]}</span>
-            <IconChevronRight className="w-3.5 h-3.5 text-outline-variant" />
-            <span className="text-on-surface font-semibold truncate max-w-[180px] sm:max-w-none">
-              {property.title}
-            </span>
-          </nav>
+          <Breadcrumb>
+            <BreadcrumbList className="text-xs text-on-surface-variant font-medium">
+              <BreadcrumbItem>
+                <BreadcrumbLink render={<Link href="/properties" className="hover:text-on-surface transition-colors" />}>
+                  {t("nav.properties", "Properties")}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <span className="hover:text-on-surface transition-colors">
+                  {property.state === "CA" ? "California" : property.state === "NY" ? "New York" : property.state === "FL" ? "Florida" : "Colorado"}
+                </span>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <span className="hover:text-on-surface transition-colors">
+                  {property.city.split(",")[0]}
+                </span>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-on-surface font-semibold truncate max-w-[180px] sm:max-w-none">
+                  {property.title}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
 
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs font-mono font-medium bg-surface-container-low border-outline-variant/40">

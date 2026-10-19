@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -40,6 +41,25 @@ func RequestLogger(next http.Handler) http.Handler {
 			} else if status >= 400 {
 				level = slog.LevelWarn
 			}
+
+			// Clear, high-visibility colored route logging on terminal/cmd:
+			color := "\033[1;32m" // bold green for 2xx
+			if status >= 500 {
+				color = "\033[1;31m" // bold red for 5xx
+			} else if status >= 400 {
+				color = "\033[1;33m" // bold yellow for 4xx
+			} else if status >= 300 {
+				color = "\033[1;36m" // bold cyan for 3xx
+			}
+			fmt.Printf("\033[90m[%s]\033[0m %s%-6s\033[0m \033[1m%-40s\033[0m %s%d\033[0m \033[90m(%dms)\033[0m\n",
+				time.Now().Format("15:04:05"),
+				color,
+				r.Method,
+				r.URL.Path,
+				color,
+				status,
+				duration.Milliseconds(),
+			)
 
 			slog.Log(r.Context(), level, "http request",
 				"method", r.Method,

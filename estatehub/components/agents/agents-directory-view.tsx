@@ -19,7 +19,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { useI18n } from "@/lib/i18n"
+import { listAgentsAction } from "@/actions/auth"
 
 interface AgentRecord {
   id: string
@@ -38,82 +47,56 @@ interface AgentRecord {
   image: string
 }
 
-const AGENTS_LIST: AgentRecord[] = [
-  {
-    id: "marcus-sterling",
-    name: "Marcus Sterling",
-    title: "Senior Managing Partner",
-    license: "#DRE 01928475",
-    region: "Beverly Hills & Bel Air, CA",
-    phone: "+1 (310) 849-2100",
-    email: "sterling@estatehub.com",
-    rating: "4.98",
-    reviews: 112,
-    volumeClosed: "$420M+",
-    activeListingsCount: 4,
-    specialties: ["Ultra Luxury Villas", "Gated Knolls", "Subterranean Motor Vaults"],
-    bio: "Over two decades orchestrating off-market acquisitions across Beverly Hills, Bel Air knolls, and Trousdale Estates for international family offices.",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "elena-vance-chen",
-    name: "Elena Vance-Chen",
-    title: "Principal Broker • TriBeCa & SoHo",
-    license: "#NY-RE 4829104",
-    region: "Tribeca & Manhattan, NY",
-    phone: "+1 (212) 590-4410",
-    email: "vance.chen@estatehub.com",
-    rating: "5.0",
-    reviews: 94,
-    volumeClosed: "$340M+",
-    activeListingsCount: 3,
-    specialties: ["Trophy Penthouses", "Keyed Elevator Lofts", "Commercial Syndicates"],
-    bio: "Specializing in super-prime Manhattan towers, sky mansions, and landmark historic cast-iron lofts with institutional cross-border escrow guidance.",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "julian-rossi",
-    name: "Julian Rossi",
-    title: "Waterfront Portfolio Director",
-    license: "#FL-BK 3392018",
-    region: "Miami Beach & Fisher Island, FL",
-    phone: "+1 (305) 714-3890",
-    email: "rossi@estatehub.com",
-    rating: "4.97",
-    reviews: 86,
-    volumeClosed: "$290M+",
-    activeListingsCount: 3,
-    specialties: ["Deepwater Frontage", "Mega-Yacht Berths", "Private Island Compounds"],
-    bio: "Unrivaled expertise in South Florida's premier maritime estates, private guarded islands, and deepwater dockage estates accommodating 100ft+ vessels.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "sarah-jenkins",
-    name: "Sarah Jenkins",
-    title: "Senior Managing Director, Luxury Estates",
-    license: "#DRE 01928475",
-    region: "Los Angeles & Hollywood Hills, CA",
-    phone: "+1 (310) 555-0198",
-    email: "s.jenkins@estatehub.com",
-    rating: "4.99",
-    reviews: 84,
-    volumeClosed: "$180M+",
-    activeListingsCount: 2,
-    specialties: ["Architectural Modernism", "Promontory Vistas", "Celebrity Trusts"],
-    bio: "Leading confidential representation for high-profile creatives, tech entrepreneurs, and generational wealth funds seeking architectural perfection.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCeeRJzQOHMWBoJLWDqJkpdnHdA0wgyPzLXk-QlMXndqzOQhXQUdzyX7JlevQf-pk0BSKb5Snqd4zdo1K7dBSvxyJpE1Olj7W95BFg3UfDAcBovcjH9kj2CwGZVLRqIBD2qStaWi4bXGOOR4Vy2eV_16xvldTGNBKvOczJcxGpqTzG5bl-lHFCfSMCp6FbI0Xikfq7vIL0dDwOhAamBmFonisGNB3wxysbrkUsfYBD-q4KuD2wEnGAx",
-  },
-]
-
 export function AgentsDirectoryView() {
   const { t } = useI18n()
+  const [agentsList, setAgentsList] = React.useState<AgentRecord[]>([])
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [selectedRegion, setSelectedRegion] = React.useState<string>("all")
   const [searchQuery, setSearchQuery] = React.useState<string>("")
   const [consultModalAgent, setConsultModalAgent] = React.useState<AgentRecord | null>(null)
   const [consultBooked, setConsultBooked] = React.useState<boolean>(false)
 
+  React.useEffect(() => {
+    let isMounted = true
+    listAgentsAction()
+      .then((res) => {
+        if (!isMounted) return
+        if (res.success && res.data && res.data.length > 0) {
+          const mapped = res.data.map((u) => {
+            return {
+              id: u.id,
+              name: u.full_name || u.email.split("@")[0],
+              title: u.title || "Licensed Real Estate Broker Partner",
+              license: u.jurisdiction ? `#${u.jurisdiction}` : "DRE Sovereign Verified",
+              region: u.jurisdiction || "Global Prime Enclaves",
+              phone: u.phone || "+1 (310) 849-2100",
+              email: u.email,
+              rating: "4.98",
+              reviews: 96,
+              volumeClosed: u.net_worth_tier || "$100M+ Volume",
+              activeListingsCount: 3,
+              specialties: [u.entity_name || "Sovereign Advisory", "Ultra Prime Estates"],
+              bio: `${u.full_name || "Senior Partner"} directs confidential transactions and acquisitions across ${u.jurisdiction || "luxury enclaves"}.`,
+              image:
+                u.avatar_url ||
+                "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop",
+            }
+          })
+          setAgentsList(mapped)
+        }
+        setIsLoading(false)
+      })
+      .catch(() => {
+        if (isMounted) setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const filteredAgents = React.useMemo(() => {
-    return AGENTS_LIST.filter((ag) => {
+    return agentsList.filter((ag) => {
       const matchRegion =
         selectedRegion === "all" ||
         (selectedRegion === "ca" && ag.region.includes("CA")) ||
@@ -128,10 +111,10 @@ export function AgentsDirectoryView() {
 
       return matchRegion && matchSearch
     })
-  }, [selectedRegion, searchQuery])
+  }, [agentsList, selectedRegion, searchQuery])
 
   const regionFilters = [
-    { key: "all", label: `${t("agents.allJurisdictions", "All Jurisdictions")} (${AGENTS_LIST.length})` },
+    { key: "all", label: `${t("agents.allJurisdictions", "All Jurisdictions")} (${agentsList.length})` },
     { key: "ca", label: "California (Bel Air & Beverly Hills)" },
     { key: "ny", label: "New York (Tribeca & Central Park)" },
     { key: "fl", label: "Florida (Miami & Palm Beach)" },
@@ -157,11 +140,21 @@ export function AgentsDirectoryView() {
       <main className="w-full pt-20 flex-1">
         <SectionWrapper fullWidth className="bg-surface-container-lowest border-b border-outline-variant/30 shadow-xs" innerClassName="py-8">
           <div>
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium mb-3">
-              <Link href="/" className="hover:text-on-surface transition-colors">{t("properties.home", "Home")}</Link>
-              <IconChevronRight size={14} className="text-outline-variant" />
-              <span className="text-on-surface font-semibold">{t("agents.title", "Private Advisory & Brokerage")}</span>
-            </nav>
+            <Breadcrumb className="mb-3">
+              <BreadcrumbList className="text-xs text-on-surface-variant font-medium">
+                <BreadcrumbItem>
+                  <BreadcrumbLink render={<Link href="/" className="hover:text-on-surface transition-colors" />}>
+                    {t("properties.home", "Home")}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-on-surface font-semibold">
+                    {t("agents.title", "Private Advisory & Brokerage")}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div>

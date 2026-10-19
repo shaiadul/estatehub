@@ -48,16 +48,7 @@ export function OffersTab({ state }: OffersTabProps) {
   const isBuyer = activeRole === "buyer"
   const isSeller = activeRole === "seller"
   const isOrganizer = activeRole === "organizer"
-
-  const displayOffers = isBuyer
-    ? filteredOffers.filter(
-        (o) =>
-          o.buyerName.toLowerCase().includes("julian") ||
-          o.buyerName.toLowerCase().includes("rossi") ||
-          o.buyerName.toLowerCase().includes("swiss") ||
-          filteredOffers.indexOf(o) < 3
-      )
-    : filteredOffers
+  const displayOffers = filteredOffers
 
   return (
     <div className="flex flex-col gap-6">
@@ -124,9 +115,17 @@ export function OffersTab({ state }: OffersTabProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/20">
-              {displayOffers.map((offer) => (
-                <tr
-                  key={offer.id}
+              {displayOffers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-on-surface-variant">
+                    <p className="text-sm font-semibold">No active purchase offers or LOIs</p>
+                    <p className="mt-1 text-xs text-on-surface-variant/70">Submitted proposals and purchase terms will appear here.</p>
+                  </td>
+                </tr>
+              ) : (
+                displayOffers.map((offer) => (
+                  <tr
+                    key={offer.id}
                   className="transition-colors hover:bg-surface-container-high/30"
                 >
                   <td className="py-4 font-mono text-[11px] text-on-surface-variant">
@@ -250,7 +249,7 @@ export function OffersTab({ state }: OffersTabProps) {
                     )}
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

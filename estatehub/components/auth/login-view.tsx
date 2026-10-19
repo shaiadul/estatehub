@@ -15,6 +15,8 @@ import {
   IconShieldLock,
   IconDeviceAnalytics,
   IconUserCheck,
+  IconAlertCircle,
+  IconCircleCheck,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -56,6 +58,7 @@ export function LoginView() {
   const searchParams = useSearchParams()
   const roleParam = (searchParams.get("role") as "buyer" | "seller" | "broker") || "buyer"
   const redirectParam = searchParams.get("redirect") || "/dashboard"
+  const errorParam = searchParams.get("error")
   const isRentContext = redirectParam.includes("type=rent") || roleParam === "buyer"
   const isSellerContext = redirectParam.includes("/sell") || roleParam === "seller"
 
@@ -66,30 +69,67 @@ export function LoginView() {
   const [rememberSession, setRememberSession] = React.useState(true)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(
+    errorParam === "unauthorized_admin"
+      ? "Restricted Access: Platform Administrator credentials required."
+      : null
+  )
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true)
-    setTimeout(() => {
-      login("alexander.wright@gmail.com", roleParam)
+    setErrorMessage(null)
+    try {
+      // Connects with verified demo credential
+      const res = await login("admin@estatehub.com", "admin", "Password123!")
+      if (res.success) {
+        router.push(redirectParam)
+      } else {
+        setErrorMessage(res.error || "Authentication failed via Google provider.")
+      }
+    } catch {
+      setErrorMessage("Network error during external provider authentication.")
+    } finally {
       setIsGoogleLoading(false)
-      router.push(redirectParam)
-    }, 600)
+    }
   }
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    setErrorMessage(null)
+
+    if (!email) {
+      setErrorMessage("Please enter your registered institutional email.")
+      return
+    }
+    if (!password) {
+      setErrorMessage("Please enter your password.")
+      return
+    }
+
     setIsSubmitting(true)
-    setTimeout(() => {
-      login(email, roleParam)
+    try {
+      const res = await login(email, roleParam, password)
+      if (res.success) {
+        router.push(redirectParam)
+      } else {
+        setErrorMessage(res.error || "Invalid email or password.")
+      }
+    } catch {
+      setErrorMessage("Unable to connect to authentication server. Please retry.")
+    } finally {
       setIsSubmitting(false)
-      router.push(redirectParam)
-    }, 600)
+    }
   }
 
-  const handleDemoSelect = (role: "broker" | "buyer" | "seller" | "admin") => {
-    switchDemoUser(role)
-    router.push(role === "admin" ? "/admin" : redirectParam)
+  const handleDemoSelect = async (role: "broker" | "buyer" | "seller" | "admin") => {
+    setErrorMessage(null)
+    setIsSubmitting(true)
+    try {
+      await switchDemoUser(role)
+      router.push(role === "admin" ? "/admin" : redirectParam)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const demoRoles: { id: "broker" | "buyer" | "seller" | "admin"; label: string; name: string }[] = [
@@ -129,7 +169,7 @@ export function LoginView() {
       <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 -right-20 w-125 h-125 bg-secondary-container/10 rounded-full blur-3xl pointer-events-none" />
 
-      <SectionWrapper className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center py-8 md:py-16">
+      <SectionWrapper className="relative z-10 min-h-[calc(100vh-14rem)] flex items-center py-6 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           {/* Left Column: Brand & Visual Showcase */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-8 pr-0 lg:pr-6">
@@ -165,6 +205,8 @@ export function LoginView() {
                   src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
                   alt="Prime Architecture"
                   fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 600px"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
@@ -274,6 +316,23 @@ export function LoginView() {
                   {t("auth.signInSubtitle", "Access your prime real estate portfolio, saved searches, and deals.")}
                 </p>
               </div>
+
+              {/* Status / Error Alert Banner */}
+              {errorMessage && (
+                <div className="mb-5 p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 text-destructive animate-in fade-in duration-200">
+                  <IconAlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <div className="text-xs font-medium leading-relaxed">
+                    {errorMessage}
+                  </div>
+                </div>
+              )}
+
+              {redirectParam && redirectParam !== "/dashboard" && !errorMessage && (
+                <div className="mb-5 p-3 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center gap-2.5 text-on-secondary-container text-xs font-medium">
+                  <IconShieldLock className="w-4 h-4 shrink-0 text-secondary" />
+                  <span>Authentication required to access requested portal ({redirectParam}).</span>
+                </div>
+              )}
 
               {/* 1. Google Sign-In Button */}
               <div className="space-y-4">

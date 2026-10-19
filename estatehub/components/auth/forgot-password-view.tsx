@@ -11,7 +11,6 @@ import {
   IconHeadset,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
@@ -20,32 +19,79 @@ import {
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useI18n } from "@/lib/i18n"
 
+import { forgotPasswordAction, resetPasswordAction } from "@/actions/auth"
+
 export function ForgotPasswordView() {
   const { t } = useI18n()
   const [email, setEmail] = React.useState("")
   const [submitted, setSubmitted] = React.useState(false)
+  const [nonce, setNonce] = React.useState<string>("#0x7b29a8f4")
   const [isLoading, setIsLoading] = React.useState(false)
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Reset password states
+  const [newPassword, setNewPassword] = React.useState("")
+  const [isResetting, setIsResetting] = React.useState(false)
+  const [resetSuccess, setResetSuccess] = React.useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
     setIsLoading(true)
-    setTimeout(() => {
+    setErrorMsg(null)
+
+    try {
+      const res = await forgotPasswordAction(email)
+      if (res.success && res.data) {
+        setNonce(res.data.verification_nonce || "#0x" + Math.random().toString(16).slice(2, 10))
+        setSubmitted(true)
+      } else {
+        setErrorMsg(res.error || "Failed to dispatch recovery instructions")
+      }
+    } catch {
+      setErrorMsg("Network error contacting security gateway")
+    } finally {
       setIsLoading(false)
-      setSubmitted(true)
-    }, 700)
+    }
+  }
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newPassword || newPassword.length < 8) {
+      setErrorMsg("New password must be at least 8 characters")
+      return
+    }
+
+    setIsResetting(true)
+    setErrorMsg(null)
+    try {
+      const res = await resetPasswordAction({
+        email,
+        token: nonce,
+        new_password: newPassword,
+      })
+      if (res.success) {
+        setResetSuccess(true)
+      } else {
+        setErrorMsg(res.error || "Password reset failed")
+      }
+    } catch {
+      setErrorMsg("Network error resetting password")
+    } finally {
+      setIsResetting(false)
+    }
   }
 
   return (
     <SectionWrapper
       fullWidth
-      className="relative bg-surface min-h-[calc(100vh-5rem)] flex items-center justify-center py-12"
+      className="relative bg-surface min-h-[calc(100vh-14rem)] flex items-center justify-center py-8 md:py-12"
       innerClassName="w-full max-w-lg mx-auto relative z-10"
     >
       <div className="w-full">
         <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 border border-outline-variant/30 relative overflow-hidden">
           {/* Top Metallic Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-primary via-secondary to-primary" />
 
           {submitted ? (
             <div className="flex flex-col items-center text-center space-y-4 py-4 animate-fade-in">
@@ -61,15 +107,55 @@ export function ForgotPasswordView() {
               </p>
               <div className="p-3 bg-surface-container-low rounded-xl text-left w-full font-mono text-xs text-on-surface-variant flex items-center justify-between">
                 <span>Verification Nonce:</span>
-                <span className="font-bold text-on-surface">#0x7b29a8f4</span>
+                <span className="font-bold text-on-surface">{nonce}</span>
               </div>
-              <div className="pt-2 w-full">
-                <Link href="/login">
-                  <Button className="w-full py-3 h-auto rounded-xl bg-primary text-on-primary font-bold">
-                    {t("auth.backToSignIn", "Return to Terminal Sign-In")}
+
+              {resetSuccess ? (
+                <div className="w-full p-4 rounded-xl bg-tertiary/10 border border-tertiary/20 text-center">
+                  <p className="text-sm font-semibold text-on-tertiary-container">
+                    Password successfully updated!
+                  </p>
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    You can now authenticate with your new credentials.
+                  </p>
+                  <div className="pt-3">
+                    <Link href="/login">
+                      <Button className="w-full py-2.5 h-auto rounded-xl bg-primary text-on-primary font-bold">
+                        {t("auth.backToSignIn", "Return to Terminal Sign-In")}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleResetPassword} className="w-full space-y-3 pt-2 text-left">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-on-surface">Set New Terminal Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Minimum 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs text-on-surface focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                  {errorMsg && (
+                    <p className="text-xs text-error font-medium">{errorMsg}</p>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={isResetting}
+                    className="w-full py-2.5 h-auto rounded-xl bg-primary text-on-primary font-bold text-xs"
+                  >
+                    {isResetting ? "Updating Key..." : "Update Password & Seal Credentials"}
                   </Button>
-                </Link>
-              </div>
+                  <div className="pt-1 text-center">
+                    <Link href="/login" className="text-xs text-on-surface-variant hover:text-on-surface">
+                      {t("auth.backToSignIn", "Return to Terminal Sign-In")}
+                    </Link>
+                  </div>
+                </form>
+              )}
             </div>
           ) : (
             <div className="space-y-6">

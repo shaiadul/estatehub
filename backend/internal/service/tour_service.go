@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/estatehub/backend/internal/domain"
@@ -21,10 +22,19 @@ func NewTourService(repo domain.TourRepository, propertyRepo domain.PropertyRepo
 
 type BookTourRequest struct {
 	PropertyID      string `json:"property_id"`
+	TourType        string `json:"tour_type"`
+	Date            string `json:"date"`
+	TimeSlot        string `json:"time_slot"`
+	VisitorName     string `json:"visitor_name"`
+	VisitorEmail    string `json:"visitor_email"`
+	VisitorPhone    string `json:"visitor_phone"`
+	PartySize       int    `json:"party_size"`
+	Notes           string `json:"notes"`
+	NdaSigned       bool   `json:"nda_signed"`
+	// Aliases
 	ClientName      string `json:"client_name"`
 	ClientEntity    string `json:"client_entity"`
 	ScheduledDate   string `json:"scheduled_date"`
-	TimeSlot        string `json:"time_slot"`
 	TransportType   string `json:"transport_type"`
 	SpecialRequests string `json:"special_requests"`
 }
@@ -35,22 +45,54 @@ func (s *TourService) BookTour(ctx context.Context, userID string, req BookTourR
 		return nil, domain.ErrNotFound
 	}
 
-	transport := req.TransportType
-	if transport == "" {
-		transport = "Chauffeured Maybach"
+	name := req.VisitorName
+	if name == "" {
+		name = req.ClientName
+	}
+	if name == "" {
+		name = "Accredited Buyer"
+	}
+
+	date := req.Date
+	if date == "" {
+		date = req.ScheduledDate
+	}
+	if date == "" {
+		date = time.Now().Add(24 * time.Hour).Format("2006-01-02")
+	}
+
+	notes := req.Notes
+	if notes == "" {
+		notes = req.SpecialRequests
+	}
+
+	partySize := req.PartySize
+	if partySize <= 0 {
+		partySize = 1
+	}
+
+	tourType := req.TourType
+	if tourType == "" {
+		tourType = "virtual"
 	}
 
 	tour := &domain.TourBooking{
 		PropertyID:      req.PropertyID,
 		UserID:          userID,
-		ClientName:      req.ClientName,
-		ClientEntity:    req.ClientEntity,
-		ScheduledAt:     time.Now().Add(24 * time.Hour), // default or parsed from scheduled_date
+		VisitorName:     name,
+		VisitorEmail:    req.VisitorEmail,
+		VisitorPhone:    req.VisitorPhone,
+		PartySize:       partySize,
+		Notes:           notes,
+		Date:            date,
 		TimeSlot:        req.TimeSlot,
+		TourType:        tourType,
 		Status:          domain.TourStatusConfirmed,
-		TransportType:   transport,
-		SpecialRequests: req.SpecialRequests,
-		SecurityCleared: true,
+		NdaSigned:       req.NdaSigned,
+		MeetingLink:     "https://meet.estatehub.com/vip-tour/" + req.PropertyID,
+		ClientName:      name,
+		ClientEntity:    req.ClientEntity,
+		SpecialRequests: notes,
 	}
 
 	if err := s.repo.Create(ctx, tour); err != nil {
@@ -64,7 +106,6 @@ func (s *TourService) ListTours(ctx context.Context, userID string, role domain.
 	if role == domain.RoleBuyer {
 		filter.UserID = &userID
 	}
-	// Brokers and admins can see all or filter by agent/property
 	return s.repo.List(ctx, filter)
 }
 
@@ -74,9 +115,10 @@ func (s *TourService) UpdateTourStatus(ctx context.Context, id string, status do
 		return nil, err
 	}
 
-	tour.Status = status
+	normStatus := domain.TourStatus(strings.ToLower(string(status)))
+	tour.Status = normStatus
 	if notes != "" {
-		tour.OrganizerNotes = notes
+		tour.Notes = notes
 	}
 
 	if err := s.repo.Update(ctx, tour); err != nil {

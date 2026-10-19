@@ -20,6 +20,23 @@ import {
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import {
+  acceptOfferAction,
+  counterOfferAction,
+  rejectOfferAction,
+  getMyOffersAction,
+  submitOfferAction,
+} from "@/actions/offers"
+import { bookTourAction, updateTourStatusAction, getMyToursAction } from "@/actions/tours"
+import {
+  toggleBookmarkAction,
+  getPropertiesAction,
+  getMyPropertiesAction,
+  createPropertyAction,
+  updatePropertyAction,
+  deletePropertyAction,
+  getBookmarkedPropertiesAction,
+} from "@/actions/properties"
+import {
   INITIAL_DEALS,
   INITIAL_DOCS,
   INITIAL_LEADS,
@@ -39,6 +56,80 @@ import {
   type NavItem,
   type UrgentItem,
 } from "./types"
+
+function mapBackendToDashboardProperty(p: any): PropertyItem {
+  const cat = (p.property_type || "Villa").toLowerCase()
+  const category: PropertyItem["category"] =
+    cat.includes("penthouse") ? "Penthouse" :
+    cat.includes("island") || cat.includes("water") ? "Island" :
+    cat.includes("manor") || cat.includes("chalet") ? "Manor" :
+    cat.includes("arch") ? "Architectural" : "Villa"
+
+  const status: PropertyItem["status"] =
+    p.status === "pending" || !p.approved ? "Draft" :
+    p.status === "in_escrow" ? "In Escrow" :
+    p.status === "under_offer" ? "Under Offer" :
+    p.status === "sold" ? "Sold" : "Active"
+
+  return {
+    id: p.slug || p.id,
+    title: p.title,
+    location: `${p.city || ""}, ${p.state || ""}`.trim() || p.address || "California, USA",
+    price: Number(p.price) || 0,
+    category,
+    status,
+    beds: Number(p.beds) || 4,
+    baths: Number(p.baths) || 4,
+    sqft: Number(p.sqft) || 5000,
+    inquiries: 12,
+    viewsCount: Number(p.views_count) || 120,
+    image: p.hero_image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+    featured: Boolean(p.featured),
+  }
+}
+
+function mapBackendToDashboardOffer(o: any): OfferItem {
+  const statusMap: Record<string, OfferItem["status"]> = {
+    submitted: "Pending Review",
+    under_review: "Pending Review",
+    countered: "Under Negotiation",
+    accepted: "Escrow Opened",
+    rejected: "Declined",
+    closing: "Escrow Opened",
+  }
+  return {
+    id: o.id,
+    propertyId: o.property_id,
+    propertyTitle: o.property_title || o.property?.title || "Luxury Estate",
+    buyerName: o.buyer?.full_name || "Julian Rossi",
+    buyerEntity: o.buyer?.entity_name || "Rossi Family Office & Trust",
+    offerPrice: Number(o.offer_amount) || 0,
+    earnestDeposit: Number(o.earnest_deposit) || Math.round((Number(o.offer_amount) || 0) * 0.1),
+    financing: o.financing_type === "cash" ? "Institutional All-Cash Wire" :
+               o.financing_type === "crypto" ? "Cryptographic Multi-Sig Wire" :
+               o.financing_type === "sovereign_wire" ? "Sovereign Wire" : "Institutional Financing",
+    status: statusMap[o.status] || "Pending Review",
+    submittedDate: o.created_at ? new Date(o.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Today",
+    expiryDate: "48 Hours",
+    proofOfFundsVerified: true,
+  }
+}
+
+function mapBackendToDashboardTour(t: any): TourBookingItem {
+  return {
+    id: t.id,
+    propertyId: t.property_id,
+    propertyTitle: t.property?.title || "Luxury Estate",
+    clientName: t.visitor_name || "Julian Rossi",
+    clientRole: "buyer",
+    date: t.date || "Scheduled Date",
+    timeSlot: t.time_slot || "14:00 - 16:00",
+    transportType: t.tour_type === "virtual" ? "Virtual LiDAR 3D" : "Chauffeured Maybach",
+    assignedAgent: "Sarah Jenkins",
+    status: t.status === "completed" ? "Completed" : t.status === "pending" ? "Pending Concierge" : "Confirmed",
+    specialRequests: t.notes || "Diplomatic VIP protocol requested.",
+  }
+}
 
 export function useCommandState() {
   const { user, switchDemoUser } = useAuth()
@@ -74,6 +165,8 @@ export function useCommandState() {
     }
   }, [tabQuery])
 
+  const errorQuery = searchParams.get("error")
+
   const [searchQuery, setSearchQuery] = React.useState("")
   const [propertyFilterStatus, setPropertyFilterStatus] = React.useState("All")
   const [propertyFilterCategory, setPropertyFilterCategory] =
@@ -85,6 +178,12 @@ export function useCommandState() {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3500)
   }
+
+  React.useEffect(() => {
+    if (errorQuery === "unauthorized_admin") {
+      triggerToast("Access Denied: Administrator role required for Enclave Governance")
+    }
+  }, [errorQuery])
 
   const handleRoleChange = (role: ActiveRole) => {
     setActiveRole(role)
@@ -103,15 +202,93 @@ export function useCommandState() {
     triggerToast(`Switched to ${role.toUpperCase()} Management Portal`)
   }
 
-  const [properties, setProperties] =
-    React.useState<PropertyItem[]>(INITIAL_PROPERTIES)
-  const [offers, setOffers] = React.useState<OfferItem[]>(INITIAL_OFFERS)
+  const [properties, setProperties] = React.useState<PropertyItem[]>([])
+  const [offers, setOffers] = React.useState<OfferItem[]>([])
   const [leads, setLeads] = React.useState<ClientLead[]>(INITIAL_LEADS)
   const [deals, setDeals] = React.useState<DealItem[]>(INITIAL_DEALS)
   const [documents] = React.useState<DocumentItem[]>(INITIAL_DOCS)
-  const [savedProperties, setSavedProperties] =
-    React.useState<SavedPropertyItem[]>(INITIAL_SAVED_PROPERTIES)
-  const [tours, setTours] = React.useState<TourBookingItem[]>(INITIAL_TOURS)
+  const [savedProperties, setSavedProperties] = React.useState<SavedPropertyItem[]>([])
+  const [tours, setTours] = React.useState<TourBookingItem[]>([])
+  const [isLoadingData, setIsLoadingData] = React.useState(true)
+
+  const refetchProperties = React.useCallback(async () => {
+    try {
+      const propFetcher = activeRole === "seller" ? getMyPropertiesAction() : getPropertiesAction()
+      const res = await propFetcher
+      if (res.success && res.data) {
+        setProperties(res.data.map(mapBackendToDashboardProperty))
+      } else if (activeRole === "seller") {
+        const fallbackRes = await getPropertiesAction()
+        if (fallbackRes.success && fallbackRes.data) {
+          setProperties(fallbackRes.data.map(mapBackendToDashboardProperty))
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching properties", err)
+    }
+  }, [activeRole])
+
+  const refetchOffers = React.useCallback(async () => {
+    try {
+      const res = await getMyOffersAction()
+      if (res.success && res.data) {
+        setOffers(res.data.map(mapBackendToDashboardOffer))
+      }
+    } catch (err) {
+      console.error("Error fetching offers", err)
+    }
+  }, [])
+
+  const refetchTours = React.useCallback(async () => {
+    try {
+      const res = await getMyToursAction()
+      if (res.success && res.data) {
+        setTours(res.data.map(mapBackendToDashboardTour))
+      }
+    } catch (err) {
+      console.error("Error fetching tours", err)
+    }
+  }, [])
+
+  const refetchSaved = React.useCallback(async () => {
+    try {
+      const res = await getBookmarkedPropertiesAction()
+      if (res.success && res.data) {
+        const mappedSaved: SavedPropertyItem[] = res.data.map((p) => ({
+          id: `SAV-${p.id.slice(0, 8)}`,
+          propertyId: p.slug || p.id,
+          title: p.title,
+          location: `${p.city || ""}, ${p.state || ""}`.trim() || p.address || "California, USA",
+          price: Number(p.price) || 0,
+          originalPrice: (Number(p.price) || 0) * 1.05,
+          image: p.hero_image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+          category: (p.property_type?.includes("penthouse") ? "Penthouse" : "Villa") as any,
+          beds: p.beds || 4,
+          baths: p.baths || 4,
+          sqft: p.sqft || 5000,
+          notes: "Monitored via backend watchlist.",
+          tourRequested: false,
+          savedAt: "Recently Added",
+        }))
+        setSavedProperties(mappedSaved)
+      }
+    } catch (err) {
+      console.error("Error fetching saved properties", err)
+    }
+  }, [])
+
+  // Initial and reactive data fetch from backend Go API
+  React.useEffect(() => {
+    setIsLoadingData(true)
+    Promise.allSettled([
+      refetchProperties(),
+      refetchOffers(),
+      refetchTours(),
+      refetchSaved(),
+    ]).finally(() => {
+      setIsLoadingData(false)
+    })
+  }, [refetchProperties, refetchOffers, refetchTours, refetchSaved, user?.role, activeRole])
 
   const [securityArmed, setSecurityArmed] = React.useState(true)
   const [gateUnlocked, setGateUnlocked] = React.useState(false)
@@ -174,33 +351,44 @@ export function useCommandState() {
     }
   }, [actionQuery, propertyQuery])
 
-  const handleCreateProperty = (e: React.FormEvent) => {
+  const handleCreateProperty = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPropertyTitle || !newPropertyPrice || !newPropertyLocation) return
 
-    const newProp: PropertyItem = {
-      id: `EST-00${properties.length + 1}`,
-      title: newPropertyTitle,
-      location: newPropertyLocation,
-      price: Number(newPropertyPrice),
-      category: newPropertyCategory,
-      status: "Active",
-      beds: Number(newPropertyBeds) || 4,
-      baths: Number(newPropertyBaths) || 4,
-      sqft: Number(newPropertySqft) || 5000,
-      inquiries: 0,
-      viewsCount: 1,
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
-      featured: false,
-    }
+    try {
+      const res = await createPropertyAction({
+        title: newPropertyTitle,
+        address: newPropertyLocation,
+        city: newPropertyLocation.split(",")[0]?.trim() || "Beverly Hills",
+        state: "CA",
+        price: Number(newPropertyPrice),
+        beds: Number(newPropertyBeds) || 4,
+        baths: Number(newPropertyBaths) || 4,
+        sqft: Number(newPropertySqft) || 5000,
+        property_type: newPropertyCategory.toLowerCase(),
+        transaction_type: "buy",
+        hero_image:
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop",
+        description: `Exclusive ${newPropertyCategory} residence located in ${newPropertyLocation}.`,
+        approved: true,
+        featured: false,
+        status: "Active Listing",
+      })
 
-    setProperties([newProp, ...properties])
-    setIsAddPropertyModalOpen(false)
-    setNewPropertyTitle("")
-    setNewPropertyLocation("")
-    setNewPropertyPrice("")
-    triggerToast(`Added listing "${newProp.title}" to inventory`)
+      setIsAddPropertyModalOpen(false)
+      setNewPropertyTitle("")
+      setNewPropertyLocation("")
+      setNewPropertyPrice("")
+
+      if (res.success) {
+        triggerToast(`Added listing "${newPropertyTitle}" to inventory`)
+        await refetchProperties()
+      } else {
+        triggerToast(`Error adding listing: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Network error creating listing")
+    }
   }
 
   const handleCreateClient = (e: React.FormEvent) => {
@@ -232,93 +420,142 @@ export function useCommandState() {
     triggerToast(`New client "${newLead.name}" enrolled into CRM`)
   }
 
-  const handleSubmitLoi = (e: React.FormEvent) => {
+  const handleSubmitLoi = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!loiOfferPrice) return
 
     const prop = properties.find((p) => p.id === loiTargetProperty) || properties[0]
-    const newOffer: OfferItem = {
-      id: `OFF-${offers.length + 905}`,
-      propertyId: prop.id,
-      propertyTitle: prop.title,
-      buyerName: user?.name || "Julian Rossi",
-      buyerEntity: "Rossi Family Office & Trust",
-      offerPrice: Number(loiOfferPrice),
-      earnestDeposit: Number(loiEarnestDeposit) || Number(loiOfferPrice) * 0.1,
-      financing: loiFinancing,
-      status: "Pending Review",
-      submittedDate: "Just now",
-      expiryDate: "48 Hours",
-      proofOfFundsVerified: true,
+    if (!prop) {
+      triggerToast("No valid property selected for LOI")
+      return
     }
 
-    setOffers([newOffer, ...offers])
-    setIsSubmitLoiModalOpen(false)
-    triggerToast(`Bilateral LOI for $${(newOffer.offerPrice / 1000000).toFixed(2)}M transmitted to Seller Trust`)
+    try {
+      const res = await submitOfferAction({
+        property_id: prop.id,
+        offer_amount: Number(loiOfferPrice),
+        earnest_deposit: Number(loiEarnestDeposit) || Number(loiOfferPrice) * 0.1,
+        financing_type: "sovereign_wire",
+        contingency_period_days: Number(loiContingencyDays) || 14,
+        closing_timeline_days: 30,
+        note: `Bilateral LOI transmitted with ${loiFinancing}`,
+      })
+
+      setIsSubmitLoiModalOpen(false)
+      if (res.success) {
+        triggerToast(`Bilateral LOI for $${(Number(loiOfferPrice) / 1000000).toFixed(2)}M transmitted`)
+        await refetchOffers()
+      } else {
+        triggerToast(`LOI error: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Failed to transmit LOI")
+    }
   }
 
-  const handleBookTour = (e: React.FormEvent) => {
+  const handleBookTour = async (e: React.FormEvent) => {
     e.preventDefault()
     const prop = properties.find((p) => p.id === tourPropertyId) || properties[0]
-    const newTour: TourBookingItem = {
-      id: `TR-${tours.length + 504}`,
-      propertyId: prop.id,
-      propertyTitle: prop.title,
-      clientName: user?.name || "Julian Rossi",
-      clientRole: activeRole === "organizer" ? "organizer" : "buyer",
-      date: tourDate || "Scheduled Date",
-      timeSlot: tourTimeSlot || "14:00 - 16:00",
-      transportType: tourTransportType,
-      assignedAgent: "Sarah Jenkins",
-      status: "Confirmed",
-      specialRequests: tourSpecialRequests || "Diplomatic VIP protocol requested.",
+    if (!prop) {
+      triggerToast("Select property to book tour")
+      return
     }
-    setTours([newTour, ...tours])
-    setIsBookTourModalOpen(false)
-    setTourSpecialRequests("")
-    triggerToast(`Private showing confirmed for "${prop.title}"`)
+
+    try {
+      const res = await bookTourAction({
+        property_id: prop.id,
+        tour_type: "in_person",
+        date: tourDate || "Scheduled Date",
+        time_slot: tourTimeSlot || "14:00 - 16:00",
+        visitor_name: user?.name || "Julian Rossi",
+        visitor_email: user?.email || "investor@estatehub.com",
+      })
+
+      setIsBookTourModalOpen(false)
+      setTourSpecialRequests("")
+      if (res.success) {
+        triggerToast(`Private showing confirmed for "${prop.title}"`)
+        await refetchTours()
+      } else {
+        triggerToast(`Tour error: ${res.error || "Failed"}`)
+      }
+    } catch {
+      triggerToast("Failed to book private showing")
+    }
   }
 
-  const handleCancelTour = (id: string) => {
-    setTours((prev) => prev.filter((t) => t.id !== id))
-    triggerToast("Tour booking cancelled")
+  const handleCancelTour = async (id: string) => {
+    try {
+      const res = await updateTourStatusAction(id, "cancelled")
+      if (res.success) {
+        triggerToast("Tour booking cancelled")
+        await refetchTours()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to cancel"}`)
+      }
+    } catch {
+      triggerToast("Failed to cancel tour")
+    }
   }
 
-  const handleRemoveSavedProperty = (id: string) => {
-    setSavedProperties((prev) => prev.filter((p) => p.id !== id))
-    triggerToast("Property removed from watchlist")
+  const handleRemoveSavedProperty = async (id: string) => {
+    try {
+      const res = await toggleBookmarkAction(id)
+      if (res.success) {
+        triggerToast("Property removed from watchlist")
+        await refetchSaved()
+      }
+    } catch {
+      triggerToast("Failed to remove from watchlist")
+    }
   }
 
-  const handleAcceptOffer = (id: string) => {
-    setOffers((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: "Escrow Opened" } : o))
-    )
-    triggerToast("Offer accepted! Escrow desk initialized.")
+  const handleAcceptOffer = async (id: string) => {
+    try {
+      const res = await acceptOfferAction(id)
+      if (res.success) {
+        triggerToast("Offer accepted! Escrow desk initialized.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to accept offer"}`)
+      }
+    } catch {
+      triggerToast("Error accepting offer")
+    }
   }
 
-  const handleDeclineOffer = (id: string) => {
-    setOffers((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: "Declined" } : o))
-    )
-    triggerToast("Offer declined.")
+  const handleDeclineOffer = async (id: string) => {
+    try {
+      const res = await rejectOfferAction(id)
+      if (res.success) {
+        triggerToast("Offer declined.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to decline offer"}`)
+      }
+    } catch {
+      triggerToast("Error declining offer")
+    }
   }
 
-  const handleApplyCounterOffer = () => {
+  const handleApplyCounterOffer = async () => {
     if (!counterModalOffer || !counterPriceInput) return
-    setOffers((prev) =>
-      prev.map((o) =>
-        o.id === counterModalOffer.id
-          ? {
-              ...o,
-              offerPrice: Number(counterPriceInput),
-              status: "Under Negotiation",
-            }
-          : o
-      )
-    )
-    setCounterModalOffer(null)
-    setCounterPriceInput("")
-    triggerToast("Counter-offer transmitted.")
+    const counterId = counterModalOffer.id
+    const counterAmount = Number(counterPriceInput)
+
+    try {
+      const res = await counterOfferAction(counterId, counterAmount)
+      setCounterModalOffer(null)
+      setCounterPriceInput("")
+      if (res.success) {
+        triggerToast("Counter-offer transmitted.")
+        await refetchOffers()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to counter offer"}`)
+      }
+    } catch {
+      triggerToast("Failed to transmit counter-offer")
+    }
   }
 
   const handleAdvanceDealStage = (id: string) => {
@@ -340,25 +577,34 @@ export function useCommandState() {
     triggerToast("Deal milestone advanced.")
   }
 
-  const handleTogglePropertyStatus = (id: string) => {
-    setProperties((prev) =>
-      prev.map((p) => {
-        if (p.id !== id) return p
-        const nextStatus: PropertyItem["status"] =
-          p.status === "Active"
-            ? "Draft"
-            : p.status === "Draft"
-              ? "Active"
-              : p.status
-        return { ...p, status: nextStatus }
+  const handleTogglePropertyStatus = async (id: string) => {
+    const targetProp = properties.find((p) => p.id === id)
+    const nextStatus = targetProp?.status === "Active" ? "Draft" : "Active"
+
+    try {
+      await updatePropertyAction(id, {
+        status: nextStatus === "Active" ? "Active Listing" : "Draft",
+        approved: nextStatus === "Active",
       })
-    )
-    triggerToast("Property listing status updated.")
+      triggerToast(`Property listing status updated to ${nextStatus}.`)
+      await refetchProperties()
+    } catch {
+      triggerToast("Failed to update property status")
+    }
   }
 
-  const handleDeleteProperty = (id: string) => {
-    setProperties((prev) => prev.filter((p) => p.id !== id))
-    triggerToast("Property removed from inventory.")
+  const handleDeleteProperty = async (id: string) => {
+    try {
+      const res = await deletePropertyAction(id)
+      if (res.success) {
+        triggerToast("Property removed from inventory.")
+        await refetchProperties()
+      } else {
+        triggerToast(`Error: ${res.error || "Failed to delete"}`)
+      }
+    } catch {
+      triggerToast("Failed to delete property")
+    }
   }
 
   const filteredProperties = properties.filter((p) => {
@@ -893,6 +1139,11 @@ export function useCommandState() {
     activeEscrowDeals,
     totalCommissionPipeline,
     newOffersCount,
+    refetchProperties,
+    refetchOffers,
+    refetchTours,
+    refetchSaved,
+    isLoadingData,
     ROLES,
     NAV_ITEMS,
     STATS_DATA,

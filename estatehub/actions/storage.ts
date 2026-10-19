@@ -1,3 +1,5 @@
+"use server"
+
 import { fetcherWithAuth, getQueryString } from "./fetcher"
 import type { ApiResponse } from "./types"
 
@@ -21,13 +23,13 @@ export async function getPresignedUploadUrlAction(
   fileType: string,
   purpose = "documents"
 ): Promise<ApiResponse<PresignedUploadResponse>> {
-  return fetcherWithAuth<PresignedUploadResponse>("/storage/upload-url", {
+  return fetcherWithAuth<PresignedUploadResponse>("/storage/presign-upload", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
+      folder: purpose,
       filename,
-      file_type: fileType,
-      purpose,
-    }),
+      content_type: fileType,
+    },
     cache: "no-store",
   })
 }
@@ -50,7 +52,7 @@ export async function getPresignedDownloadUrlAction(
     inline: options?.inline,
   }
   return fetcherWithAuth<PresignedDownloadResponse>(
-    `/storage/download-url${getQueryString(query)}`,
+    `/storage/presign-download${getQueryString(query)}`,
     { cache: "no-store" }
   )
 }
