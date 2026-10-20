@@ -170,3 +170,54 @@ func (h *AuthHandler) ListAgents(w http.ResponseWriter, r *http.Request) {
 
 	JSON(w, http.StatusOK, agents)
 }
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	userID := GetUserID(r)
+	_ = h.authService.Logout(r.Context(), userID)
+	JSON(w, http.StatusOK, map[string]string{
+		"message": "Logged out successfully",
+	})
+}
+
+type ChangePasswordPayload struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	userID := GetUserID(r)
+	if userID == "" {
+		Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "Authentication required")
+		return
+	}
+
+	var req ChangePasswordPayload
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.CurrentPassword == "" || req.NewPassword == "" {
+		Error(w, http.StatusBadRequest, "INVALID_REQUEST", "Current password and new password are required")
+		return
+	}
+
+	if err := h.authService.ChangePassword(r.Context(), userID, req.CurrentPassword, req.NewPassword); err != nil {
+		Error(w, http.StatusBadRequest, "CHANGE_PASSWORD_FAILED", err.Error())
+		return
+	}
+
+	JSON(w, http.StatusOK, map[string]string{
+		"message": "Password changed successfully",
+	})
+}
+
+func (h *AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
+	userID := GetUserID(r)
+	user, err := h.authService.GetProfile(r.Context(), userID)
+	if err != nil {
+		Error(w, http.StatusUnauthorized, "INVALID_SESSION", "User session is invalid or user not found")
+		return
+	}
+
+	JSON(w, http.StatusOK, map[string]interface{}{
+		"valid": true,
+		"user":  user,
+	})
+}
+

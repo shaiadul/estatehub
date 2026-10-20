@@ -168,7 +168,7 @@ func RequireRole(roles ...domain.UserRole) func(http.Handler) http.Handler {
 
 			allowed := false
 			for _, role := range roles {
-				if userRole == role || (role == domain.RoleBroker && userRole == domain.RoleOrganizer) {
+				if userRole == role || (role == domain.RoleBroker && userRole == domain.RoleOrganizer) || (role == domain.RoleOrganizer && userRole == domain.RoleBroker) {
 					allowed = true
 					break
 				}

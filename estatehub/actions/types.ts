@@ -68,6 +68,16 @@ export interface UpdateProfilePayload {
   avatar_url?: string
 }
 
+export interface ChangePasswordPayload {
+  current_password: string
+  new_password: string
+}
+
+export interface VerifyAuthResponse {
+  valid: boolean
+  user: User
+}
+
 export interface VdrAccessLog {
   id: string
   property_id: string

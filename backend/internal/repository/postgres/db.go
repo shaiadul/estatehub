@@ -60,23 +60,26 @@ func NewDB(cfg config.DatabaseConfig, env string) (*gorm.DB, error) {
 	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 
-	// Run Schema Migrations quietly (silence catalog inspection queries during startup)
-	migrationDB := db.Session(&gorm.Session{
-		Logger: customLogger.LogMode(gormlogger.Silent),
-	})
-	err = migrationDB.AutoMigrate(
-		&domain.User{},
-		&domain.Property{},
-		&domain.TourBooking{},
-		&domain.Offer{},
-		&domain.VdrDocument{},
-		&domain.VdrAccessLog{},
-		&domain.ClosingRoom{},
-		&domain.AuditLog{},
-		&UserBookmark{},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to run GORM auto migrations: %w", err)
+	// Run Schema Migrations quietly only if tables are not initialized yet, or if AUTO_MIGRATE=true
+	autoMigrateEnv := os.Getenv("AUTO_MIGRATE")
+	if autoMigrateEnv == "true" || !db.Migrator().HasTable(&domain.User{}) {
+		migrationDB := db.Session(&gorm.Session{
+			Logger: customLogger.LogMode(gormlogger.Silent),
+		})
+		err = migrationDB.AutoMigrate(
+			&domain.User{},
+			&domain.Property{},
+			&domain.TourBooking{},
+			&domain.Offer{},
+			&domain.VdrDocument{},
+			&domain.VdrAccessLog{},
+			&domain.ClosingRoom{},
+			&domain.AuditLog{},
+			&UserBookmark{},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to run GORM auto migrations: %w", err)
+		}
 	}
 
 	return db, nil

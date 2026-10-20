@@ -79,8 +79,8 @@ const DEMO_USERS: Record<string, UserProfile> = {
   },
 }
 
-import { loginAction, logoutAction, getMeAction, updateProfileAction } from "@/actions/auth"
-import { deleteAuthCookie } from "@/actions/fetcher"
+import { loginAction, logoutAction, getMeAction, updateProfileAction, changePasswordAction } from "@/actions/auth"
+import { deleteAuthCookie, setAuthCookie } from "@/actions/fetcher"
 
 interface AuthContextType {
   user: UserProfile | null
@@ -90,6 +90,7 @@ interface AuthContextType {
   logout: () => Promise<void>
   switchDemoUser: (role: UserRole) => Promise<{ success: boolean; error?: string }>
   updateProfile: (data: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
@@ -221,6 +222,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(profile)
       try {
         localStorage.setItem("estatehub_user", JSON.stringify(profile))
+        if (res.data?.access_token) {
+          setAuthCookie(res.data.access_token)
+        }
       } catch {}
       return { success: true }
     }
@@ -249,7 +253,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(target)
     try {
       localStorage.setItem("estatehub_user", JSON.stringify(target))
+      if (res.data?.access_token) {
+        setAuthCookie(res.data.access_token)
+      }
     } catch {}
+    return { success: res.success, error: res.error }
+  }
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!user) return { success: false, error: "Not authenticated" }
+    const res = await changePasswordAction({
+      current_password: currentPassword,
+      new_password: newPassword,
+    })
     return { success: res.success, error: res.error }
   }
 
@@ -289,6 +308,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         switchDemoUser,
         updateProfile,
+        changePassword,
       }}
     >
       {children}

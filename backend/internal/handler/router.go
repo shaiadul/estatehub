@@ -72,13 +72,16 @@ func NewRouter(p RouterParams) *chi.Mux {
 			a.Post("/oauth/google", p.AuthHandler.GoogleOAuth)
 			a.Post("/forgot-password", p.AuthHandler.ForgotPassword)
 			a.Post("/reset-password", p.AuthHandler.ResetPassword)
+			a.Post("/logout", p.AuthHandler.Logout)
 
-			// Protected Profile
+			// Protected Profile & Session
 			a.Group(func(pr chi.Router) {
 				pr.Use(apphttp.AuthMiddleware(p.TokenManager))
 				pr.Get("/me", p.AuthHandler.Me)
+				pr.Get("/verify", p.AuthHandler.Verify)
 				pr.Put("/me", p.AuthHandler.UpdateProfile)
 				pr.Put("/profile", p.AuthHandler.UpdateProfile)
+				pr.Post("/change-password", p.AuthHandler.ChangePassword)
 			})
 		})
 
