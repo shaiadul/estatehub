@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
 	"github.com/estatehub/backend/internal/domain"
 	"github.com/estatehub/backend/pkg/jwt"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
