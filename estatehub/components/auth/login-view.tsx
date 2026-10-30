@@ -277,7 +277,7 @@ export function LoginView() {
                 </span>
                 <span className="text-[11px] text-muted-foreground">{t("auth.instantAccess", "Instant 1-Click Access")}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {demoRoles.map((role) => (
                   <button
                     key={role.id}

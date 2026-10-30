@@ -88,6 +88,7 @@ export function LoginForm({
     { id: "broker", label: t("nav.roleBroker", "Broker"), name: "(Sarah)" },
     { id: "buyer", label: t("nav.roleBuyer", "Buyer"), name: "(Julian)" },
     { id: "seller", label: t("nav.roleSeller", "Seller"), name: "(Marcus)" },
+    { id: "admin", label: t("nav.roleAdmin", "Admin"), name: "(Alexander)" },
   ]
 
   return (
@@ -100,7 +101,7 @@ export function LoginForm({
           </span>
           <span className="text-[11px] text-muted-foreground">{t("auth.instantAccess", "Instant 1-Click Access")}</span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {demoRoles.map((role) => (
             <button
               key={role.id}

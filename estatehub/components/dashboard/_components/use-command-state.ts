@@ -132,7 +132,7 @@ function mapBackendToDashboardTour(t: any): TourBookingItem {
 }
 
 export function useCommandState() {
-  const { user, switchDemoUser } = useAuth()
+  const { user } = useAuth()
   const searchParams = useSearchParams()
   const roleQuery = searchParams.get("role") as ActiveRole | null
   const tabQuery = searchParams.get("tab") as ActiveNav | null
@@ -187,9 +187,6 @@ export function useCommandState() {
 
   const handleRoleChange = (role: ActiveRole) => {
     setActiveRole(role)
-    const targetAuth = role === "organizer" ? "broker" : role
-    switchDemoUser(targetAuth)
-    
     // Automatically switch active tab if not relevant to new role
     if (role === "buyer" && (activeNav === "properties" || activeNav === "crm" || activeNav === "sentry")) {
       setActiveNav("overview")
@@ -198,8 +195,7 @@ export function useCommandState() {
     } else if (role === "organizer" && (activeNav === "saved" || activeNav === "sentry")) {
       setActiveNav("overview")
     }
-    
-    triggerToast(`Switched to ${role.toUpperCase()} Management Portal`)
+    triggerToast(`Viewing ${role.toUpperCase()} Workspace`)
   }
 
   const [properties, setProperties] = React.useState<PropertyItem[]>([])
