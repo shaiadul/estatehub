@@ -5,7 +5,6 @@ import {
   IconX,
   IconSpeakerphone,
   IconUserPlus,
-  IconBuildingEstate,
   IconScale,
   IconShieldLock,
   IconShieldCheck,
@@ -14,11 +13,7 @@ import {
   IconLock,
   IconCube,
   IconCopy,
-  IconBuildingBank,
   IconMapPin,
-  IconUserCheck,
-  IconAlertTriangle,
-  IconFileText,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -83,7 +78,7 @@ export function AdminModals({ state }: AdminModalsProps) {
     <>
       {/* 1. ENROLL MEMBER MODAL */}
       {isAddUserModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -95,7 +90,8 @@ export function AdminModals({ state }: AdminModalsProps) {
                     Authorize New Enclave Member
                   </h3>
                   <p className="text-xs text-on-surface-variant">
-                    Provision credentials, accreditation tier, and role permissions
+                    Provision credentials, accreditation tier, and role
+                    permissions
                   </p>
                 </div>
               </div>
@@ -108,7 +104,10 @@ export function AdminModals({ state }: AdminModalsProps) {
               </button>
             </div>
 
-            <form onSubmit={handleCreateUser} className="mt-4 flex flex-col gap-4">
+            <form
+              onSubmit={handleCreateUser}
+              className="mt-4 flex flex-col gap-4"
+            >
               <div>
                 <label className="mb-1 block text-xs font-semibold text-on-surface-variant">
                   Full Name / Principal Officer *
@@ -204,7 +203,7 @@ export function AdminModals({ state }: AdminModalsProps) {
 
       {/* 2. BROADCAST MODAL */}
       {isBroadcastModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -229,7 +228,10 @@ export function AdminModals({ state }: AdminModalsProps) {
               </button>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="mt-4 flex flex-col gap-4">
+            <form
+              onSubmit={handleSendBroadcast}
+              className="mt-4 flex flex-col gap-4"
+            >
               <div>
                 <label className="mb-1 block text-xs font-semibold text-on-surface-variant">
                   Broadcast Subject *
@@ -253,7 +255,7 @@ export function AdminModals({ state }: AdminModalsProps) {
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder="Enter notice details for syndicate partners and institutional buyers..."
-                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-low p-3 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-xl border border-outline-variant/40 bg-surface-container-low p-3 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none"
                 />
               </div>
 
@@ -268,7 +270,7 @@ export function AdminModals({ state }: AdminModalsProps) {
                 </Button>
                 <Button
                   type="submit"
-                  className="h-10 rounded-xl bg-secondary px-5 text-xs font-bold text-primary hover:bg-secondary/90 shadow-sm"
+                  className="h-10 rounded-xl bg-secondary px-5 text-xs font-bold text-primary shadow-sm hover:bg-secondary/90"
                 >
                   Transmit Bulletin
                 </Button>
@@ -280,7 +282,7 @@ export function AdminModals({ state }: AdminModalsProps) {
 
       {/* 3. PROPERTY INSPECTION & DILIGENCE MODAL */}
       {selectedProperty && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
             {/* Modal Image Header */}
             <div className="relative h-64 w-full overflow-hidden bg-surface-container">
@@ -290,23 +292,28 @@ export function AdminModals({ state }: AdminModalsProps) {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-black/30" />
 
               <button
                 type="button"
                 onClick={() => setSelectedProperty(null)}
-                className="absolute top-4 right-4 rounded-full bg-black/60 p-2 text-white hover:bg-black/80 backdrop-blur-xs transition-colors"
+                className="absolute top-4 right-4 rounded-full bg-black/60 p-2 text-white backdrop-blur-xs transition-colors hover:bg-black/80"
               >
                 <IconX size={18} />
               </button>
 
               <div className="absolute top-4 left-4 flex items-center gap-2">
-                <Badge variant="outline" className="bg-black/60 text-white backdrop-blur-xs font-mono">
+                <Badge
+                  variant="outline"
+                  className="bg-black/60 font-mono text-white backdrop-blur-xs"
+                >
                   {selectedProperty.category}
                 </Badge>
                 <Badge
-                  variant={selectedProperty.status === "Active" ? "gold" : "outline"}
-                  className="bg-black/60 text-white backdrop-blur-xs font-bold"
+                  variant={
+                    selectedProperty.status === "Active" ? "gold" : "outline"
+                  }
+                  className="bg-black/60 font-bold text-white backdrop-blur-xs"
                 >
                   {selectedProperty.status}
                 </Badge>
@@ -316,10 +323,14 @@ export function AdminModals({ state }: AdminModalsProps) {
                 <span className="font-mono text-2xl font-black">
                   ${(selectedProperty.price / 1000000).toFixed(2)}M USD
                 </span>
-                <h2 className="text-lg font-black tracking-tight">{selectedProperty.title}</h2>
+                <h2 className="text-lg font-black tracking-tight">
+                  {selectedProperty.title}
+                </h2>
                 <p className="flex items-center gap-1 text-xs text-white/80">
                   <IconMapPin size={13} />
-                  <span>{selectedProperty.location} • ID: {selectedProperty.id}</span>
+                  <span>
+                    {selectedProperty.location} • ID: {selectedProperty.id}
+                  </span>
                 </p>
               </div>
             </div>
@@ -328,13 +339,17 @@ export function AdminModals({ state }: AdminModalsProps) {
             <div className="flex flex-col gap-5 p-6">
               {/* Seller Information Card */}
               <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
-                <span className="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">
+                <span className="text-[10px] font-black tracking-wider text-on-surface-variant uppercase">
                   Seller Principal &amp; Custody Entity
                 </span>
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="font-bold text-sm text-on-surface">{selectedProperty.sellerName}</p>
-                    <p className="text-xs text-on-surface-variant font-mono">{selectedProperty.sellerEntity}</p>
+                    <p className="text-sm font-bold text-on-surface">
+                      {selectedProperty.sellerName}
+                    </p>
+                    <p className="font-mono text-xs text-on-surface-variant">
+                      {selectedProperty.sellerEntity}
+                    </p>
                   </div>
                   <span className="font-mono text-[11px] text-on-surface-variant">
                     Submitted: {selectedProperty.submittedDate}
@@ -344,44 +359,76 @@ export function AdminModals({ state }: AdminModalsProps) {
 
               {/* Diligence Checklist */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                <h4 className="text-xs font-bold tracking-wider text-on-surface-variant uppercase">
                   Diligence Audit Verification Checklist
                 </h4>
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 text-xs">
                     <span className="flex items-center gap-2">
                       <IconCheck size={15} className="text-emerald-500" />
-                      <span className="font-semibold text-on-surface">Title Deed Notary</span>
+                      <span className="font-semibold text-on-surface">
+                        Title Deed Notary
+                      </span>
                     </span>
-                    <span className="font-mono text-[10px] text-emerald-500 font-bold">VERIFIED</span>
+                    <span className="font-mono text-[10px] font-bold text-emerald-500">
+                      VERIFIED
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 text-xs">
                     <span className="flex items-center gap-2">
-                      <IconLock size={15} className={selectedProperty.vdrAudited ? "text-emerald-500" : "text-amber-500"} />
-                      <span className="font-semibold text-on-surface">VDR Encrypted Room</span>
+                      <IconLock
+                        size={15}
+                        className={
+                          selectedProperty.vdrAudited
+                            ? "text-emerald-500"
+                            : "text-amber-500"
+                        }
+                      />
+                      <span className="font-semibold text-on-surface">
+                        VDR Encrypted Room
+                      </span>
                     </span>
-                    <span className={`font-mono text-[10px] font-bold ${selectedProperty.vdrAudited ? "text-emerald-500" : "text-amber-500"}`}>
+                    <span
+                      className={`font-mono text-[10px] font-bold ${selectedProperty.vdrAudited ? "text-emerald-500" : "text-amber-500"}`}
+                    >
                       {selectedProperty.vdrAudited ? "ACTIVE" : "INCOMPLETE"}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 text-xs">
                     <span className="flex items-center gap-2">
-                      <IconCube size={15} className={selectedProperty.lidarScanAvailable ? "text-secondary" : "text-on-surface-variant"} />
-                      <span className="font-semibold text-on-surface">3D LiDAR Spatial Scan</span>
+                      <IconCube
+                        size={15}
+                        className={
+                          selectedProperty.lidarScanAvailable
+                            ? "text-secondary"
+                            : "text-on-surface-variant"
+                        }
+                      />
+                      <span className="font-semibold text-on-surface">
+                        3D LiDAR Spatial Scan
+                      </span>
                     </span>
-                    <span className={`font-mono text-[10px] font-bold ${selectedProperty.lidarScanAvailable ? "text-secondary" : "text-on-surface-variant"}`}>
-                      {selectedProperty.lidarScanAvailable ? "MAPPED" : "STANDARD"}
+                    <span
+                      className={`font-mono text-[10px] font-bold ${selectedProperty.lidarScanAvailable ? "text-secondary" : "text-on-surface-variant"}`}
+                    >
+                      {selectedProperty.lidarScanAvailable
+                        ? "MAPPED"
+                        : "STANDARD"}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 text-xs">
                     <span className="flex items-center gap-2">
                       <IconCheck size={15} className="text-emerald-500" />
-                      <span className="font-semibold text-on-surface">AML / Sanctions Screening</span>
+                      <span className="font-semibold text-on-surface">
+                        AML / Sanctions Screening
+                      </span>
                     </span>
-                    <span className="font-mono text-[10px] text-emerald-500 font-bold">CLEARED</span>
+                    <span className="font-mono text-[10px] font-bold text-emerald-500">
+                      CLEARED
+                    </span>
                   </div>
                 </div>
               </div>
@@ -392,11 +439,22 @@ export function AdminModals({ state }: AdminModalsProps) {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleToggleFeaturedProperty(selectedProperty.id)}
+                    onClick={() =>
+                      handleToggleFeaturedProperty(selectedProperty.id)
+                    }
                     className="h-9 rounded-xl border-outline-variant/40 px-3 text-xs font-bold"
                   >
-                    <IconStar size={14} className={selectedProperty.featured ? "fill-secondary text-secondary" : ""} />
-                    <span>{selectedProperty.featured ? "Unfeature" : "Spotlight"}</span>
+                    <IconStar
+                      size={14}
+                      className={
+                        selectedProperty.featured
+                          ? "fill-secondary text-secondary"
+                          : ""
+                      }
+                    />
+                    <span>
+                      {selectedProperty.featured ? "Unfeature" : "Spotlight"}
+                    </span>
                   </Button>
 
                   <Button
@@ -408,7 +466,9 @@ export function AdminModals({ state }: AdminModalsProps) {
                     }}
                     className="h-9 rounded-xl px-3 text-xs font-bold text-destructive hover:bg-destructive/10"
                   >
-                    {selectedProperty.status === "Delisted" ? "Restore Listing" : "Delist Property"}
+                    {selectedProperty.status === "Delisted"
+                      ? "Restore Listing"
+                      : "Delist Property"}
                   </Button>
                 </div>
 
@@ -426,10 +486,13 @@ export function AdminModals({ state }: AdminModalsProps) {
                     <Button
                       size="sm"
                       onClick={() => {
-                        handleDirectPropertyStatus(selectedProperty.id, "Active")
+                        handleDirectPropertyStatus(
+                          selectedProperty.id,
+                          "Active"
+                        )
                         setSelectedProperty(null)
                       }}
-                      className="h-9 rounded-xl bg-emerald-500 px-4 text-xs font-bold text-white hover:bg-emerald-600 shadow-xs"
+                      className="h-9 rounded-xl bg-emerald-500 px-4 text-xs font-bold text-white shadow-xs hover:bg-emerald-600"
                     >
                       <IconCheck size={14} />
                       <span>Approve &amp; Push to Global Radar</span>
@@ -444,7 +507,7 @@ export function AdminModals({ state }: AdminModalsProps) {
 
       {/* 4. MEMBER DOSSIER & KYC MODAL */}
       {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-3">
@@ -458,7 +521,9 @@ export function AdminModals({ state }: AdminModalsProps) {
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h3 className="text-base font-black text-on-surface">{selectedUser.name}</h3>
+                    <h3 className="text-base font-black text-on-surface">
+                      {selectedUser.name}
+                    </h3>
                     {selectedUser.verified && (
                       <IconShieldCheck size={16} className="text-secondary" />
                     )}
@@ -481,13 +546,18 @@ export function AdminModals({ state }: AdminModalsProps) {
             <div className="mt-4 flex flex-col gap-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
-                  <span className="text-[10px] text-on-surface-variant uppercase font-bold">Platform Role</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase">
+                    Platform Role
+                  </span>
                   <select
                     value={selectedUser.role}
                     onChange={(e) =>
-                      handleChangeUserRole(selectedUser.id, e.target.value as any)
+                      handleChangeUserRole(
+                        selectedUser.id,
+                        e.target.value as any
+                      )
                     }
-                    className="mt-1 w-full font-bold text-on-surface bg-transparent focus:outline-none"
+                    className="mt-1 w-full bg-transparent font-bold text-on-surface focus:outline-none"
                   >
                     <option value="buyer">Accredited Buyer</option>
                     <option value="seller">Estate Seller</option>
@@ -497,42 +567,66 @@ export function AdminModals({ state }: AdminModalsProps) {
                 </div>
 
                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
-                  <span className="text-[10px] text-on-surface-variant uppercase font-bold">KYC Status</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase">
+                    KYC Status
+                  </span>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className="font-bold text-on-surface">{selectedUser.kycStatus}</span>
+                    <span className="font-bold text-on-surface">
+                      {selectedUser.kycStatus}
+                    </span>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() =>
                         handleDirectKycUpdate(
                           selectedUser.id,
-                          selectedUser.kycStatus === "Verified" ? "Pending Review" : "Verified"
+                          selectedUser.kycStatus === "Verified"
+                            ? "Pending Review"
+                            : "Verified"
                         )
                       }
                       className="h-6 px-2 text-[10px] font-bold"
                     >
-                      {selectedUser.kycStatus === "Verified" ? "Revoke" : "Approve"}
+                      {selectedUser.kycStatus === "Verified"
+                        ? "Revoke"
+                        : "Approve"}
                     </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3.5 space-y-2">
+              <div className="space-y-2 rounded-xl border border-outline-variant/30 bg-surface-container-low p-3.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Accreditation Tier:</span>
-                  <span className="font-bold text-on-surface">{selectedUser.accreditationTier}</span>
+                  <span className="text-on-surface-variant">
+                    Accreditation Tier:
+                  </span>
+                  <span className="font-bold text-on-surface">
+                    {selectedUser.accreditationTier}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Active Portfolio Units:</span>
-                  <span className="font-mono font-bold text-on-surface">{selectedUser.portfolioCount} Assets</span>
+                  <span className="text-on-surface-variant">
+                    Active Portfolio Units:
+                  </span>
+                  <span className="font-mono font-bold text-on-surface">
+                    {selectedUser.portfolioCount} Assets
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Joined Platform:</span>
-                  <span className="font-mono text-on-surface">{selectedUser.joinedDate}</span>
+                  <span className="text-on-surface-variant">
+                    Joined Platform:
+                  </span>
+                  <span className="font-mono text-on-surface">
+                    {selectedUser.joinedDate}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Last Session Active:</span>
-                  <span className="font-mono text-on-surface">{selectedUser.lastActive}</span>
+                  <span className="text-on-surface-variant">
+                    Last Session Active:
+                  </span>
+                  <span className="font-mono text-on-surface">
+                    {selectedUser.lastActive}
+                  </span>
                 </div>
               </div>
 
@@ -569,7 +663,7 @@ export function AdminModals({ state }: AdminModalsProps) {
 
       {/* 5. ESCROW TRANSACTION SUPERVISION MODAL */}
       {selectedEscrow && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -599,21 +693,27 @@ export function AdminModals({ state }: AdminModalsProps) {
               {/* Financial Metrics */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
-                  <span className="text-[10px] text-on-surface-variant font-bold uppercase">Contract Value</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase">
+                    Contract Value
+                  </span>
                   <p className="mt-1 font-mono text-base font-black text-on-surface">
                     ${(selectedEscrow.dealValue / 1000000).toFixed(2)}M
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
-                  <span className="text-[10px] text-on-surface-variant font-bold uppercase">Earnest Wire</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase">
+                    Earnest Wire
+                  </span>
                   <p className="mt-1 font-mono text-base font-black text-emerald-500">
                     ${(selectedEscrow.earnestAmount / 1000).toFixed(0)}k
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
-                  <span className="text-[10px] text-on-surface-variant font-bold uppercase">2.5% Platform Take</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase">
+                    2.5% Platform Take
+                  </span>
                   <p className="mt-1 font-mono text-base font-black text-secondary">
                     ${(selectedEscrow.platformFee / 1000).toFixed(0)}k
                   </p>
@@ -621,26 +721,46 @@ export function AdminModals({ state }: AdminModalsProps) {
               </div>
 
               {/* Counterparties */}
-              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 space-y-2.5">
+              <div className="space-y-2.5 rounded-xl border border-outline-variant/30 bg-surface-container-low p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Buyer Principal:</span>
-                  <span className="font-bold text-on-surface">{selectedEscrow.buyerName}</span>
+                  <span className="text-on-surface-variant">
+                    Buyer Principal:
+                  </span>
+                  <span className="font-bold text-on-surface">
+                    {selectedEscrow.buyerName}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Seller Principal:</span>
-                  <span className="font-bold text-on-surface">{selectedEscrow.sellerName}</span>
+                  <span className="text-on-surface-variant">
+                    Seller Principal:
+                  </span>
+                  <span className="font-bold text-on-surface">
+                    {selectedEscrow.sellerName}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Escrow Arbiter:</span>
-                  <span className="font-mono font-bold text-on-secondary-container">{selectedEscrow.brokerName}</span>
+                  <span className="text-on-surface-variant">
+                    Escrow Arbiter:
+                  </span>
+                  <span className="font-mono font-bold text-on-secondary-container">
+                    {selectedEscrow.brokerName}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between border-t border-outline-variant/20 pt-2">
-                  <span className="text-on-surface-variant">Target Closing Date:</span>
-                  <span className="font-mono font-semibold text-on-surface">{selectedEscrow.closingDate}</span>
+                  <span className="text-on-surface-variant">
+                    Target Closing Date:
+                  </span>
+                  <span className="font-mono font-semibold text-on-surface">
+                    {selectedEscrow.closingDate}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Active Pipeline Stage:</span>
-                  <Badge variant="gold" className="font-bold">{selectedEscrow.stage}</Badge>
+                  <span className="text-on-surface-variant">
+                    Active Pipeline Stage:
+                  </span>
+                  <Badge variant="gold" className="font-bold">
+                    {selectedEscrow.stage}
+                  </Badge>
                 </div>
               </div>
 
@@ -651,9 +771,11 @@ export function AdminModals({ state }: AdminModalsProps) {
                     size="sm"
                     onClick={() => {
                       handleVerifyEarnestWire(selectedEscrow.id)
-                      setSelectedEscrow((prev) => (prev ? { ...prev, earnestWired: true } : null))
+                      setSelectedEscrow((prev) =>
+                        prev ? { ...prev, earnestWired: true } : null
+                      )
                     }}
-                    className="h-9 rounded-xl bg-secondary px-4 text-xs font-bold text-primary hover:bg-secondary/90 shadow-xs"
+                    className="h-9 rounded-xl bg-secondary px-4 text-xs font-bold text-primary shadow-xs hover:bg-secondary/90"
                   >
                     <IconCheck size={14} />
                     <span>Verify Earnest Wire Now</span>
@@ -665,7 +787,7 @@ export function AdminModals({ state }: AdminModalsProps) {
                       handleReleaseFunds(selectedEscrow.id)
                       setSelectedEscrow(null)
                     }}
-                    className="h-9 rounded-xl bg-emerald-500 px-4 text-xs font-bold text-white hover:bg-emerald-600 shadow-xs"
+                    className="h-9 rounded-xl bg-emerald-500 px-4 text-xs font-bold text-white shadow-xs hover:bg-emerald-600"
                   >
                     <span>Authorize Final Settlement Release</span>
                   </Button>
@@ -703,7 +825,7 @@ export function AdminModals({ state }: AdminModalsProps) {
 
       {/* 6. CRYPTOGRAPHIC TRACE MODAL */}
       {selectedAudit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200 fade-in">
           <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -730,47 +852,71 @@ export function AdminModals({ state }: AdminModalsProps) {
             </div>
 
             <div className="mt-4 flex flex-col gap-3 text-xs">
-              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3.5 space-y-2">
+              <div className="space-y-2 rounded-xl border border-outline-variant/30 bg-surface-container-low p-3.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Event Classification:</span>
-                  <span className="font-bold text-on-surface">{selectedAudit.eventType}</span>
+                  <span className="text-on-surface-variant">
+                    Event Classification:
+                  </span>
+                  <span className="font-bold text-on-surface">
+                    {selectedAudit.eventType}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Operator Principal:</span>
-                  <span className="font-semibold text-on-surface">{selectedAudit.operator}</span>
+                  <span className="text-on-surface-variant">
+                    Operator Principal:
+                  </span>
+                  <span className="font-semibold text-on-surface">
+                    {selectedAudit.operator}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Network IP Address:</span>
-                  <span className="font-mono text-on-surface">{selectedAudit.ipAddress}</span>
+                  <span className="text-on-surface-variant">
+                    Network IP Address:
+                  </span>
+                  <span className="font-mono text-on-surface">
+                    {selectedAudit.ipAddress}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Geolocation Node:</span>
-                  <span className="font-semibold text-on-surface">{selectedAudit.location}</span>
+                  <span className="text-on-surface-variant">
+                    Geolocation Node:
+                  </span>
+                  <span className="font-semibold text-on-surface">
+                    {selectedAudit.location}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Telemetry Severity:</span>
-                  <span className="font-mono font-bold uppercase text-emerald-500">{selectedAudit.severity}</span>
+                  <span className="text-on-surface-variant">
+                    Telemetry Severity:
+                  </span>
+                  <span className="font-mono font-bold text-emerald-500 uppercase">
+                    {selectedAudit.severity}
+                  </span>
                 </div>
               </div>
 
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">
+                <span className="text-[10px] font-black tracking-wider text-on-surface-variant uppercase">
                   Payload &amp; Operation Data
                 </span>
-                <div className="mt-1 rounded-xl bg-surface-container p-3 font-mono text-[11px] text-on-surface break-words">
+                <div className="mt-1 rounded-xl bg-surface-container p-3 font-mono text-[11px] wrap-break-words text-on-surface">
                   {selectedAudit.details}
                 </div>
               </div>
 
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">
+                <span className="text-[10px] font-black tracking-wider text-on-surface-variant uppercase">
                   SHA-256 Digital Signature
                 </span>
-                <div className="mt-1 flex items-center justify-between rounded-xl bg-surface-container p-3 font-mono text-[10px] text-secondary break-all">
-                  <span>9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08</span>
+                <div className="mt-1 flex items-center justify-between rounded-xl bg-surface-container p-3 font-mono text-[10px] break-all text-secondary">
+                  <span>
+                    9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+                  </span>
                   <button
                     type="button"
-                    onClick={() => triggerToast("SHA-256 cryptographic signature copied")}
+                    onClick={() =>
+                      triggerToast("SHA-256 cryptographic signature copied")
+                    }
                     className="ml-2 text-on-surface-variant hover:text-on-surface"
                     title="Copy Signature"
                   >

@@ -122,7 +122,7 @@ export function LoginForm({
 
       <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10 relative overflow-hidden border border-outline-variant/30">
         {/* Top Accent */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-primary via-secondary to-primary" />
 
         {/* Header */}
         <div className="space-y-1 mb-6">
@@ -180,7 +180,7 @@ export function LoginForm({
                 placeholder="alexander@domain.com"
                 value={email}
                 onChange={(e) => onEmailChange(e.target.value)}
-                className="text-on-surface placeholder:text-outline text-xs sm:text-sm"
+                className="text-on-surface text-xs sm:text-sm"
               />
             </InputGroup>
           </div>

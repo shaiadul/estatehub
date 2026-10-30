@@ -16,7 +16,6 @@ import {
   IconDeviceAnalytics,
   IconUserCheck,
   IconAlertCircle,
-  IconCircleCheck,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -367,7 +366,7 @@ export function LoginView() {
                   <label className="font-label-sm text-xs text-on-surface font-semibold">
                     {t("auth.emailAddress", "Email Address")}
                   </label>
-                  <InputGroup className="h-11 rounded-xl bg-surface-container-low border-outline-variant/30 focus-within:bg-surface-container-lowest focus-within:border-primary transition-all">
+                  <InputGroup className="h-11 rounded-xl bg-surface-container-low border-outline-variant/30 transition-all">
                     <InputGroupAddon align="inline-start">
                       <IconAt className="w-4 h-4 text-outline" />
                     </InputGroupAddon>
@@ -377,7 +376,7 @@ export function LoginView() {
                       placeholder="alexander@domain.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="text-on-surface placeholder:text-outline text-xs sm:text-sm"
+                      className="text-on-surface text-xs sm:text-sm"
                     />
                   </InputGroup>
                 </div>
@@ -395,7 +394,7 @@ export function LoginView() {
                       {t("auth.forgotPassword", "Forgot password?")}
                     </Link>
                   </div>
-                  <InputGroup className="h-11 rounded-xl bg-surface-container-low border-outline-variant/30 focus-within:bg-surface-container-lowest focus-within:border-primary transition-all">
+                  <InputGroup className="h-11 rounded-xl bg-surface-container-low border-outline-variant/30 transition-all">
                     <InputGroupAddon align="inline-start">
                       <IconLock className="w-4 h-4 text-outline" />
                     </InputGroupAddon>
@@ -405,7 +404,7 @@ export function LoginView() {
                       placeholder="••••••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="text-on-surface font-mono placeholder:text-outline text-xs sm:text-sm"
+                      className="text-on-surface font-mono text-xs sm:text-sm"
                     />
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton

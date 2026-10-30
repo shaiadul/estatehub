@@ -6,12 +6,8 @@ import {
   IconReceipt2,
   IconUsers,
   IconTrendingUp,
-  IconShieldCheck,
-  IconServer,
-  IconLock,
   IconArrowRight,
   IconBuildingEstate,
-  IconAlertCircle,
   IconScale,
   IconChevronRight,
 } from "@tabler/icons-react"
@@ -252,7 +248,7 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
                   <div className="relative flex h-36 w-full max-w-10 items-end justify-center rounded-xl bg-surface-container-low p-1 group-hover:bg-surface-container transition-colors">
                     <div
                       style={{ height: `${heightPct}%` }}
-                      className="w-full rounded-lg bg-gradient-to-t from-primary via-primary to-secondary transition-all duration-500 group-hover:brightness-110 shadow-xs"
+                      className="w-full rounded-lg bg-linear-to-t from-primary via-primary to-secondary transition-all duration-500 group-hover:brightness-110 shadow-xs"
                     />
                   </div>
                   <span className="text-[11px] font-semibold text-on-surface-variant">

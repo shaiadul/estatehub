@@ -1,17 +1,12 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import {
   IconBuildingEstate,
   IconCheck,
   IconStar,
-  IconAlertTriangle,
   IconLock,
-  IconExternalLink,
   IconEye,
-  IconRefresh,
-  IconBuildingBank,
   IconMapPin,
   IconCube,
 } from "@tabler/icons-react"
@@ -33,7 +28,6 @@ export function PropertyModerationTab({ state }: PropertyModerationTabProps) {
     propertyCategoryFilter,
     setPropertyCategoryFilter,
     propertyViewMode,
-    setPropertyViewMode,
     setSelectedProperty,
     handleApproveProperty,
     handleToggleFeaturedProperty,
@@ -212,7 +206,7 @@ export function PropertyModerationTab({ state }: PropertyModerationTabProps) {
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
 
                   {/* Top Badges */}
                   <div className="absolute top-2.5 right-2.5 left-2.5 flex items-center justify-between">
