@@ -10,9 +10,17 @@ import {
   IconBuildingEstate,
   IconScale,
   IconChevronRight,
+  IconActivity,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
 import type { AdminState } from "./use-admin-state"
 
 interface OverviewAnalyticsTabProps {
@@ -101,31 +109,46 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
         {KPIS.map((kpi, idx) => {
           const Icon = kpi.icon
           return (
-            <div
+            <Card
               key={idx}
-              className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs transition-all hover:shadow-sm"
+              className="relative overflow-hidden border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="mb-2 flex items-center justify-between text-on-surface-variant">
-                <span className="text-xs font-semibold">{kpi.label}</span>
-                <div className={`rounded-xl p-2 ${kpi.color}`}>
-                  <Icon size={18} />
+              <div
+                className={`absolute top-0 inset-x-0 h-1 ${
+                  idx === 0
+                    ? "bg-primary"
+                    : idx === 1
+                      ? "bg-secondary"
+                      : idx === 2
+                        ? "bg-tertiary"
+                        : "bg-chart-5"
+                }`}
+              />
+              <CardContent className="flex flex-col justify-between p-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-on-surface-variant">
+                    {kpi.label}
+                  </span>
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-xl p-1.5 ${kpi.color}`}>
+                    <Icon size={17} />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="text-2xl font-black tracking-tight text-on-surface">
+
+                <div className="mt-2.5 text-2xl font-black tracking-tight text-on-surface">
                   {kpi.value}
                 </div>
                 <p className="mt-0.5 text-[11px] font-medium text-on-surface-variant">
                   {kpi.subtext}
                 </p>
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t border-outline-variant/20 pt-2.5 text-xs font-semibold">
-                <div className="flex items-center gap-1 text-emerald-500">
-                  <IconTrendingUp size={14} />
-                  <span>{kpi.trend}</span>
+
+                <div className="mt-3 flex items-center justify-between border-t border-outline-variant/20 pt-2.5 text-xs font-semibold">
+                  <div className="flex items-center gap-1 text-emerald-500">
+                    <IconTrendingUp size={14} />
+                    <span>{kpi.trend}</span>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
@@ -142,7 +165,7 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
               className="group cursor-pointer rounded-2xl border border-secondary/40 bg-secondary/10 p-4 transition-all hover:bg-secondary/15 hover:shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary/20 text-secondary">
                     <IconBuildingEstate size={16} />
                   </div>
@@ -169,7 +192,7 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
               className="group cursor-pointer rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 transition-all hover:bg-amber-500/15 hover:shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/20 text-amber-500">
                     <IconUsers size={16} />
                   </div>
@@ -178,7 +201,7 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
                       KYC Accreditation Review
                     </h3>
                     <p className="text-[11px] text-on-surface-variant">
-                      {pendingKycCount} member identity awaiting sovereign verification
+                      {pendingKycCount} member identities awaiting sovereign verification
                     </p>
                   </div>
                 </div>
@@ -193,7 +216,7 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
               className="group cursor-pointer rounded-2xl border border-primary/30 bg-primary/10 p-4 transition-all hover:bg-primary/15 hover:shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/20 text-primary">
                     <IconScale size={16} />
                   </div>
@@ -216,82 +239,86 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
       {/* Transaction Velocity & Financial Overview */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Monthly Volume Bars */}
-        <div className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs lg:col-span-2">
-          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs lg:col-span-2">
+          <CardHeader className="flex flex-col justify-between gap-2 pb-2 sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-base font-bold text-on-surface">
+              <CardTitle className="text-base font-bold text-on-surface">
                 Transaction Volume &amp; Platform Fee Revenue
-              </h2>
-              <p className="text-xs text-on-surface-variant">
+              </CardTitle>
+              <CardDescription className="text-xs text-on-surface-variant">
                 Bilateral gross contract volume ($M) versus protocol commission fee capture
-              </p>
+              </CardDescription>
             </div>
             <Badge variant="gold" className="text-xs font-bold">
               Trailing 6 Months
             </Badge>
-          </div>
+          </CardHeader>
 
-          <div className="mt-6 grid grid-cols-6 items-end gap-3 sm:gap-6 border-b border-outline-variant/30 pb-4">
-            {MONTHLY_VOLUME.map((m) => {
-              const maxVol = 45
-              const heightPct = Math.round((m.volume / maxVol) * 100)
-              return (
-                <div key={m.month} className="group flex flex-col items-center gap-2">
-                  <div className="flex flex-col items-center opacity-80 group-hover:opacity-100 transition-opacity">
-                    <span className="font-mono text-[11px] font-bold text-on-surface">
-                      ${m.volume}M
-                    </span>
-                    <span className="text-[9px] font-mono text-emerald-500 font-semibold">
-                      +${m.revenue}M fee
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-6 items-end gap-3 sm:gap-6 border-b border-outline-variant/30 pb-4 pt-2">
+              {MONTHLY_VOLUME.map((m) => {
+                const maxVol = 45
+                const heightPct = Math.round((m.volume / maxVol) * 100)
+                return (
+                  <div key={m.month} className="group flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center opacity-80 group-hover:opacity-100 transition-opacity">
+                      <span className="font-mono text-[11px] font-bold text-on-surface">
+                        ${m.volume}M
+                      </span>
+                      <span className="text-[9px] font-mono text-emerald-500 font-semibold">
+                        +${m.revenue}M fee
+                      </span>
+                    </div>
+                    <div className="relative flex h-36 w-full max-w-10 items-end justify-center rounded-xl bg-surface-container-low p-1 group-hover:bg-surface-container transition-colors">
+                      <div
+                        style={{ height: `${heightPct}%` }}
+                        className="w-full rounded-lg bg-linear-to-t from-primary via-primary to-secondary transition-all duration-500 group-hover:brightness-110 shadow-xs"
+                      />
+                    </div>
+                    <span className="text-[11px] font-semibold text-on-surface-variant">
+                      {m.month}
                     </span>
                   </div>
-                  <div className="relative flex h-36 w-full max-w-10 items-end justify-center rounded-xl bg-surface-container-low p-1 group-hover:bg-surface-container transition-colors">
-                    <div
-                      style={{ height: `${heightPct}%` }}
-                      className="w-full rounded-lg bg-linear-to-t from-primary via-primary to-secondary transition-all duration-500 group-hover:brightness-110 shadow-xs"
-                    />
-                  </div>
-                  <span className="text-[11px] font-semibold text-on-surface-variant">
-                    {m.month}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5 text-on-surface-variant">
-                <span className="h-2.5 w-2.5 rounded-sm bg-primary" />
-                <span>Gross Settlement Volume</span>
-              </span>
-              <span className="flex items-center gap-1.5 text-on-surface-variant">
-                <span className="h-2.5 w-2.5 rounded-sm bg-secondary" />
-                <span>2.5% Protocol Fee Share</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5 text-on-surface-variant">
+                  <span className="h-2.5 w-2.5 rounded-sm bg-primary" />
+                  <span>Gross Settlement Volume</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-on-surface-variant">
+                  <span className="h-2.5 w-2.5 rounded-sm bg-secondary" />
+                  <span>2.5% Protocol Fee Share</span>
+                </span>
+              </div>
+              <span className="font-mono font-bold text-on-secondary-container">
+                All-Time Enclave Volume: $214.8M
               </span>
             </div>
-            <span className="font-mono font-bold text-on-secondary-container">
-              All-Time Enclave Volume: $214.8M
-            </span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Inventory Category Breakdown */}
-        <div className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-          <div>
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-on-surface">
+        <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-base font-bold text-on-surface">
                 Inventory by Asset Class
-              </h2>
-              <Badge variant="outline" className="text-[10px] font-mono">
-                {properties.length} Active Assets
-              </Badge>
+              </CardTitle>
+              <CardDescription className="text-xs text-on-surface-variant">
+                GMV allocation across prime architectural classes
+              </CardDescription>
             </div>
-            <p className="mt-1 text-xs text-on-surface-variant">
-              GMV allocation across prime architectural classes
-            </p>
+            <Badge variant="outline" className="text-[10px] font-mono">
+              {properties.length} Active
+            </Badge>
+          </CardHeader>
 
-            <div className="mt-4 space-y-3">
+          <CardContent className="flex flex-col justify-between gap-6">
+            <div className="space-y-3">
               {categoryStats.map((item) => (
                 <div key={item.name} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between text-xs">
@@ -309,31 +336,33 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="mt-4 border-t border-outline-variant/20 pt-3">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setActiveNav("properties")}
-              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border-outline-variant/40 text-xs font-bold hover:bg-surface-container"
+              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border-outline-variant/40 text-xs font-semibold hover:bg-surface-container"
             >
               <span>Manage Platform Inventory Queue</span>
               <IconArrowRight size={14} />
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Live Operational & Security Stream */}
-      <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-        <div className="flex items-center justify-between">
+      <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+        <CardHeader className="flex flex-col justify-between gap-2 pb-2 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-base font-bold text-on-surface">
-              Live Platform Transaction &amp; Governance Feed
-            </h2>
-            <p className="text-xs text-on-surface-variant">
+            <div className="flex items-center gap-2">
+              <IconActivity size={18} className="text-secondary" />
+              <CardTitle className="text-base font-bold text-on-surface">
+                Live Platform Transaction &amp; Governance Feed
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs text-on-surface-variant">
               Real-time audit events, wire verifications, and LOI submissions across counterparties
-            </p>
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="gold" className="text-xs font-bold">
@@ -343,56 +372,58 @@ export function OverviewAnalyticsTab({ state }: OverviewAnalyticsTabProps) {
               size="sm"
               variant="outline"
               onClick={() => setActiveNav("audit")}
-              className="h-7 rounded-lg text-xs font-semibold px-2"
+              className="h-7.5 rounded-xl text-xs font-semibold px-2.5"
             >
               View All ({auditLogs.length})
             </Button>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="divide-y divide-outline-variant/20">
-          {auditLogs.slice(0, 4).map((log) => (
-            <div
-              key={log.id}
-              onClick={() => setSelectedAudit(log)}
-              className="group flex flex-col justify-between gap-2 py-3 sm:flex-row sm:items-center cursor-pointer transition-colors hover:bg-surface-container-high/30 rounded-xl px-2 -mx-2"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`flex h-2.5 w-2.5 rounded-full shrink-0 ${
-                    log.severity === "critical"
-                      ? "bg-destructive animate-ping"
-                      : log.severity === "warning"
-                        ? "bg-amber-500"
-                        : "bg-emerald-500"
-                  }`}
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-on-surface group-hover:text-primary transition-colors">
-                      {log.eventType}
-                    </span>
-                    <span className="font-mono text-[10px] text-on-surface-variant">
-                      {log.timestamp} • {log.id}
-                    </span>
+        <CardContent>
+          <div className="divide-y divide-outline-variant/20 rounded-xl border border-outline-variant/20 overflow-hidden">
+            {auditLogs.slice(0, 4).map((log) => (
+              <div
+                key={log.id}
+                onClick={() => setSelectedAudit(log)}
+                className="group flex flex-col justify-between gap-2 p-3.5 sm:flex-row sm:items-center cursor-pointer transition-colors hover:bg-surface-container-high/30"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`flex h-2.5 w-2.5 rounded-full shrink-0 ${
+                      log.severity === "critical"
+                        ? "bg-destructive animate-ping"
+                        : log.severity === "warning"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
+                    }`}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs text-on-surface group-hover:text-primary transition-colors">
+                        {log.eventType}
+                      </span>
+                      <span className="font-mono text-[10px] text-on-surface-variant">
+                        {log.timestamp} • {log.id}
+                      </span>
+                    </div>
+                    <p className="text-xs text-on-surface-variant">{log.details}</p>
                   </div>
-                  <p className="text-xs text-on-surface-variant">{log.details}</p>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-3 text-right">
-                <div className="text-xs">
-                  <p className="font-semibold text-on-surface">{log.operator}</p>
-                  <p className="font-mono text-[10px] text-on-surface-variant">
-                    {log.ipAddress} ({log.location})
-                  </p>
+                <div className="flex items-center gap-3 text-right">
+                  <div className="text-xs">
+                    <p className="font-semibold text-on-surface">{log.operator}</p>
+                    <p className="font-mono text-[10px] text-on-surface-variant">
+                      {log.ipAddress} ({log.location})
+                    </p>
+                  </div>
+                  <IconChevronRight size={14} className="text-on-surface-variant transition-transform group-hover:translate-x-0.5" />
                 </div>
-                <IconChevronRight size={14} className="text-on-surface-variant transition-transform group-hover:translate-x-0.5" />
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

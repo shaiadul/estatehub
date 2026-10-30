@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import {
-  IconShieldLock,
   IconAlertTriangle,
   IconSpeakerphone,
   IconUserPlus,
@@ -10,6 +9,7 @@ import {
   IconBuildingEstate,
   IconUsers,
   IconChevronRight,
+  IconLockOpen,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
@@ -62,29 +62,20 @@ export function AdminHeader({ state }: AdminHeaderProps) {
       innerClassName="py-4"
     >
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-        {/* Clean Title & Hierarchy without extra badge clutter */}
-        <div className="flex items-start gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/30 bg-surface-container text-primary shadow-xs">
-            <IconShieldLock size={22} />
+        {/* Clean Title & Hierarchy */}
+        <div>
+          <div className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+            <span className="font-semibold text-secondary">Platform Governance</span>
+            <IconChevronRight size={13} className="text-outline-variant" />
+            <span>Enclave Administration</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2 text-xs text-on-surface-variant font-medium">
-              <span className="font-semibold text-secondary">Platform Governance</span>
-              <span>/</span>
-              <span>Enclave Administration</span>
-              <span className="inline-flex items-center gap-1.5 ml-1 text-[11px] text-emerald-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Live
-              </span>
-            </div>
 
-            <h1 className="mt-0.5 text-xl font-bold tracking-tight text-on-surface sm:text-2xl">
-              {navTitles[activeNav] || "Platform Administration"}
-            </h1>
-            <p className="mt-0.5 text-xs text-on-surface-variant">
-              Asset onboarding, bilateral settlement arbitrations, and member accreditation
-            </p>
-          </div>
+          <h1 className="mt-1 text-xl font-bold tracking-tight text-on-surface sm:text-2xl">
+            {navTitles[activeNav] || "Platform Administration"}
+          </h1>
+          <p className="mt-0.5 text-xs text-on-surface-variant leading-relaxed">
+            Asset onboarding, bilateral settlement arbitrations, and member accreditation
+          </p>
         </div>
 
         {/* Global Action CTAs & Emergency Controls */}
@@ -93,6 +84,7 @@ export function AdminHeader({ state }: AdminHeaderProps) {
           <Link href="/dashboard">
             <Button
               variant="outline"
+              size="sm"
               className="flex h-9 items-center gap-1.5 rounded-xl border-outline-variant/40 px-3.5 text-xs font-semibold hover:bg-surface-container"
             >
               <IconArrowLeft size={14} />
@@ -104,6 +96,7 @@ export function AdminHeader({ state }: AdminHeaderProps) {
           {/* Broadcast Announcement */}
           <Button
             variant="outline"
+            size="sm"
             onClick={() => setIsBroadcastModalOpen(true)}
             className="flex h-9 items-center gap-1.5 rounded-xl border-outline-variant/40 px-3.5 text-xs font-semibold hover:bg-surface-container"
           >
@@ -113,30 +106,32 @@ export function AdminHeader({ state }: AdminHeaderProps) {
 
           {/* Authorize Member */}
           <Button
+            size="sm"
             onClick={() => setIsAddUserModalOpen(true)}
-            className="flex h-9 items-center gap-1.5 rounded-xl bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 shadow-xs"
+            className="flex h-9 items-center gap-1.5 rounded-xl bg-primary px-3.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 shadow-xs"
           >
             <IconUserPlus size={14} />
             <span>Authorize Member</span>
           </Button>
 
           {/* Emergency Freeze Button */}
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant={policy.emergencyFreeze ? "destructive" : "outline"}
             onClick={handleToggleEmergencyFreeze}
-            className={`flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition-all ${
+            className={`flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold shadow-xs transition-all ${
               policy.emergencyFreeze
-                ? "bg-destructive text-white shadow-sm animate-pulse"
-                : "border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/15"
+                ? "bg-destructive text-white animate-pulse"
+                : "border-destructive/30 text-destructive hover:bg-destructive/10"
             }`}
           >
             <IconAlertTriangle size={14} />
             <span>{policy.emergencyFreeze ? "Freeze Active" : "Emergency Freeze"}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Emergency Freeze Alert Banner (Clean, conditional) */}
+      {/* Emergency Freeze Alert Banner */}
       {policy.emergencyFreeze && (
         <div className="mt-3 flex items-center justify-between rounded-xl border border-destructive/30 bg-destructive/10 px-3.5 py-2 text-xs font-semibold text-destructive">
           <div className="flex items-center gap-2">
@@ -148,19 +143,20 @@ export function AdminHeader({ state }: AdminHeaderProps) {
           <button
             type="button"
             onClick={handleToggleEmergencyFreeze}
-            className="underline font-bold text-xs hover:opacity-80 ml-2 shrink-0"
+            className="underline font-bold text-xs hover:opacity-80 ml-2 shrink-0 flex items-center gap-1"
           >
-            Lift Freeze
+            <IconLockOpen size={13} />
+            <span>Lift Freeze</span>
           </button>
         </div>
       )}
 
-      {/* Operational Attention Notification (Clean bar, no extra badge stack) */}
+      {/* Operational Attention Notification */}
       {(pendingApprovalsCount > 0 || pendingKycCount > 0) && !policy.emergencyFreeze && (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-outline-variant/30 bg-surface-container-low px-3.5 py-2 text-xs text-on-surface">
           <div className="flex flex-wrap items-center gap-4">
             <span className="font-semibold text-on-surface-variant flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               <span>Pending Action:</span>
             </span>
 

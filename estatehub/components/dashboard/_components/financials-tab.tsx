@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   IconBuildingBank,
   IconReceipt2,
@@ -10,7 +11,13 @@ import {
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
 import type { CommandState } from "./use-command-state"
 
 interface FinancialsTabProps {
@@ -97,20 +104,27 @@ export function FinancialsTab({ state }: FinancialsTabProps) {
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {summaryData.map((fin, i) => (
-          <div
+          <Card
             key={i}
-            className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs"
+            className="relative overflow-hidden border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
           >
-            <span className="text-xs font-medium text-on-surface-variant">
-              {fin.label}
-            </span>
-            <div className="mt-1 text-2xl font-black tracking-tight text-on-surface">
-              {fin.val}
-            </div>
-            <span className={`mt-2 text-xs font-semibold ${fin.subColor}`}>
-              {fin.sub}
-            </span>
-          </div>
+            <div
+              className={`absolute top-0 inset-x-0 h-1 ${
+                i === 0 ? "bg-primary" : i === 1 ? "bg-secondary" : "bg-tertiary"
+              }`}
+            />
+            <CardContent className="flex flex-col justify-between p-5">
+              <span className="text-xs font-semibold text-on-surface-variant">
+                {fin.label}
+              </span>
+              <div className="mt-2 text-2xl font-black tracking-tight text-on-surface">
+                {fin.val}
+              </div>
+              <span className={`mt-2 text-xs font-semibold ${fin.subColor}`}>
+                {fin.sub}
+              </span>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
@@ -118,27 +132,32 @@ export function FinancialsTab({ state }: FinancialsTabProps) {
       {isBuyer ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Proof of Funds Verification Card */}
-          <div className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
-                    <IconFileCertificate size={18} />
-                  </div>
-                  <h3 className="text-base font-bold text-on-surface">
-                    Proof of Funds &amp; Liquidity Vault
-                  </h3>
+          <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
+                  <IconFileCertificate size={18} />
                 </div>
-                <Badge variant="gold" className="text-[10px] font-bold">
-                  Verified Active
-                </Badge>
+                <div>
+                  <CardTitle className="text-base font-bold text-on-surface">
+                    Proof of Funds &amp; Liquidity Vault
+                  </CardTitle>
+                  <CardDescription className="text-xs text-on-surface-variant">
+                    Cryptographically notarized sovereign liquidity
+                  </CardDescription>
+                </div>
               </div>
+              <Badge variant="gold" className="text-[10px] font-bold">
+                Verified Active
+              </Badge>
+            </CardHeader>
 
-              <p className="mt-2 text-xs text-on-surface-variant">
+            <CardContent className="space-y-4">
+              <p className="text-xs text-on-surface-variant leading-relaxed">
                 Your accredited sovereign liquidity letter is cryptographically notarized and shared exclusively with verified sellers upon LOI submission.
               </p>
 
-              <div className="mt-4 space-y-2 rounded-2xl bg-surface-container-low p-3 text-xs">
+              <div className="space-y-2 rounded-2xl bg-surface-container-low/70 p-3.5 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-outline-variant/20">
                   <span className="text-on-surface-variant">Issuing Custodian:</span>
                   <span className="font-bold text-on-surface">UBS Wealth Management (Zurich)</span>
@@ -156,39 +175,44 @@ export function FinancialsTab({ state }: FinancialsTabProps) {
                   <span className="font-bold text-on-surface">December 31, 2026</span>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-4 flex items-center justify-between border-t border-outline-variant/20 pt-3">
-              <span className="text-xs text-on-surface-variant">Need to update bank attestations?</span>
-              <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-semibold">
-                Upload New Attestation
-              </Button>
-            </div>
-          </div>
+              <div className="flex items-center justify-between border-t border-outline-variant/20 pt-3">
+                <span className="text-xs text-on-surface-variant">Need to update bank attestations?</span>
+                <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-semibold">
+                  Upload Attestation
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Wire Coordinates & Escrow Desk Card */}
-          <div className="flex flex-col justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <IconBuildingBank size={18} />
-                  </div>
-                  <h3 className="text-base font-bold text-on-surface">
-                    Escrow Wire &amp; Settlement Channels
-                  </h3>
+          <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <IconBuildingBank size={18} />
                 </div>
-                <Badge variant="outline" className="text-[10px]">
-                  Multi-Sig Escrow
-                </Badge>
+                <div>
+                  <CardTitle className="text-base font-bold text-on-surface">
+                    Escrow Wire &amp; Settlement Channels
+                  </CardTitle>
+                  <CardDescription className="text-xs text-on-surface-variant">
+                    Direct title trust integration
+                  </CardDescription>
+                </div>
               </div>
+              <Badge variant="outline" className="text-[10px]">
+                Multi-Sig Escrow
+              </Badge>
+            </CardHeader>
 
-              <p className="mt-2 text-xs text-on-surface-variant">
+            <CardContent className="space-y-4">
+              <p className="text-xs text-on-surface-variant leading-relaxed">
                 Direct integration with First American Title Trust and bilateral Fedwire settlement channels.
               </p>
 
-              <div className="mt-4 space-y-2.5">
-                <div className="flex items-start gap-2.5 rounded-2xl bg-surface-container-low p-3 text-xs">
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-2.5 rounded-2xl bg-surface-container-low/70 p-3 text-xs">
                   <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
                     <IconCheck size={13} />
                   </div>
@@ -200,7 +224,7 @@ export function FinancialsTab({ state }: FinancialsTabProps) {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2.5 rounded-2xl bg-surface-container-low p-3 text-xs">
+                <div className="flex items-start gap-2.5 rounded-2xl bg-surface-container-low/70 p-3 text-xs">
                   <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-secondary">
                     <IconShieldCheck size={13} />
                   </div>
@@ -212,55 +236,57 @@ export function FinancialsTab({ state }: FinancialsTabProps) {
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-4 border-t border-outline-variant/20 pt-3">
-              <Link href="/closing" className="w-full">
-                <Button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-secondary text-xs font-bold text-primary hover:bg-secondary/90">
-                  <span>Open Digital Closing Desk</span>
-                  <IconArrowRight size={14} />
-                </Button>
-              </Link>
-            </div>
-          </div>
+              <div className="border-t border-outline-variant/20 pt-3">
+                <Link href="/closing" className="w-full">
+                  <Button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-secondary text-xs font-bold text-primary shadow-xs hover:bg-secondary/90">
+                    <span>Open Digital Closing Desk</span>
+                    <IconArrowRight size={14} />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : null}
 
       {/* Asset Breakdown Chart / Bars */}
-      <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-        <div className="flex items-center justify-between">
+      <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div>
-            <h3 className="text-base font-bold text-on-surface">
+            <CardTitle className="text-base font-bold text-on-surface">
               Capital Allocation by Asset Category
-            </h3>
-            <p className="text-xs text-on-surface-variant">
+            </CardTitle>
+            <CardDescription className="text-xs text-on-surface-variant">
               Breakdown across our sovereign portfolio &amp; enclave syndication
-            </p>
+            </CardDescription>
           </div>
           <Badge variant="gold" className="text-xs font-bold">
             2026 Fiscal
           </Badge>
-        </div>
+        </CardHeader>
 
-        <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ASSET_BREAKDOWN.map((asset, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4"
-            >
-              <span className="text-xs text-on-surface-variant">
-                {asset.label}
-              </span>
-              <div className="text-lg font-black text-on-surface">
-                {asset.value}
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {ASSET_BREAKDOWN.map((asset, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 p-4 transition-all duration-200 hover:border-secondary/40"
+              >
+                <span className="text-xs font-medium text-on-surface-variant">
+                  {asset.label}
+                </span>
+                <div className="text-lg font-black text-on-surface">
+                  {asset.value}
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+                  <div className={`${asset.color} h-full ${asset.pct} rounded-full`} />
+                </div>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
-                <div className={`${asset.color} h-full ${asset.pct}`} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

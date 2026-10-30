@@ -5,9 +5,17 @@ import {
   IconLock,
   IconLockOpen,
   IconTemperature,
+  IconDeviceAnalytics,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
 import type { CommandState } from "./use-command-state"
 
 interface SentryTabProps {
@@ -32,123 +40,142 @@ export function SentryTab({ state }: SentryTabProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
-        <div>
-          <h2 className="text-lg font-black text-on-surface">
-            IoT Smart Estate Sentry &amp; Facility Controls
-          </h2>
-          <p className="text-xs text-on-surface-variant">
-            Remote management for estate access perimeter, biometric entries,
-            and smart environmental systems
-          </p>
-        </div>
-
-        <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <IconShieldLock size={18} />
-                </div>
-                <span className="text-xs font-bold text-on-surface">
-                  Perimeter Sentry
-                </span>
-              </div>
-              <Badge
-                variant={securityArmed ? "gold" : "outline"}
-                className="text-[10px]"
-              >
-                {securityArmed ? "ARMED" : "STANDBY"}
-              </Badge>
-            </div>
-            <p className="text-[11px] text-on-surface-variant">
-              Radar motion barriers and thermal fence sensors across grounds.
-            </p>
-            <Button
-              onClick={() => {
-                setSecurityArmed(!securityArmed)
-                triggerToast(
-                  securityArmed
-                    ? "Perimeter disarmed"
-                    : "Perimeter locked down & armed"
-                )
-              }}
-              className={`h-10 w-full rounded-xl text-xs font-bold ${
-                securityArmed
-                  ? "bg-destructive/20 text-destructive hover:bg-destructive/30"
-                  : "bg-tertiary text-primary-foreground"
-              }`}
-            >
-              {securityArmed ? "Disarm Perimeter" : "Arm Perimeter Sentry"}
-            </Button>
+      <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <IconDeviceAnalytics size={16} />
+            </span>
+            <CardTitle className="text-base font-bold text-on-surface">
+              IoT Smart Estate Sentry &amp; Facility Controls
+            </CardTitle>
           </div>
+          <CardDescription className="text-xs text-on-surface-variant">
+            Remote management for estate access perimeter, biometric entries, and smart environmental systems
+          </CardDescription>
+        </CardHeader>
 
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
-                  {gateUnlocked ? (
-                    <IconLockOpen size={18} />
-                  ) : (
-                    <IconLock size={18} />
-                  )}
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {/* Perimeter Sentry Card */}
+            <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 p-5 transition-all duration-200 hover:border-secondary/40">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <IconShieldLock size={18} />
+                  </div>
+                  <span className="text-xs font-bold text-on-surface">
+                    Perimeter Sentry
+                  </span>
                 </div>
-                <span className="text-xs font-bold text-on-surface">
-                  Motorized Security Gate
-                </span>
-              </div>
-              <Badge
-                variant={gateUnlocked ? "secondary" : "outline"}
-                className="text-[10px]"
-              >
-                {gateUnlocked ? "UNLOCKED" : "LOCKED"}
-              </Badge>
-            </div>
-            <p className="text-[11px] text-on-surface-variant">
-              Automated license plate recognition and biometric intercom gate.
-            </p>
-            <Button
-              onClick={() => {
-                setGateUnlocked(!gateUnlocked)
-                triggerToast(
-                  gateUnlocked ? "Gate locked" : "Gate opened for guest dispatch"
-                )
-              }}
-              className="h-10 w-full rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90"
-            >
-              {gateUnlocked ? "Lock Motor Gate" : "Open Security Gate"}
-            </Button>
-          </div>
-
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
-                  <IconTemperature size={18} />
-                </div>
-                <span className="text-xs font-bold text-on-surface">
-                  Main Salon Climate
-                </span>
-              </div>
-              <span className="font-mono text-sm font-bold text-secondary">
-                {salonTemp}°F
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              {TEMP_STEPS.map((step) => (
-                <Button
-                  key={step.label}
-                  variant="outline"
-                  onClick={() => setSalonTemp((t) => t + step.delta)}
-                  className="h-10 flex-1 rounded-xl border-outline-variant/40 font-bold"
+                <Badge
+                  variant={securityArmed ? "gold" : "outline"}
+                  className="text-[10px]"
                 >
-                  {step.label}
-                </Button>
-              ))}
+                  {securityArmed ? "ARMED" : "STANDBY"}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                Radar motion barriers and thermal fence sensors across grounds.
+              </p>
+              <Button
+                onClick={() => {
+                  setSecurityArmed(!securityArmed)
+                  triggerToast(
+                    securityArmed
+                      ? "Perimeter disarmed"
+                      : "Perimeter locked down & armed"
+                  )
+                }}
+                size="sm"
+                className={`h-9.5 w-full rounded-xl text-xs font-bold shadow-xs ${
+                  securityArmed
+                    ? "bg-destructive/15 text-destructive hover:bg-destructive/25 border border-destructive/20"
+                    : "bg-tertiary text-primary-foreground hover:bg-tertiary/90"
+                }`}
+              >
+                {securityArmed ? "Disarm Perimeter" : "Arm Perimeter Sentry"}
+              </Button>
+            </div>
+
+            {/* Motorized Security Gate */}
+            <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 p-5 transition-all duration-200 hover:border-secondary/40">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/15 text-secondary">
+                    {gateUnlocked ? (
+                      <IconLockOpen size={18} />
+                    ) : (
+                      <IconLock size={18} />
+                    )}
+                  </div>
+                  <span className="text-xs font-bold text-on-surface">
+                    Motorized Security Gate
+                  </span>
+                </div>
+                <Badge
+                  variant={gateUnlocked ? "outline" : "secondary"}
+                  className="text-[10px]"
+                >
+                  {gateUnlocked ? "OPEN" : "LOCKED"}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                Biometric gate with license plate automatic vehicle recognition.
+              </p>
+              <Button
+                variant={gateUnlocked ? "destructive" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setGateUnlocked(!gateUnlocked)
+                  triggerToast(
+                    gateUnlocked ? "Security gate closed" : "Security gate unlocked"
+                  )
+                }}
+                className="h-9.5 w-full rounded-xl text-xs font-bold shadow-xs"
+              >
+                {gateUnlocked ? "Lock Security Gate" : "Grant Entry / Unlock"}
+              </Button>
+            </div>
+
+            {/* Smart Climate Zone */}
+            <div className="flex flex-col justify-between gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 p-5 transition-all duration-200 hover:border-secondary/40">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-tertiary/10 text-tertiary">
+                    <IconTemperature size={18} />
+                  </div>
+                  <span className="text-xs font-bold text-on-surface">
+                    Salon Climate Zone
+                  </span>
+                </div>
+                <span className="font-mono text-base font-black text-on-surface">
+                  {salonTemp}°F
+                </span>
+              </div>
+              <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                Dual HVAC with automated humidity stabilization for art collections.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {TEMP_STEPS.map((step) => (
+                  <Button
+                    key={step.label}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSalonTemp((prev) => prev + step.delta)
+                      triggerToast(`Climate target set: ${salonTemp + step.delta}°F`)
+                    }}
+                    className="h-9.5 rounded-xl border-outline-variant/40 text-xs font-bold hover:bg-surface-container"
+                  >
+                    {step.label}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
