@@ -210,7 +210,7 @@ function Fido2ModalInner({
                   value={digit}
                   onChange={(e) => handlePinChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-10 h-12 sm:w-12 sm:h-14 text-center font-headline-sm text-lg bg-surface-container-low text-on-surface rounded-xl border border-outline-variant/40 focus:border-primary focus:bg-surface-container-lowest focus:outline-none transition-all shadow-inner"
+                  className="w-10 h-12 sm:w-12 sm:h-14 text-center font-headline-sm text-lg bg-surface-container-low text-on-surface rounded-xl border focus:border-primary focus:outline-none transition-all shadow-inner"
                 />
               ))}
             </div>

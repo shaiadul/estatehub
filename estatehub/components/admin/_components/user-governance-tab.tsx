@@ -7,12 +7,14 @@ import {
   IconShieldCheck,
   IconAlertCircle,
   IconTrash,
-  IconShield,
-  IconBriefcase,
-  IconBuildingEstate,
+  IconEye,
+  IconCheck,
+  IconClock,
+  IconRefresh,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { NoDataState } from "@/components/ui/no-data-state"
 import type { AdminState } from "./use-admin-state"
 import type { AdminUserItem } from "./types"
 
@@ -20,17 +22,9 @@ interface UserGovernanceTabProps {
   state: AdminState
 }
 
-const ROLE_FILTERS = [
-  { id: "All", label: "All Members" },
-  { id: "buyer", label: "Buyers" },
-  { id: "seller", label: "Sellers" },
-  { id: "broker", label: "Brokers" },
-  { id: "admin", label: "Admins" },
-  { id: "pending_kyc", label: "Pending KYC" },
-]
-
 export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
   const {
+    users,
     filteredUsers,
     userRoleFilter,
     setUserRoleFilter,
@@ -38,10 +32,85 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
     handleChangeUserRole,
     handleDeleteUser,
     setIsAddUserModalOpen,
+    setSelectedUser,
+    pendingKycCount,
+    setSearchQuery,
+    searchQuery,
   } = state
+
+  const ROLE_FILTERS = [
+    { id: "All", label: "All Members", count: users.length },
+    {
+      id: "buyer",
+      label: "Buyers",
+      count: users.filter((u) => u.role === "buyer").length,
+    },
+    {
+      id: "seller",
+      label: "Sellers",
+      count: users.filter((u) => u.role === "seller").length,
+    },
+    {
+      id: "broker",
+      label: "Brokers",
+      count: users.filter((u) => u.role === "broker").length,
+    },
+    {
+      id: "admin",
+      label: "Admins",
+      count: users.filter((u) => u.role === "admin").length,
+    },
+    {
+      id: "pending_kyc",
+      label: "Pending KYC",
+      count: pendingKycCount,
+      alert: pendingKycCount > 0,
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
+      {/* User Governance Metrics Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs">
+          <span className="text-xs text-on-surface-variant font-medium">Enrolled Members</span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-on-surface">{users.length}</span>
+            <span className="text-[10px] font-mono text-emerald-500 font-semibold">100% Accredited</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs">
+          <span className="text-xs text-on-surface-variant font-medium">Verified KYC</span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-emerald-500">
+              {users.filter((u) => u.kycStatus === "Verified").length}
+            </span>
+            <span className="text-[10px] text-on-surface-variant">Cleared Notary</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs">
+          <span className="text-xs text-on-surface-variant font-medium">Pending Diligence</span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className={`text-2xl font-black ${pendingKycCount > 0 ? "text-amber-500" : "text-on-surface"}`}>
+              {pendingKycCount}
+            </span>
+            <span className="text-[10px] text-on-surface-variant">Requires Review</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs">
+          <span className="text-xs text-on-surface-variant font-medium">Portfolio Assets</span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-on-surface">
+              {users.reduce((acc, u) => acc + (u.portfolioCount || 0), 0)}
+            </span>
+            <span className="text-[10px] text-on-surface-variant">Managed Units</span>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-xs">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
@@ -67,20 +136,31 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
           </Button>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-outline-variant/20 pt-3">
+        {/* Filter Pills with Counts */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-outline-variant/20 pt-3">
           {ROLE_FILTERS.map((rf) => (
             <button
               key={rf.id}
               type="button"
               onClick={() => setUserRoleFilter(rf.id)}
-              className={`h-8 rounded-lg px-3 text-xs font-bold transition-all ${
+              className={`flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition-all ${
                 userRoleFilter === rf.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-surface-container-low text-on-surface-variant hover:text-on-surface"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               }`}
             >
-              {rf.label}
+              <span>{rf.label}</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] ${
+                  userRoleFilter === rf.id
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : rf.alert
+                      ? "bg-amber-500/20 text-amber-500 font-bold"
+                      : "bg-surface-container-high text-on-surface-variant"
+                }`}
+              >
+                {rf.count}
+              </span>
             </button>
           ))}
         </div>
@@ -106,17 +186,29 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
                 >
                   <td className="py-4">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-outline-variant/30">
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container">
                         <Image
                           src={member.avatar}
                           alt={member.name}
                           fill
                           className="object-cover"
                         />
+                        {member.verified && (
+                          <div
+                            className="absolute right-0.5 bottom-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-surface"
+                            title="KYC Verified"
+                          />
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="font-bold text-on-surface">{member.name}</p>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedUser(member)}
+                            className="font-bold text-on-surface hover:text-primary transition-colors text-left"
+                          >
+                            {member.name}
+                          </button>
                           {member.verified && (
                             <IconShieldCheck
                               size={14}
@@ -126,7 +218,7 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
                           )}
                         </div>
                         <p className="font-mono text-[11px] text-on-surface-variant">
-                          {member.email} • {member.id}
+                          {member.email} • <span className="text-[10px] font-semibold">{member.id}</span>
                         </p>
                       </div>
                     </div>
@@ -155,23 +247,29 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
                       {member.accreditationTier}
                     </span>
                     <p className="text-[10px] text-on-surface-variant">
-                      {member.portfolioCount} Holdings Attached
+                      {member.portfolioCount} Asset Holdings
                     </p>
                   </td>
 
                   <td className="py-4">
-                    <Badge
-                      variant={
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
                         member.kycStatus === "Verified"
-                          ? "gold"
+                          ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
                           : member.kycStatus === "Pending Review"
-                            ? "secondary"
-                            : "outline"
-                      }
-                      className="text-[10px] font-bold"
+                            ? "bg-amber-500/15 text-amber-500 border border-amber-500/30"
+                            : "bg-destructive/15 text-destructive border border-destructive/30"
+                      }`}
                     >
-                      {member.kycStatus}
-                    </Badge>
+                      {member.kycStatus === "Verified" ? (
+                        <IconCheck size={11} />
+                      ) : member.kycStatus === "Pending Review" ? (
+                        <IconClock size={11} />
+                      ) : (
+                        <IconAlertCircle size={11} />
+                      )}
+                      <span>{member.kycStatus}</span>
+                    </span>
                   </td>
 
                   <td className="py-4">
@@ -183,6 +281,19 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
 
                   <td className="py-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
+                      {/* View Dossier Modal Trigger */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedUser(member)}
+                        className="h-8 rounded-lg border-outline-variant/40 px-2.5 text-xs font-bold hover:bg-surface-container"
+                        title="View Full Member Profile & Credentials"
+                      >
+                        <IconEye size={13} />
+                        <span className="hidden sm:inline">Dossier</span>
+                      </Button>
+
+                      {/* 1-Click KYC Toggle */}
                       <Button
                         size="sm"
                         variant={member.kycStatus === "Verified" ? "outline" : "default"}
@@ -190,7 +301,7 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
                         className={`h-8 rounded-lg px-2.5 text-xs font-bold ${
                           member.kycStatus === "Verified"
                             ? "border-outline-variant/40 text-on-surface hover:bg-surface-container"
-                            : "bg-secondary text-primary hover:bg-secondary/90"
+                            : "bg-secondary text-primary hover:bg-secondary/90 shadow-xs"
                         }`}
                       >
                         {member.kycStatus === "Verified" ? "Revoke KYC" : "Approve KYC"}
@@ -213,6 +324,23 @@ export function UserGovernanceTab({ state }: UserGovernanceTabProps) {
               ))}
             </tbody>
           </table>
+
+          {filteredUsers.length === 0 && (
+            <NoDataState
+              icon={IconUsers}
+              variant={searchQuery ? "search" : "filter"}
+              searchTerm={searchQuery}
+              title={searchQuery ? `No members match "${searchQuery}"` : "No members found in this role"}
+              description={`No enclave members match the query or filter criteria under role "${userRoleFilter}".`}
+              action={{
+                label: "Reset Member Filters",
+                onClick: () => {
+                  setSearchQuery("")
+                  setUserRoleFilter("All")
+                },
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

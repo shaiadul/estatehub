@@ -1,5 +1,4 @@
-"use client"
-
+import * as React from "react"
 import {
   IconBuildingBank,
   IconBriefcase,
@@ -7,12 +6,15 @@ import {
   IconLock,
   IconBadge,
   IconGavel,
+  IconEye,
+  IconEyeOff,
 } from "@tabler/icons-react"
 import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
+  InputGroupButton,
 } from "@/components/ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ENTITY_CLASSES } from "./auth-types"
@@ -34,6 +36,8 @@ interface RegisterIdentityStepProps {
   onPhoneChange: (value: string) => void
   email: string
   onEmailChange: (value: string) => void
+  password?: string
+  onPasswordChange?: (value: string) => void
   cbQualified: boolean
   onCbQualifiedChange: (value: boolean) => void
   cbNda: boolean
@@ -59,6 +63,8 @@ export function RegisterIdentityStep({
   onPhoneChange,
   email,
   onEmailChange,
+  password = "",
+  onPasswordChange,
   cbQualified,
   onCbQualifiedChange,
   cbNda,
@@ -66,6 +72,7 @@ export function RegisterIdentityStep({
   cbOfac,
   onCbOfacChange,
 }: RegisterIdentityStepProps) {
+  const [showPassword, setShowPassword] = React.useState(false)
   const disclosures = [
     {
       key: "qualified",
@@ -295,6 +302,30 @@ export function RegisterIdentityStep({
               </InputGroupAddon>
             </InputGroup>
             <span className="font-caption text-[11px] text-on-surface-variant">Whitelisted domain; generic webmail addresses are rejected.</span>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-sm text-xs text-on-surface font-semibold">Terminal Access Password</label>
+            <InputGroup className="bg-surface-container-low rounded-xl focus-within:bg-surface-container-lowest">
+              <InputGroupInput
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => onPasswordChange && onPasswordChange(e.target.value)}
+                placeholder="•••••••••••• (Default: Password123!)"
+                className="py-2.5 text-on-surface font-mono"
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  type="button"
+                  size="icon-xs"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-on-surface-variant hover:text-on-surface cursor-pointer"
+                >
+                  {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+            <span className="font-caption text-[11px] text-on-surface-variant">Minimum 8 characters with at least one number or special character.</span>
           </div>
         </div>
       </div>

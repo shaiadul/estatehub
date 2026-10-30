@@ -1,11 +1,15 @@
 "use client"
 
+import * as React from "react"
 import {
   IconAdjustments,
   IconCheck,
   IconAlertTriangle,
   IconLock,
   IconShieldCheck,
+  IconCalculator,
+  IconServer,
+  IconInfoCircle,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -26,10 +30,15 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
     triggerToast,
   } = state
 
+  const [sampleDealValue, setSampleDealValue] = React.useState(15000000)
+
   const handleSavePolicies = (e: React.FormEvent) => {
     e.preventDefault()
-    triggerToast("Platform governance policies updated and broadcast to enclave nodes")
+    triggerToast("Platform governance policies updated and broadcast to all enclave validator nodes")
   }
+
+  const calculatedFee = (sampleDealValue * policy.platformFeeRate) / 100
+  const calculatedEarnest = (sampleDealValue * policy.minEarnestPercent) / 100
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,8 +59,8 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
                 Global transaction economics, automated protocol take-rate, and earnest custody requirements
               </p>
             </div>
-            <Badge variant="gold" className="text-xs font-bold">
-              Protocol v2.4
+            <Badge variant="gold" className="text-xs font-bold font-mono">
+              Protocol v2.4 (Active)
             </Badge>
           </div>
 
@@ -63,6 +72,8 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
               <Input
                 type="number"
                 step="0.1"
+                min="0.5"
+                max="10"
                 value={policy.platformFeeRate}
                 onChange={(e) =>
                   setPolicy({ ...policy, platformFeeRate: Number(e.target.value) })
@@ -80,6 +91,9 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
               </label>
               <Input
                 type="number"
+                step="1"
+                min="5"
+                max="50"
                 value={policy.minEarnestPercent}
                 onChange={(e) =>
                   setPolicy({ ...policy, minEarnestPercent: Number(e.target.value) })
@@ -97,6 +111,7 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
               </label>
               <Input
                 type="number"
+                step="500000"
                 value={policy.minAccreditationThreshold}
                 onChange={(e) =>
                   setPolicy({
@@ -109,6 +124,48 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
               <p className="mt-1 text-[11px] text-on-surface-variant">
                 Minimum verified net worth required for private enclave listing access
               </p>
+            </div>
+          </div>
+
+          {/* Dynamic Take-Rate Simulator Box */}
+          <div className="mt-2 rounded-2xl border border-secondary/20 bg-secondary/5 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IconCalculator size={16} className="text-secondary" />
+                <span className="text-xs font-bold text-on-surface">
+                  Live Fee Economics Preview
+                </span>
+              </div>
+              <span className="text-[11px] font-mono text-on-surface-variant">
+                Interactive Simulator
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="rounded-xl bg-surface-container p-2.5">
+                <span className="text-[10px] text-on-surface-variant">Sample Trophy Contract</span>
+                <p className="mt-0.5 font-mono font-bold text-on-surface">
+                  ${(sampleDealValue / 1000000).toFixed(1)}M USD
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-surface-container p-2.5">
+                <span className="text-[10px] text-on-surface-variant">
+                  Earnest Wire Locked ({policy.minEarnestPercent}%)
+                </span>
+                <p className="mt-0.5 font-mono font-bold text-emerald-500">
+                  ${(calculatedEarnest / 1000000).toFixed(2)}M in Custody
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-surface-container p-2.5">
+                <span className="text-[10px] text-on-surface-variant">
+                  Protocol Take-Rate Captured ({policy.platformFeeRate}%)
+                </span>
+                <p className="mt-0.5 font-mono font-bold text-secondary">
+                  ${(calculatedFee / 1000).toFixed(0)}k Platform Revenue
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -169,7 +226,7 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <span className="font-mono text-xs font-bold text-emerald-500">
-                  {policy.multiSigEnclave ? "ENFORCED ON-CHAIN" : "STANDARD DUAL-KEY"}
+                  {policy.multiSigEnclave ? "ENFORCED ON-CHAIN (2-of-3)" : "STANDARD DUAL-KEY"}
                 </span>
                 <button
                   type="button"
@@ -178,11 +235,11 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
                   }
                   className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
                     policy.multiSigEnclave
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-surface-container text-on-surface"
                   }`}
                 >
-                  {policy.multiSigEnclave ? "Active" : "Disabled"}
+                  {policy.multiSigEnclave ? "Enforced" : "Disabled"}
                 </button>
               </div>
             </div>
@@ -216,7 +273,7 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
                 onClick={handleToggleEmergencyFreeze}
                 className={`rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
                   policy.emergencyFreeze
-                    ? "bg-destructive text-white shadow-md"
+                    ? "bg-destructive text-white shadow-md animate-pulse"
                     : "border border-destructive/40 bg-surface-container-lowest text-destructive hover:bg-destructive/10"
                 }`}
               >
@@ -238,7 +295,7 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
                 onClick={handleToggleMaintenanceMode}
                 className={`rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
                   policy.maintenanceMode
-                    ? "bg-secondary text-primary shadow-md"
+                    ? "bg-secondary text-primary shadow-md font-bold"
                     : "border border-outline-variant/40 bg-surface-container-lowest text-on-surface hover:bg-surface-container"
                 }`}
               >
@@ -250,7 +307,7 @@ export function PlatformSettingsTab({ state }: PlatformSettingsTabProps) {
           <div className="mt-2 flex items-center justify-end border-t border-outline-variant/20 pt-3">
             <Button
               type="submit"
-              className="h-10 rounded-xl bg-primary px-6 text-xs font-bold text-primary-foreground hover:bg-primary/90"
+              className="h-10 rounded-xl bg-primary px-6 text-xs font-bold text-primary-foreground hover:bg-primary/90 shadow-sm"
             >
               <IconCheck size={16} />
               <span>Save &amp; Synchronize Platform Policies</span>

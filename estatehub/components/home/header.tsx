@@ -43,7 +43,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = React.useState(false)
   const pathname = usePathname()
-  const { user, isLoggedIn, logout, switchDemoUser } = useAuth()
+  const { user, isLoggedIn, logout } = useAuth()
   const dropdownRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -237,58 +237,17 @@ export function Header() {
                 <div className="absolute top-12 right-0 z-50 w-64 animate-in rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-2 py-3 shadow-2xl duration-150 fade-in slide-in-from-top-2 sm:top-14">
                   {/* User info */}
                   <div className="mb-2 border-b border-surface-container px-3 py-2">
-                    <p className="truncate text-xs font-bold text-on-surface">
-                      {user.name}
-                    </p>
-                    <p className="truncate font-mono text-[11px] text-on-surface-variant">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-xs font-bold text-on-surface">
+                        {user.name}
+                      </p>
+                      <span className="rounded-md bg-secondary/15 px-2 py-0.5 text-[10px] font-bold text-secondary uppercase">
+                        {user.role}
+                      </span>
+                    </div>
+                    <p className="truncate font-mono text-[11px] text-on-surface-variant mt-0.5">
                       {user.email}
                     </p>
-         </div>
-
-                  {/* Switch Demo User Section */}
-                  <div className="mb-2 px-3 py-1.5">
-                    <span className="mb-1 block text-[10px] font-bold tracking-wider text-on-surface-variant uppercase">
-                      Switch Demo Role
-                    </span>
-                    <div className="grid grid-cols-4 gap-1">
-                      {[
-                        {
-                          role: "broker" as const,
-                          key: "nav.roleBroker",
-                          label: "Broker",
-                        },
-                        {
-                          role: "buyer" as const,
-                          key: "nav.roleBuyer",
-                          label: "Buyer",
-                        },
-                        {
-                          role: "seller" as const,
-                          key: "nav.roleSeller",
-                          label: "Seller",
-                        },
-                        {
-                          role: "admin" as const,
-                          key: "nav.roleAdmin",
-                          label: "Admin",
-                        },
-                      ].map((item) => (
-                        <button
-                          key={item.role}
-                          onClick={() => {
-                            switchDemoUser(item.role)
-                            setProfileDropdownOpen(false)
-                          }}
-                          className={`rounded-md py-1 text-[11px] font-semibold transition-colors ${
-                            user.role === item.role
-                              ? "bg-primary text-on-primary"
-                              : "bg-surface-container text-on-surface hover:bg-surface-container-high"
-                          }`}
-                        >
-                          {t(item.key, item.label)}
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Theme Mode Toggle */}
@@ -594,42 +553,7 @@ export function Header() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-1 border-t border-surface-container pt-1">
-                    {[
-                      {
-                        role: "broker" as const,
-                        key: "nav.roleBroker",
-                        label: "Broker",
-                      },
-                      {
-                        role: "buyer" as const,
-                        key: "nav.roleBuyer",
-                        label: "Buyer",
-                      },
-                      {
-                        role: "seller" as const,
-                        key: "nav.roleSeller",
-                        label: "Seller",
-                      },
-                      {
-                        role: "admin" as const,
-                        key: "nav.roleAdmin",
-                        label: "Admin",
-                      },
-                    ].map((item) => (
-                      <button
-                        key={item.role}
-                        onClick={() => switchDemoUser(item.role)}
-                        className={`rounded-md py-1.5 text-[11px] font-semibold transition-colors ${
-                          user.role === item.role
-                            ? "bg-primary text-on-primary"
-                            : "bg-surface-container text-on-surface"
-                        }`}
-                      >
-                        {t(item.key, item.label)}
-                      </button>
-                    ))}
-                  </div>
+
 
                   {/* Theme Mode Toggle (Mobile) */}
                   <div className="mt-1 border-t border-surface-container pt-2">

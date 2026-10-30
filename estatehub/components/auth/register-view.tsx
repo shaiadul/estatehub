@@ -2,12 +2,18 @@
 
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { IconArrowRight, IconArrowLeft, IconDeviceFloppy } from "@tabler/icons-react"
+import {
+  IconArrowRight,
+  IconArrowLeft,
+  IconDeviceFloppy,
+  IconAlertCircle,
+} from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n"
 import { registerAction } from "@/actions/auth"
+import { setAuthCookie } from "@/actions/fetcher"
 import {
   RegisterStepper,
   RegisterIdentityStep,
@@ -45,6 +51,8 @@ export function RegisterView() {
   const [email, setEmail] = React.useState(
     isSellerMode ? "marcus.sterling@belair-trust.com" : "h.stauffen@alphacrest.ch"
   )
+  const [password, setPassword] = React.useState("Password123!")
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   const [cbQualified, setCbQualified] = React.useState(true)
   const [cbNda, setCbNda] = React.useState(true)
@@ -57,26 +65,60 @@ export function RegisterView() {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const handleNext = async () => {
+    setErrorMessage(null)
+
+    // Step 1 Validation
+    if (currentStep === 1) {
+      if (!fullName.trim()) {
+        setErrorMessage("Full legal name is required.")
+        return
+      }
+      if (!email.trim() || !email.includes("@")) {
+        setErrorMessage("A valid institutional email address is required.")
+        return
+      }
+      if (password && password.length < 8) {
+        setErrorMessage("Terminal password must be at least 8 characters.")
+        return
+      }
+    }
+
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
       window.scrollTo({ top: 0, behavior: "smooth" })
     } else {
       setIsSubmitting(true)
       try {
-        await registerAction({
+        const res = await registerAction({
           email: email.trim(),
-          password: "Password123!",
-          full_name: fullName,
+          password: password || "Password123!",
+          full_name: fullName.trim(),
           role: roleParam,
           title,
           entity_name: entityName,
           phone: `${phonePrefix} ${phone}`,
+          net_worth_tier: netWorthTier,
+          jurisdiction,
         })
-        await login(email, roleParam, "Password123!")
-        router.push(redirectParam)
-      } catch {
-        await login(email, roleParam, "Password123!")
-        router.push(redirectParam)
+
+        if (!res.success) {
+          setErrorMessage(res.error || "Application registration failed. Please verify your details.")
+          setIsSubmitting(false)
+          return
+        }
+
+        if (res.data?.access_token) {
+          setAuthCookie(res.data.access_token)
+        }
+
+        const loginRes = await login(email, roleParam, password || "Password123!")
+        if (loginRes.success) {
+          router.push(roleParam === "seller" ? "/sell" : redirectParam)
+        } else {
+          router.push(redirectParam)
+        }
+      } catch (err: any) {
+        setErrorMessage(err?.message || "An unexpected error occurred during submission. Please retry.")
       } finally {
         setIsSubmitting(false)
       }
@@ -84,6 +126,7 @@ export function RegisterView() {
   }
 
   const handlePrev = () => {
+    setErrorMessage(null)
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
       window.scrollTo({ top: 0, behavior: "smooth" })
@@ -126,6 +169,16 @@ export function RegisterView() {
               </p>
             </div>
 
+            {/* Error Alert Banner */}
+            {errorMessage && (
+              <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 text-destructive animate-in fade-in duration-200 shadow-xs">
+                <IconAlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="text-xs sm:text-sm font-medium leading-relaxed">
+                  {errorMessage}
+                </div>
+              </div>
+            )}
+
             {/* Reusable Step 1: Identity & Authorized Representative */}
             {currentStep === 1 && (
               <RegisterIdentityStep
@@ -145,6 +198,8 @@ export function RegisterView() {
                 onPhoneChange={setPhone}
                 email={email}
                 onEmailChange={setEmail}
+                password={password}
+                onPasswordChange={setPassword}
                 cbQualified={cbQualified}
                 onCbQualifiedChange={setCbQualified}
                 cbNda={cbNda}

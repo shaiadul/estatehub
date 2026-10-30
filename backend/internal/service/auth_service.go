@@ -356,3 +356,63 @@ func (s *AuthService) ListAgents(ctx context.Context) ([]domain.User, error) {
 	})
 	return users, err
 }
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+func (s *AuthService) ChangePassword(ctx context.Context, userID, currentPassword, newPassword string) error {
+	if len(newPassword) < 8 {
+		return errors.New("new password must be at least 8 characters long")
+	}
+
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return domain.ErrNotFound
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(currentPassword)); err != nil {
+		return errors.New("current password is incorrect")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash new password: %w", err)
+	}
+
+	user.PasswordHash = string(hashedPassword)
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return err
+	}
+
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:    &user.ID,
+		UserEmail: user.Email,
+		Action:    "PASSWORD_CHANGED",
+		Resource:  "auth",
+		Details:   "Password updated by authenticated user",
+	})
+
+	return nil
+}
+
+func (s *AuthService) Logout(ctx context.Context, userID string) error {
+	if userID == "" {
+		return nil
+	}
+	user, _ := s.userRepo.FindByID(ctx, userID)
+	email := ""
+	if user != nil {
+		email = user.Email
+	}
+	_ = s.auditRepo.Create(ctx, &domain.AuditLog{
+		UserID:    &userID,
+		UserEmail: email,
+		Action:    "USER_LOGOUT",
+		Resource:  "auth",
+		Details:   "User logged out successfully",
+	})
+	return nil
+}
+
