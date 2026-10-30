@@ -15,8 +15,6 @@ import {
   IconShieldCheck,
   IconUserPlus,
   IconReceipt2,
-  IconLock,
-  IconCheck,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
@@ -138,7 +136,7 @@ export function CommandHeader({ state }: CommandHeaderProps) {
               <span className="font-semibold text-on-surface">{roleLabel}</span>
               <span>/</span>
               <span className="capitalize">{activeNav}</span>
-              <span className="inline-flex items-center gap-1.5 ml-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1.5 ml-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {user?.name ? `${user.name.split(" ")[0]} • Active` : "Live"}
               </span>
