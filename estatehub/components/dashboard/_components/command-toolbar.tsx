@@ -1,19 +1,15 @@
 "use client"
 
-import { IconSearch, IconRefresh, IconDownload } from "@tabler/icons-react"
+import { IconSearch, IconRefresh, IconDownload, IconX } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { useI18n } from "@/lib/i18n"
 import type { CommandState } from "./use-command-state"
 
 interface CommandToolbarProps {
   state: CommandState
 }
-
-const TOOLBAR_BUTTONS = [
-  { id: "reset", key: "dash.reset", label: "Reset", Icon: IconRefresh },
-  { id: "export", key: "dash.exportLedger", label: "Export Ledger", Icon: IconDownload },
-] as const
 
 export function CommandToolbar({ state }: CommandToolbarProps) {
   const { t } = useI18n()
@@ -26,46 +22,72 @@ export function CommandToolbar({ state }: CommandToolbarProps) {
     triggerToast,
   } = state
 
-  return (
-    <div className="flex flex-col justify-between gap-3 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-xs md:flex-row md:items-center">
-      <div className="relative max-w-md flex-1">
-        <IconSearch
-          size={16}
-          className="absolute top-1/2 left-3.5 -translate-y-1/2 text-on-surface-variant"
-        />
-        <Input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={t("dash.searchPlaceholder", "Search by estate name, buyer, ID or enclave...")}
-          className="h-10 rounded-xl border-outline-variant/40 bg-surface-container-low pr-4 pl-9 text-xs"
-        />
-      </div>
+  const handleResetFilters = () => {
+    setSearchQuery("")
+    setPropertyFilterStatus("All")
+    setPropertyFilterCategory("All")
+    setOfferFilterStatus("All")
+    triggerToast("Management filters reset to default")
+  }
 
-      <div className="flex items-center gap-2">
-        {TOOLBAR_BUTTONS.map(({ id, key, label, Icon }) => (
+  const handleExportLedger = () => {
+    triggerToast("Compiling encrypted audit ledger export...")
+  }
+
+  return (
+    <Card className="border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-sm shadow-xs">
+      <CardContent className="flex flex-col justify-between gap-3 p-3.5 sm:flex-row sm:items-center">
+        {/* Search Input with Modern Icon & Kbd Badge */}
+        <div className="relative flex-1 max-w-lg">
+          <IconSearch
+            size={16}
+            className="absolute top-1/2 left-3 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+          />
+          <Input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("dash.searchPlaceholder", "Search estates, buyers, LOI identifiers, or enclaves...")}
+            className="h-9.5 rounded-xl border-outline-variant/40 bg-surface-container-low/70 pr-16 pl-9 text-xs transition-colors focus:border-secondary focus:bg-surface-container-lowest"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-1 text-on-surface-variant hover:text-on-surface"
+            >
+              <IconX size={13} />
+            </button>
+          ) : (
+            <kbd className="absolute top-1/2 right-3 -translate-y-1/2 hidden select-none rounded border border-outline-variant/40 bg-surface-container px-1.5 py-0.5 text-[10px] font-mono text-on-surface-variant sm:inline-block">
+              ⌘K
+            </kbd>
+          )}
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-2">
           <Button
-            key={id}
             variant="outline"
-            onClick={
-              id === "reset"
-                ? () => {
-                    setSearchQuery("")
-                    setPropertyFilterStatus("All")
-                    setPropertyFilterCategory("All")
-                    setOfferFilterStatus("All")
-                    triggerToast("Management filters reset")
-                  }
-                : () =>
-                    triggerToast("Generating CSV management export ledger...")
-            }
-            className="h-10 rounded-xl border-outline-variant/40 px-3.5 text-xs font-bold hover:bg-surface-container-high/40"
+            size="sm"
+            onClick={handleResetFilters}
+            className="h-9.5 rounded-xl border-outline-variant/40 px-3 text-xs font-semibold hover:bg-surface-container"
           >
-            <Icon size={15} />
-            <span className="hidden sm:inline">{t(key, label)}</span>
+            <IconRefresh size={14} className="text-on-surface-variant" />
+            <span className="hidden sm:inline">{t("dash.reset", "Reset Filters")}</span>
           </Button>
-        ))}
-      </div>
-    </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportLedger}
+            className="h-9.5 rounded-xl border-outline-variant/40 px-3 text-xs font-semibold hover:bg-surface-container"
+          >
+            <IconDownload size={14} className="text-secondary" />
+            <span>{t("dash.exportLedger", "Export Ledger")}</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
